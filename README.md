@@ -191,6 +191,22 @@ Continuous deployment is configured via **GitHub Actions**:
 
 ---
 
+## Screenshots
+
+### Desktop
+
+| Light mode | Dark mode |
+| :---: | :---: |
+| ![Desktop Light Mode](./screenshots/desktop-view-lightmode.png) | ![Desktop Dark Mode](./screenshots/desktop-view-darkmode.png) |
+
+### Mobile
+
+| Light mode | Dark mode |
+| :---: | :---: |
+| ![Mobile Light Mode](./screenshots/mobile-view-lightmode.png) | ![Mobile Dark Mode](./screenshots/mobile-view-darkmode.png) |
+
+---
+
 ## License
 
 This repository does not currently specify an open-source license. All rights reserved.
