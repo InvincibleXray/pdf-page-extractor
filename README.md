@@ -6,75 +6,78 @@ A privacy-focused, browser-based PDF utility that allows users to extract page r
 
 👉 **[https://invinciblexray.github.io/pdf-page-extractor/](https://invinciblexray.github.io/pdf-page-extractor/)**
 
+- **Tech Stack**: Astro, TypeScript, Tailwind CSS, pdf-lib, GitHub Pages, GitHub Actions
+- **Core Differentiator**: 100% Client-side processing — your PDF is loaded directly into browser memory and is never uploaded to a remote server.
+
 ---
 
 ## Why I Built This
 
-I created this project to solve a recurring personal challenge: studying from an Electronics and Communication Engineering (ECE) "organizer" PDF containing over 800 pages covering multiple semester subjects in a single document. Extracting a specific subject range using existing online tools was cumbersome, and existing free services often imposed daily file limits or intrusive advertisements.
+I created this project to solve a recurring personal challenge: studying from an Electronics and Communication Engineering (ECE) "organizer" PDF containing over 800 pages covering multiple semester subjects in a single document. Extracting a specific subject range using existing online tools was inconvenient, as free web tools often imposed daily limits, forced file compression, or required cumbersome upload steps.
 
-A secondary concern was privacy. When extracting pages from personal or confidential documents, uploading files to remote third-party servers created an unavoidable trust gap. Even when web services claim that uploaded documents are deleted immediately after processing, users cannot independently verify or audit remote server storage or data retention policies.
+A secondary concern was privacy. When extracting pages from personal or confidential documents, uploading files to third-party servers creates an unavoidable trust gap. Even when web services state that uploaded files are deleted after processing, users cannot independently verify or audit remote server storage or data retention policies.
 
-To eliminate both friction and privacy risks, I designed and built **PDF Page Extractor** to handle parsing, page selection, document construction, and file downloading entirely inside the user's browser memory.
+To eliminate both inconvenience and privacy risks, I designed and built **PDF Page Extractor** to handle parsing, page selection, document construction, and file downloading entirely inside the user's browser memory.
 
 ---
 
 ## What It Does
 
-PDF Page Extractor provides a clean single-page web interface for extracting specific pages from any standard PDF file. The application reads the document structure locally, lets the user define exact page selections, customizes the output filename, and instantly generates a new compiled PDF for download—all without transmitting a single byte of document data over the network.
+PDF Page Extractor provides a single-page web application for extracting specific pages from standard PDF documents. The application reads the document structure locally, lets the user define exact page selections, customizes the output filename, and generates a new compiled PDF for direct download—without transmitting document data over the network.
 
 ---
 
 ## Features
 
-- **100% In-Browser Execution**: All document processing occurs locally using `pdf-lib` and Web APIs.
+- **Client-Side Execution**: All document processing occurs locally using `pdf-lib` and Web APIs.
 - **Dual Extraction Modes**:
   - **Page Range Mode**: Select continuous ranges (`Start page` → `End page`) with built-in step controls.
   - **Individual Pages & Mixed Range Mode**: Select comma-separated pages or range tokens (e.g., `1, 3, 7-10, 15`).
 - **Input Parsing & Validation**: Automatically expands range tokens, deduplicates overlapping page selections, sorts entries in ascending order, and validates against total PDF page counts.
 - **Custom Output Filename**: Pre-populates a clean output filename (`[Original Name] - Extracted`), auto-appends `.pdf` safely, and sanitizes illegal OS filesystem characters (`\ / : * ? " < > |`).
-- **Lossless Quality Preservation**: Copies original vector layouts, fonts, annotations, and embedded objects without rasterizing pages to images.
+- **Quality Preservation**: Copies original vector layouts, fonts, annotations, and embedded objects directly without rasterizing pages to images.
 - **Dark / Light Theme**: Full theme toggle with system preference detection and FOUT (Flash of Unstyled Theme) prevention.
-- **Responsive Layout**: Designed for seamless usability across desktop, tablet, and mobile devices.
+- **Responsive Layout**: Designed for mobile, tablet, and desktop viewports.
 
 ---
 
 ## Privacy-First Architecture
 
-The application is structured to execute all operations inside the browser's client JavaScript engine:
+The application executes all extraction operations inside the client browser environment:
 
 ```
 [ User PDF File ]
        │
        ▼
-[ Web Browser Memory (ArrayBuffer) ]
+[ Browser Memory (ArrayBuffer) ]
        │
        ▼
 [ pdf-lib Engine (copyPages) ]
        │
        ▼
-[ New PDF Blob (application/pdf) ]
+[ Extracted PDF Blob (application/pdf) ]
        │
        ▼
-[ Direct File Download (URL.createObjectURL) ]
+[ Direct Download (URL.createObjectURL) ]
 ```
 
-### Privacy Guarantees
-- **Zero Server Uploads**: The application contains no backend API endpoints, database connections, or file-upload handlers.
-- **Zero Analytics / Tracking Data Footprint**: No document content, filenames, page numbers, or metadata leave the user's device.
-- **Ephemeral Memory Lifecycle**: Source PDF bytes exist only in browser DOM memory during active interaction and are garbage-collected upon closing or refreshing the tab.
+### Technical Privacy Model
+- **No File Uploads**: The application contains no backend upload endpoints, server storage, or external extraction APIs.
+- **No Content Analytics**: Document content, filenames, page numbers, and metadata remain strictly on the client device.
+- **In-Memory Lifecycle**: Source PDF bytes exist only in browser DOM memory during active interaction and are released when the user closes or refreshes the page.
 
 ---
 
 ## Tech Stack
 
-| Component | Technology | Description |
+| Layer | Technology | Role |
 | :--- | :--- | :--- |
-| **Framework** | [Astro v4.16](https://astro.build/) | Static site generation with minimal client JavaScript payload |
-| **Language** | [TypeScript v5.7](https://www.typescriptlang.org/) | Strict type checking and robust interface definitions |
-| **Styling** | [Tailwind CSS v3.4](https://tailwindcss.com/) | Responsive design system with dark mode class strategies |
-| **PDF Processing** | [pdf-lib v1.17](https://pdf-lib.js.org/) | Pure TypeScript/JavaScript client-side PDF document manipulation |
-| **Automated Testing**| Puppeteer Core | Headless browser integration testing and visual QA |
-| **Hosting & CI/CD** | GitHub Pages & Actions | Automated building, type-checking, and static site deployment |
+| **Framework** | [Astro](https://astro.build/) | Static site generation with minimal client JS overhead |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) | Type-safe state management and validation logic |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | Responsive UI components and dark mode styling |
+| **PDF Processing** | [pdf-lib](https://pdf-lib.js.org/) | Browser-compatible PDF document loading, copying, and generation |
+| **Testing** | Puppeteer Core | Headless browser integration testing and visual QA |
+| **Deployment** | GitHub Pages & Actions | Automated build, type-check, and continuous deployment |
 
 ---
 
@@ -84,9 +87,9 @@ The application is structured to execute all operations inside the browser's cli
 2. **Document Parsing**: `PDFDocument.load()` parses the cross-reference table and catalog structure to determine the total page count.
 3. **Selection Parsing**:
    - In *Range Mode*, an array of indices is generated from the start and end values.
-   - In *Individual Mode*, `parseIndividualPages()` splits comma-separated strings, expands range tokens (`7-10` → `7, 8, 9, 10`), filters out duplicates using `Set`, sorts the indices, and validates bounds against `1..totalPages`.
-4. **Page Copying**: `PDFDocument.create()` initializes a new document, and `copyPages()` transfers the underlying PDF page dictionaries into the target document.
-5. **Download Trigger**: The target document is serialized to a `Uint8Array`, converted to a `Blob`, and saved via a temporary `<a>` element using `URL.createObjectURL()`.
+   - In *Individual Mode*, `parseIndividualPages()` splits comma-separated strings, expands range tokens (`7-10` → `7, 8, 9, 10`), deduplicates entries using `Set`, sorts the indices, and validates bounds against `1..totalPages`.
+4. **Page Copying**: `PDFDocument.create()` initializes a new document, and `copyPages()` transfers the original PDF page dictionaries into the target document.
+5. **Download Trigger**: The target document is saved as a `Uint8Array`, converted to a `Blob`, and triggered for download via `URL.createObjectURL()`.
 
 ---
 
@@ -100,23 +103,23 @@ pdf-page-extractor/
 ├── public/
 │   └── favicon.svg             # Application favicon
 ├── scripts/
-│   └── visual-qa.js            # Automated Puppeteer QA script
+│   └── visual-qa.js            # Puppeteer browser QA test script
 ├── src/
 │   ├── components/
-│   │   ├── FaqSection.astro    # FAQ accordion with JSON-LD schema
-│   │   ├── FeatureList.astro   # Feature badges and hero copy
-│   │   ├── Header.astro        # Navigation bar & theme switch
-│   │   └── PdfExtractorCard.astro # Core interactive card component
+│   │   ├── FaqSection.astro    # FAQ section with JSON-LD schema
+│   │   ├── FeatureList.astro   # Hero messaging and feature list
+│   │   ├── Header.astro        # Header bar & theme switch toggle
+│   │   └── PdfExtractorCard.astro # Interactive extraction card component
 │   ├── layouts/
-│   │   └── Layout.astro        # Global layout, SEO tags, & dark theme script
+│   │   └── Layout.astro        # HTML shell, metadata, & dark theme script
 │   ├── pages/
-│   │   └── index.astro         # Main landing page route
+│   │   └── index.astro         # Main application page
 │   ├── styles/
-│   │   └── global.css          # Custom styling utilities and fonts
+│   │   └── global.css          # Custom border utilities and styling overrides
 │   └── utils/
 │       └── pdfExtractor.ts     # Client PDF extraction logic & parser
-├── astro.config.mjs            # Astro build configuration
-├── tailwind.config.mjs         # Tailwind theme extension & color tokens
+├── astro.config.mjs            # Astro build & GitHub Pages base config
+├── tailwind.config.mjs         # Tailwind theme configuration
 ├── tsconfig.json               # TypeScript configuration
 └── package.json                # Project dependencies & npm scripts
 ```
@@ -126,10 +129,10 @@ pdf-page-extractor/
 ## Local Development
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- Node.js (v18 or higher recommended)
 - `npm` package manager
 
-### Steps
+### Running Locally
 1. Clone the repository:
    ```bash
    git clone https://github.com/InvincibleXray/pdf-page-extractor.git
@@ -151,13 +154,13 @@ pdf-page-extractor/
 
 ## Production Build
 
-To run type checks and build the production static bundle:
+To run type checks and build the static production bundle:
 
 ```bash
-# Type check TypeScript and Astro components
+# Run TypeScript & Astro component diagnostics
 npm run check
 
-# Compile static bundle into dist/
+# Build static output to dist/
 npm run build
 ```
 
@@ -165,47 +168,26 @@ npm run build
 
 ## Deployment
 
-The project is configured for continuous deployment to **GitHub Pages** using **GitHub Actions**.
+Continuous deployment is configured via **GitHub Actions**:
 
 - **Workflow File**: `.github/workflows/deploy.yml`
-- **Trigger**: Every push to the `main` branch automatically runs `npm run check`, compiles static output via `npm run build`, and deploys the `./dist` artifact to GitHub Pages.
+- **Trigger**: Pushes to `main` run `npm run check`, build the static site via `npm run build`, and deploy `./dist` to GitHub Pages.
 
 ---
 
-## Privacy Considerations
+## Technical Considerations & Limitations
 
-- **Client Execution**: Because processing occurs on the client machine, extraction performance is governed by the user's local CPU and available browser RAM.
-- **No Third-Party Analytics**: The site operates without analytics scripts or external tracking pixels.
-- **Security Boundaries**: Files are constrained by browser sandbox protections. No data is written to disk except for the user-initiated download of the extracted file.
-
----
-
-## Known Limitations
-
-- **Encrypted / Password-Protected PDFs**: PDFs encrypted with an owner/user password cannot be parsed without prior decryption.
-- **Browser Memory Boundaries**: Extremely large PDF files (e.g., several gigabytes) may exceed browser tab memory allocations (`ArrayBuffer` limits).
-- **Corrupted PDF Structures**: PDFs with invalid cross-reference tables or missing EOF markers will produce an error prompt.
+- **Browser Memory Allocation**: PDF extraction performance depends on local machine memory and CPU. Very large files (e.g. multi-gigabyte documents) may hit browser tab memory limits.
+- **Password-Protected / Encrypted PDFs**: Password-protected PDFs must be decrypted prior to uploading, as client-side decryption without a user-supplied password is not supported.
+- **Corrupted PDF Structure**: Documents with broken cross-reference tables or incomplete EOF markers will display an inline error state.
 
 ---
 
-## Future Improvements
+## Realistic Future Enhancements
 
-- [ ] **Thumbnail Previews**: Generate canvas-rendered page previews for visual page selection.
-- [ ] **Drag & Drop Page Reordering**: Allow custom page re-arrangements prior to extraction.
-- [ ] **Multi-PDF Merge**: Support merging selected pages from multiple uploaded PDF files.
-- [ ] **PDF Compression**: Basic streams optimization to reduce output file size.
-
----
-
-## Screenshots
-
-| Desktop Light Mode | Desktop Dark Mode |
-| :---: | :---: |
-| ![Desktop Light Mode](qa_screenshots/01_desktop_light.png) | ![Desktop Dark Mode](qa_screenshots/02_desktop_dark.png) |
-
-| Individual Pages Mode | Range Extraction Mode |
-| :---: | :---: |
-| ![Individual Pages Mode](qa_screenshots/08_individual_list.png) | ![Range Extraction Mode](qa_screenshots/06_file_selected_light.png) |
+- [ ] **Canvas Page Thumbnails**: Render visual page previews for interactive thumbnail selection.
+- [ ] **Multi-Document Page Merging**: Support selecting and combining pages from multiple PDF files.
+- [ ] **Drag & Drop Page Reordering**: Allow custom page sequence arrangements prior to export.
 
 ---
 
