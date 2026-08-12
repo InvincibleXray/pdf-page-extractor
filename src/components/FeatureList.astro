@@ -1,0 +1,66 @@
+---
+const features = [
+  {
+    title: "100% Client-Side Extraction",
+    description: "Processing happens locally inside your browser. No files are ever uploaded to any server.",
+    icon: `<svg class="w-5 h-5 text-slate-700 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 15 11"/></svg>`
+  },
+  {
+    title: "Fast & Free",
+    description: "Extract your page range instantly with zero fees, no accounts, and no daily usage limits.",
+    icon: `<svg class="w-5 h-5 text-slate-700 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
+  },
+  {
+    title: "Works on All Devices",
+    description: "Extract pages seamlessly on desktop, tablet, or mobile browsers with no software installation.",
+    icon: `<svg class="w-5 h-5 text-slate-700 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
+  },
+  {
+    title: "Zero Data Footprint",
+    description: "Files are never stored. Your documents stay strictly inside your device memory.",
+    icon: `<svg class="w-5 h-5 text-slate-700 dark:text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`
+  }
+];
+---
+
+<div class="flex flex-col justify-between py-2">
+  <div>
+    <!-- Privacy Positioning Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 mb-5">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+        Private PDF Processing — No Upload Required
+      </span>
+    </div>
+
+    <!-- Main H1 Heading -->
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.12] text-slate-900 dark:text-white max-w-md">
+      Extract Pages <br />
+      <span class="text-brand-600 dark:text-brand-500">from PDF</span>
+    </h1>
+
+    <!-- Main Description -->
+    <p class="mt-4 text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300 leading-relaxed max-w-md">
+      Extract any page range from a PDF directly in your browser. Your PDF never leaves your device.
+    </p>
+
+    <!-- Feature List -->
+    <div class="mt-8 space-y-5 sm:space-y-6 max-w-md">
+      {features.map((feature) => (
+        <div class="flex items-start gap-4 group">
+          <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+            <Fragment set:html={feature.icon} />
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+              {feature.title}
+            </h2>
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              {feature.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

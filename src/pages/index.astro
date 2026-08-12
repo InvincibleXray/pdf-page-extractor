@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import FeatureList from '../components/FeatureList.astro';
+import PdfExtractorCard from '../components/PdfExtractorCard.astro';
+import FaqSection from '../components/FaqSection.astro';
+---
+
+<Layout title="Extract Pages from PDF Online — Private & No Upload" description="Extract any page range from a PDF directly in your browser. Your PDF never leaves your device.">
+  <Header />
+
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 lg:py-16 flex-1 flex flex-col justify-center">
+    <!-- Hero Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <!-- Left Column: Branding, Privacy Position & Features -->
+      <div class="lg:col-span-5">
+        <FeatureList />
+      </div>
+
+      <!-- Right Column: Interactive PDF Extractor Tool Card -->
+      <div class="lg:col-span-7 flex justify-center lg:justify-end w-full">
+        <PdfExtractorCard />
+      </div>
+    </div>
+
+    <!-- Technical SEO FAQ Section -->
+    <FaqSection />
+  </main>
+</Layout>

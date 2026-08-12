@@ -1,0 +1,23 @@
+# Build and dependencies
+node_modules/
+dist/
+.astro/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Temporary test outputs, screenshots & local PDFs
+qa_screenshots/
+*.pdf
+*.log
+
+# Operating system & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

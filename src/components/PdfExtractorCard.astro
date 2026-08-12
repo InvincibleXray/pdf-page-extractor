@@ -1,0 +1,580 @@
+---
+---
+
+<div class="bg-white dark:bg-[#141a24] border border-slate-200/80 dark:border-[#212b3c] rounded-3xl p-6 sm:p-8 shadow-card-light dark:shadow-card-dark transition-all duration-200 w-full max-w-xl mx-auto">
+  <!-- Step 1: Upload PDF File -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2.5 mb-4">
+      <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold flex items-center justify-center border border-slate-200 dark:border-slate-700">
+        1
+      </span>
+      <h2 class="text-sm font-bold text-slate-900 dark:text-white">Upload PDF File</h2>
+    </div>
+
+    <!-- Drag & Drop Zone -->
+    <div
+      id="drop-zone"
+      tabindex="0"
+      role="button"
+      aria-label="Upload PDF file"
+      class="custom-dashed-border group cursor-pointer p-8 sm:p-10 flex flex-col items-center justify-center text-center transition-all duration-200 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#141a24]"
+    >
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="hidden" />
+      
+      <!-- Cloud Upload Icon -->
+      <div class="w-12 h-12 mb-3 text-slate-700 dark:text-slate-200 transition-transform group-hover:-translate-y-0.5 duration-200">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+          <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+          <path d="M12 12v9" />
+          <path d="m16 16-4-4-4 4" />
+        </svg>
+      </div>
+
+      <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+        Drop your PDF file here
+      </p>
+      <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+        Supports .pdf documents • Click to browse
+      </p>
+    </div>
+
+    <!-- Dynamic File Banner (Selected State) -->
+    <div
+      id="file-banner"
+      class="hidden mt-3 p-3.5 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-between transition-all duration-200"
+    >
+      <div class="flex items-center gap-3 min-w-0 pr-2">
+        <!-- PDF Badge Icon -->
+        <div class="w-7 h-7 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p id="filename-display" class="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
+            filename.pdf
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span id="page-count-status" class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-brand-400">
+          -- pages
+        </span>
+        <button
+          id="remove-file-btn"
+          type="button"
+          aria-label="Remove selected PDF"
+          class="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700/60 transition-colors"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Select Pages (Dual Extraction Mode Switch) -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between gap-2 mb-4">
+      <div class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold flex items-center justify-center border border-slate-200 dark:border-slate-700">
+          2
+        </span>
+        <h2 class="text-sm font-bold text-slate-900 dark:text-white">Select Pages</h2>
+      </div>
+
+      <!-- Segmented Control Mode Switch -->
+      <div class="p-1 rounded-xl bg-slate-100 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] inline-flex items-center gap-1">
+        <button
+          type="button"
+          id="mode-range-btn"
+          class="px-3 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm"
+        >
+          Page Range
+        </button>
+        <button
+          type="button"
+          id="mode-individual-btn"
+          class="px-3 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+        >
+          Individual Pages
+        </button>
+      </div>
+    </div>
+
+    <!-- Mode A: Page Range Inputs Row -->
+    <div id="mode-range-container" class="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-3">
+      <!-- Start Page -->
+      <div>
+        <label for="start-page" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">
+          Start page
+        </label>
+        <div class="relative">
+          <input
+            type="number"
+            id="start-page"
+            min="1"
+            placeholder="e.g. 1"
+            class="w-full h-11 px-3.5 pr-8 rounded-xl border border-slate-200 dark:border-[#242e42] bg-white dark:bg-[#0f141f] text-slate-900 dark:text-white text-sm font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+          />
+          <div class="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-auto">
+            <button type="button" id="start-up" class="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+            <button type="button" id="start-down" class="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow Indicator -->
+      <div class="pb-1.5 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-[#17202f] border border-slate-200/50 dark:border-[#242e42] flex items-center justify-center text-slate-500 dark:text-slate-400">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- End Page -->
+      <div>
+        <label for="end-page" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">
+          End page
+        </label>
+        <div class="relative">
+          <input
+            type="number"
+            id="end-page"
+            min="1"
+            placeholder="e.g. 10"
+            class="w-full h-11 px-3.5 pr-8 rounded-xl border border-slate-200 dark:border-[#242e42] bg-white dark:bg-[#0f141f] text-slate-900 dark:text-white text-sm font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+          />
+          <div class="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-0.5 pointer-events-auto">
+            <button type="button" id="end-up" class="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+            <button type="button" id="end-down" class="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-white">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode B: Individual Pages Input -->
+    <div id="mode-individual-container" class="hidden space-y-1.5">
+      <label for="individual-pages-input" class="block text-xs font-medium text-slate-500 dark:text-slate-400">
+        Page Numbers or Ranges
+      </label>
+      <input
+        type="text"
+        id="individual-pages-input"
+        placeholder="e.g. 1, 3, 7-10, 15"
+        class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-[#242e42] bg-white dark:bg-[#0f141f] text-slate-900 dark:text-white text-sm font-semibold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+      />
+      <p class="text-[11px] text-slate-400 dark:text-slate-500">
+        Separate page numbers with commas (e.g. <code class="font-mono text-brand-600 dark:text-brand-400">2, 5, 8-12, 19</code>).
+      </p>
+    </div>
+  </div>
+
+  <!-- Step 3: Output Filename -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2.5 mb-3">
+      <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold flex items-center justify-center border border-slate-200 dark:border-slate-700">
+        3
+      </span>
+      <h2 class="text-sm font-bold text-slate-900 dark:text-white">Output Filename</h2>
+    </div>
+
+    <!-- Output Filename Input Field -->
+    <div class="relative flex items-center">
+      <input
+        type="text"
+        id="output-filename"
+        placeholder="e.g. My Document - Extracted"
+        maxlength="150"
+        class="w-full h-11 px-3.5 pr-14 rounded-xl border border-slate-200 dark:border-[#242e42] bg-white dark:bg-[#0f141f] text-slate-900 dark:text-white text-sm font-semibold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+      />
+      <span class="absolute right-3 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#1c2638] text-slate-500 dark:text-slate-400 text-xs font-bold pointer-events-none select-none">
+        .pdf
+      </span>
+    </div>
+
+    <!-- Selected Page Count Pill / Range Validation Bar -->
+    <div
+      id="range-pill"
+      class="mt-4 p-3 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-center gap-2 transition-all duration-200 text-center"
+    >
+      <svg class="w-4 h-4 text-slate-700 dark:text-slate-300 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <span id="range-status-text" class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+        Upload a PDF file to select pages
+      </span>
+    </div>
+  </div>
+
+  <!-- Extract & Download Button -->
+  <button
+    id="extract-btn"
+    type="button"
+    disabled
+    class="w-full h-12 rounded-xl bg-slate-900 dark:bg-[#232d3f] hover:bg-slate-800 hover:dark:bg-[#2e3b52] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-[#141a24]"
+  >
+    <svg id="btn-icon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    <span id="btn-label">Extract & Download PDF</span>
+  </button>
+</div>
+
+<script>
+  import { loadPdfDocument, extractAndDownloadPdfPages, getDefaultOutputFilename, parseIndividualPages } from '../utils/pdfExtractor';
+  import type { PDFDocument } from 'pdf-lib';
+
+  // DOM Elements
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileBanner = document.getElementById('file-banner');
+  const filenameDisplay = document.getElementById('filename-display');
+  const pageCountStatus = document.getElementById('page-count-status');
+  const removeFileBtn = document.getElementById('remove-file-btn');
+
+  // Mode Switch Buttons & Containers
+  const modeRangeBtn = document.getElementById('mode-range-btn');
+  const modeIndividualBtn = document.getElementById('mode-individual-btn');
+  const modeRangeContainer = document.getElementById('mode-range-container');
+  const modeIndividualContainer = document.getElementById('mode-individual-container');
+
+  // Inputs
+  const startPageInput = document.getElementById('start-page') as HTMLInputElement;
+  const endPageInput = document.getElementById('end-page') as HTMLInputElement;
+  const individualPagesInput = document.getElementById('individual-pages-input') as HTMLInputElement;
+  const outputFilenameInput = document.getElementById('output-filename') as HTMLInputElement;
+
+  // Steppers
+  const startUp = document.getElementById('start-up');
+  const startDown = document.getElementById('start-down');
+  const endUp = document.getElementById('end-up');
+  const endDown = document.getElementById('end-down');
+
+  // Pill & Button
+  const rangePill = document.getElementById('range-pill');
+  const rangeStatusText = document.getElementById('range-status-text');
+  const extractBtn = document.getElementById('extract-btn') as HTMLButtonElement;
+  const btnLabel = document.getElementById('btn-label');
+  const btnIcon = document.getElementById('btn-icon');
+
+  // Application State
+  let extractionMode: 'range' | 'individual' = 'range';
+  let currentFile: File | null = null;
+  let activePdfDoc: PDFDocument | null = null;
+  let totalPdfPages: number | null = null;
+  let parsedPagesToExtract: number[] = [];
+  let isProcessing = false;
+
+  // Mode Toggle Handler
+  if (modeRangeBtn && modeIndividualBtn && modeRangeContainer && modeIndividualContainer) {
+    modeRangeBtn.addEventListener('click', () => {
+      extractionMode = 'range';
+      modeRangeBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm';
+      modeIndividualBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      modeRangeContainer.classList.remove('hidden');
+      modeIndividualContainer.classList.add('hidden');
+      validateState();
+    });
+
+    modeIndividualBtn.addEventListener('click', () => {
+      extractionMode = 'individual';
+      modeIndividualBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm';
+      modeRangeBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      modeIndividualContainer.classList.remove('hidden');
+      modeRangeContainer.classList.add('hidden');
+
+      // Populate default individual pages if empty
+      if (!individualPagesInput.value && totalPdfPages) {
+        individualPagesInput.value = totalPdfPages >= 5 ? '1, 3, 5' : '1';
+      }
+
+      validateState();
+    });
+  }
+
+  // Handle File Upload and Client PDF Loading
+  const handleFile = async (file: File) => {
+    if (isProcessing) return;
+
+    if (!file || file.type !== 'application/pdf') {
+      showErrorState('Please upload a valid PDF document (.pdf)');
+      return;
+    }
+
+    currentFile = file;
+    if (filenameDisplay) filenameDisplay.textContent = file.name;
+    if (fileBanner) fileBanner.classList.remove('hidden');
+
+    if (outputFilenameInput && (!outputFilenameInput.value || outputFilenameInput.value.includes('- Extracted'))) {
+      outputFilenameInput.value = getDefaultOutputFilename(file.name);
+    }
+
+    if (pageCountStatus) pageCountStatus.textContent = 'Reading pages...';
+    
+    try {
+      const result = await loadPdfDocument(file);
+      activePdfDoc = result.pdfDoc;
+      totalPdfPages = result.pageCount;
+
+      if (pageCountStatus) pageCountStatus.textContent = `${totalPdfPages} ${totalPdfPages === 1 ? 'page' : 'pages'}`;
+
+      if (!startPageInput.value) startPageInput.value = '1';
+      if (!endPageInput.value && totalPdfPages) {
+        endPageInput.value = Math.min(10, totalPdfPages).toString();
+      }
+      if (!individualPagesInput.value && totalPdfPages) {
+        individualPagesInput.value = totalPdfPages >= 5 ? '1, 3, 5' : '1';
+      }
+
+      validateState();
+    } catch (err: any) {
+      showErrorState(err.message || 'Failed to read PDF document.');
+    }
+  };
+
+  const showErrorState = (msg: string) => {
+    activePdfDoc = null;
+    totalPdfPages = null;
+    parsedPagesToExtract = [];
+    if (pageCountStatus) pageCountStatus.textContent = 'Error';
+    if (rangeStatusText) rangeStatusText.textContent = `⚠️ ${msg}`;
+    if (rangePill) {
+      rangePill.className = 'mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-center';
+    }
+    if (extractBtn) extractBtn.disabled = true;
+  };
+
+  const removeFile = () => {
+    if (isProcessing) return;
+    currentFile = null;
+    activePdfDoc = null;
+    totalPdfPages = null;
+    parsedPagesToExtract = [];
+    if (fileInput) fileInput.value = '';
+    if (outputFilenameInput) outputFilenameInput.value = '';
+    if (fileBanner) fileBanner.classList.add('hidden');
+    validateState();
+  };
+
+  // Event Listeners for Upload Zone
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0]) {
+        handleFile(target.files[0]);
+      }
+    });
+
+    // Drag and Drop
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('drag-active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('drag-active');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files[0]) {
+        handleFile(dt.files[0]);
+      }
+    });
+  }
+
+  if (removeFileBtn) {
+    removeFileBtn.addEventListener('click', removeFile);
+  }
+
+  // Range Stepper Controls
+  startUp?.addEventListener('click', () => {
+    const val = parseInt(startPageInput.value || '0', 10) + 1;
+    startPageInput.value = val.toString();
+    validateState();
+  });
+  startDown?.addEventListener('click', () => {
+    const val = Math.max(1, parseInt(startPageInput.value || '1', 10) - 1);
+    startPageInput.value = val.toString();
+    validateState();
+  });
+
+  endUp?.addEventListener('click', () => {
+    const val = parseInt(endPageInput.value || '0', 10) + 1;
+    endPageInput.value = val.toString();
+    validateState();
+  });
+  endDown?.addEventListener('click', () => {
+    const val = Math.max(1, parseInt(endPageInput.value || '1', 10) - 1);
+    endPageInput.value = val.toString();
+    validateState();
+  });
+
+  // Input Event Listeners
+  startPageInput?.addEventListener('input', validateState);
+  endPageInput?.addEventListener('input', validateState);
+  individualPagesInput?.addEventListener('input', validateState);
+  outputFilenameInput?.addEventListener('input', validateState);
+
+  // Validation Logic
+  function validateState() {
+    if (isProcessing) return;
+
+    const customFilename = outputFilenameInput?.value.trim() || '';
+    parsedPagesToExtract = [];
+    let isValid = false;
+
+    if (!currentFile || !activePdfDoc || !totalPdfPages) {
+      if (rangeStatusText) rangeStatusText.textContent = 'Upload a PDF file to select pages';
+      if (rangePill) {
+        rangePill.className = 'mt-4 p-3 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 font-semibold text-center';
+      }
+    } else if (!customFilename) {
+      if (rangeStatusText) rangeStatusText.textContent = 'Please enter an output filename';
+      if (rangePill) {
+        rangePill.className = 'mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-center';
+      }
+    } else if (extractionMode === 'range') {
+      const startVal = parseInt(startPageInput.value, 10);
+      const endVal = parseInt(endPageInput.value, 10);
+
+      if (isNaN(startVal) || isNaN(endVal)) {
+        if (rangeStatusText) rangeStatusText.textContent = 'Enter starting and ending page numbers';
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 font-semibold text-center';
+        }
+      } else if (startVal < 1) {
+        if (rangeStatusText) rangeStatusText.textContent = 'Start page must be at least 1';
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-center';
+        }
+      } else if (startVal > endVal) {
+        if (rangeStatusText) rangeStatusText.textContent = 'Start page cannot exceed end page';
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center gap-2 text-rose-600 dark:text-rose-400 font-semibold text-center';
+        }
+      } else if (startVal > totalPdfPages || endVal > totalPdfPages) {
+        if (rangeStatusText) rangeStatusText.textContent = `Page number exceeds PDF length (${totalPdfPages} max)`;
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-center';
+        }
+      } else {
+        const pages: number[] = [];
+        for (let p = startVal; p <= endVal; p++) pages.push(p);
+        parsedPagesToExtract = pages;
+
+        const count = pages.length;
+        if (rangeStatusText) {
+          rangeStatusText.textContent = `${count} ${count === 1 ? 'page' : 'pages'} selected (Pages ${startVal} to ${endVal})`;
+        }
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-center gap-2 text-slate-900 dark:text-white font-bold text-center';
+        }
+        isValid = true;
+      }
+    } else if (extractionMode === 'individual') {
+      const rawInput = individualPagesInput?.value || '';
+      const parseResult = parseIndividualPages(rawInput, totalPdfPages);
+
+      if (parseResult.error) {
+        if (rangeStatusText) rangeStatusText.textContent = `⚠️ ${parseResult.error}`;
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-center';
+        }
+      } else {
+        parsedPagesToExtract = parseResult.validPages;
+        const count = parsedPagesToExtract.length;
+        const formattedPreview = count <= 8 ? parsedPagesToExtract.join(', ') : `${parsedPagesToExtract.slice(0, 6).join(', ')}... (${count} total)`;
+
+        if (rangeStatusText) {
+          rangeStatusText.textContent = `${count} ${count === 1 ? 'page' : 'pages'} selected (Pages: ${formattedPreview})`;
+        }
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-slate-100/90 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] flex items-center justify-center gap-2 text-slate-900 dark:text-white font-bold text-center';
+        }
+        isValid = true;
+      }
+    }
+
+    if (extractBtn) {
+      extractBtn.disabled = !isValid;
+    }
+  }
+
+  // Extract & Download PDF Handler
+  if (extractBtn) {
+    extractBtn.addEventListener('click', async () => {
+      if (extractBtn.disabled || isProcessing || !activePdfDoc || !currentFile || parsedPagesToExtract.length === 0) return;
+
+      const customFilename = outputFilenameInput?.value.trim() || '';
+
+      // Set Loading UI state
+      isProcessing = true;
+      extractBtn.disabled = true;
+      if (btnLabel) btnLabel.textContent = 'Extracting Pages...';
+      if (btnIcon) {
+        btnIcon.innerHTML = `<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>`;
+        btnIcon.classList.add('animate-spin');
+      }
+
+      try {
+        // Execute client-side page extraction using pdf-lib with parsed page array
+        await extractAndDownloadPdfPages(activePdfDoc, parsedPagesToExtract, customFilename, currentFile.name);
+        
+        if (rangeStatusText) {
+          rangeStatusText.textContent = `✓ Successfully extracted ${parsedPagesToExtract.length} ${parsedPagesToExtract.length === 1 ? 'page' : 'pages'}!`;
+        }
+        if (rangePill) {
+          rangePill.className = 'mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 flex items-center justify-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold text-center';
+        }
+      } catch (err: any) {
+        showErrorState(err.message || 'Failed to extract PDF pages.');
+      } finally {
+        // Restore Button State
+        isProcessing = false;
+        if (btnLabel) btnLabel.textContent = 'Extract & Download PDF';
+        if (btnIcon) {
+          btnIcon.classList.remove('animate-spin');
+          btnIcon.innerHTML = `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
+        }
+        validateState();
+      }
+    });
+  }
+
+  // Initial state validation
+  validateState();
+</script>
