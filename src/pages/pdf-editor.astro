@@ -1,0 +1,1229 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import EditorUploadState from '../components/editor/EditorUploadState.astro';
+import EditorHeader from '../components/editor/EditorHeader.astro';
+import EditorToolbar from '../components/editor/EditorToolbar.astro';
+import EditorThumbnails from '../components/editor/EditorThumbnails.astro';
+import EditorViewport from '../components/editor/EditorViewport.astro';
+import EditorInspector from '../components/editor/EditorInspector.astro';
+import EditorBottomBar from '../components/editor/EditorBottomBar.astro';
+import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
+---
+
+<Layout
+  title="PDF Editor Online — Private, Local & In-Browser"
+  description="Annotate, add text, highlight, and redact PDF documents directly in your browser with zero server uploads."
+>
+  <!-- STATE 1: Landing / Upload State -->
+  <div id="editor-landing-view" class="w-full flex-1 flex flex-col justify-between">
+    <Header activeTool="editor" />
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-8 flex-1 flex flex-col justify-center">
+      <EditorUploadState />
+    </main>
+  </div>
+
+  <!-- STATE 2: Active Editor Workspace -->
+  <div id="editor-workspace-view" class="hidden fixed inset-0 flex flex-col bg-[#f8fafc] dark:bg-[#0c1017] z-50 overflow-hidden">
+    <!-- Top Header -->
+    <EditorHeader />
+
+    <!-- Floating Export Toast / Progress Indicator -->
+    <div
+      id="editor-export-toast"
+      class="fixed top-16 right-6 z-50 transform transition-all duration-300 translate-y-[-20px] opacity-0 pointer-events-none flex items-center gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-900/10 dark:shadow-black/50 text-slate-900 dark:text-white"
+      role="status"
+      aria-live="polite"
+    >
+      <div id="export-toast-spinner" class="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+      <svg id="export-toast-check" class="w-4 h-4 text-emerald-500 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <div class="flex flex-col">
+        <span id="export-toast-title" class="text-xs font-bold leading-tight">Exporting PDF...</span>
+        <span id="export-toast-desc" class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">Preparing document bytes</span>
+      </div>
+    </div>
+
+    <!-- Functional Tool Bar -->
+    <EditorToolbar />
+
+    <!-- Main Workspace 3-Column Layout -->
+    <div class="flex-1 flex overflow-hidden relative">
+      <!-- Left Sidebar: Pages & Thumbnails (Desktop) -->
+      <div id="desktop-thumbnails-wrapper" class="hidden md:flex h-full">
+        <EditorThumbnails />
+      </div>
+
+      <!-- Center: Viewport & Canvas -->
+      <main class="flex-1 relative flex flex-col h-full overflow-hidden">
+        <EditorViewport />
+        <!-- Floating Bottom Controls -->
+        <EditorBottomBar />
+      </main>
+
+      <!-- Right Sidebar: Contextual Inspector (Desktop) -->
+      <div id="desktop-inspector-wrapper" class="hidden md:flex h-full">
+        <EditorInspector />
+      </div>
+    </div>
+
+    <!-- Mobile Drawers & Bottom Sheets -->
+    <EditorMobileSheets />
+  </div>
+</Layout>
+
+<script>
+  import {
+    editorStore,
+    type EditorObject,
+    type TextEditorObject,
+    type ShapeEditorObject,
+    type AnnotationEditorObject,
+    type PrivacyEditorObject,
+    type PenEditorObject,
+    type ImageEditorObject,
+    type EditorTool,
+  } from '../utils/editorState';
+  import { loadPdfDocumentManager, type LoadedPdfDoc } from '../utils/pdfDocumentManager';
+  import { pdfRenderer } from '../utils/pdfRenderer';
+  import { interactionController } from '../utils/editorInteractionController';
+  import { pdfRectToScreenRect } from '../utils/coordinateMapper';
+  import { exportPdfDocument } from '../utils/pdfExportEngine';
+  import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+  import type { PageViewport } from 'pdfjs-dist';
+
+  // DOM Elements - State 1
+  const landingView = document.getElementById('editor-landing-view');
+  const workspaceView = document.getElementById('editor-workspace-view');
+  const fileInput = document.getElementById('editor-file-input') as HTMLInputElement | null;
+  const dropZone = document.getElementById('editor-drop-zone');
+  const sampleBtn = document.getElementById('editor-sample-btn');
+
+  // DOM Elements - State 2 Header & Tools
+  const backBtn = document.getElementById('editor-back-btn');
+  const newDocBtn = document.getElementById('editor-new-doc-btn');
+  const exportBtn = document.getElementById('editor-export-btn');
+  const docNameLabel = document.getElementById('editor-doc-name');
+  const docSizeLabel = document.getElementById('editor-doc-size');
+  const themeToggleBtn = document.getElementById('editor-theme-toggle-btn');
+  const themeKnob = document.getElementById('editor-theme-knob');
+
+  // Export Toast Elements
+  const exportToast = document.getElementById('editor-export-toast');
+  const exportToastSpinner = document.getElementById('export-toast-spinner');
+  const exportToastCheck = document.getElementById('export-toast-check');
+  const exportToastTitle = document.getElementById('export-toast-title');
+  const exportToastDesc = document.getElementById('export-toast-desc');
+
+  // Tool buttons
+  const toolButtons = document.querySelectorAll<HTMLButtonElement>('.editor-tool-btn');
+  const moreToolsBtn = document.getElementById('tool-more-btn');
+  const moreToolsMenu = document.getElementById('tool-more-menu');
+  const undoBtn = document.getElementById('tool-undo-btn') as HTMLButtonElement | null;
+  const redoBtn = document.getElementById('tool-redo-btn') as HTMLButtonElement | null;
+
+  // Viewport & Layers
+  const viewport = document.getElementById('editor-viewport');
+  const scaleContainer = document.getElementById('viewport-scale-container');
+  const pdfCard = document.getElementById('pdf-page-card');
+  const pdfCanvas = document.getElementById('pdf-canvas') as HTMLCanvasElement | null;
+  const overlayLayer = document.getElementById('editor-overlay-layer');
+  const selectionBox = document.getElementById('selection-bounding-box');
+
+  // Sidebars & Toggles
+  const desktopThumbnailsWrapper = document.getElementById('desktop-thumbnails-wrapper');
+  const desktopInspectorWrapper = document.getElementById('desktop-inspector-wrapper');
+  const toggleThumbnailsBtn = document.getElementById('toggle-thumbnails-btn');
+  const toggleInspectorBtn = document.getElementById('toggle-inspector-btn');
+  const closeInspectorBtn = document.getElementById('close-inspector-btn');
+  const thumbnailsContainer = document.getElementById('thumbnails-container');
+  const thumbnailPageCount = document.getElementById('thumbnail-page-count');
+
+  // Bottom Controls
+  const zoomOutBtn = document.getElementById('zoom-out-btn');
+  const zoomInBtn = document.getElementById('zoom-in-btn');
+  const zoomPercentBtn = document.getElementById('zoom-percent-btn');
+  const zoomPercentText = document.getElementById('zoom-percent-text');
+  const zoomFitPageBtn = document.getElementById('zoom-fit-page-btn');
+  const zoomFitWidthBtn = document.getElementById('zoom-fit-width-btn');
+  const pagePrevBtn = document.getElementById('page-prev-btn') as HTMLButtonElement | null;
+  const pageNextBtn = document.getElementById('page-next-btn') as HTMLButtonElement | null;
+  const bottomCurrentPage = document.getElementById('bottom-current-page');
+  const bottomTotalPages = document.getElementById('bottom-total-pages');
+  const fullscreenBtn = document.getElementById('fullscreen-toggle-btn');
+
+  // Inspector Elements
+  const inspectorTitle = document.getElementById('inspector-title');
+  const inspectorBadge = document.getElementById('inspector-badge');
+  const paneDocument = document.getElementById('pane-document');
+  const paneText = document.getElementById('pane-text');
+  const paneShape = document.getElementById('pane-shape');
+
+  // Document Pane Props
+  const docPropCurrentPage = document.getElementById('doc-prop-current-page');
+  const docPropDimensions = document.getElementById('doc-prop-dimensions');
+  const docPropOrientation = document.getElementById('doc-prop-orientation');
+  const docPropZoom = document.getElementById('doc-prop-zoom');
+  const docPropFilename = document.getElementById('doc-prop-filename');
+  const docPropFilesize = document.getElementById('doc-prop-filesize');
+
+  // Text Pane Props
+  const textFontFamily = document.getElementById('text-font-family') as HTMLSelectElement | null;
+  const textFontSize = document.getElementById('text-font-size') as HTMLInputElement | null;
+  const textBoldBtn = document.getElementById('text-bold-btn');
+  const textItalicBtn = document.getElementById('text-italic-btn');
+  const textUnderlineBtn = document.getElementById('text-underline-btn');
+  const textOpacitySlider = document.getElementById('text-opacity-slider') as HTMLInputElement | null;
+  const textOpacityVal = document.getElementById('text-opacity-val');
+  const textCustomColor = document.getElementById('text-custom-color') as HTMLInputElement | null;
+  const deleteTextBtn = document.getElementById('delete-text-btn');
+
+  // Shape Pane Props
+  const shapeStrokeWidth = document.getElementById('shape-stroke-width') as HTMLInputElement | null;
+  const shapeStrokeVal = document.getElementById('shape-stroke-val');
+  const shapeRadiusSlider = document.getElementById('shape-radius-slider') as HTMLInputElement | null;
+  const shapeRadiusVal = document.getElementById('shape-radius-val');
+  const deleteShapeBtn = document.getElementById('delete-shape-btn');
+
+  // Mobile Sheets
+  const mobileBackdrop = document.getElementById('mobile-sheet-backdrop');
+  const mobileDrawer = document.getElementById('mobile-thumbnails-drawer');
+  const mobileSheet = document.getElementById('mobile-inspector-sheet');
+  const closeMobileDrawerBtn = document.getElementById('close-mobile-drawer-btn');
+  const closeMobileSheetBtn = document.getElementById('close-mobile-sheet-btn');
+  const mobileOpenPagesBtn = document.getElementById('mobile-open-pages-btn');
+  const mobileOpenInspectorBtn = document.getElementById('mobile-open-inspector-btn');
+  const mobileThumbnailsList = document.getElementById('mobile-thumbnails-list');
+  const mobileInspectorContent = document.getElementById('mobile-inspector-content');
+  const mobileThumbnailBadge = document.getElementById('mobile-thumbnail-badge');
+
+  // Signature & Image Elements
+  const sigModal = document.getElementById('signature-modal');
+  const closeSigModalBtn = document.getElementById('close-sig-modal-btn');
+  const clearSigBtn = document.getElementById('clear-sig-btn');
+  const saveSigBtn = document.getElementById('save-sig-btn');
+  const sigCanvas = document.getElementById('sig-pad-canvas') as HTMLCanvasElement | null;
+  const sigHint = document.getElementById('sig-pad-hint');
+  const imageFileInput = document.getElementById('editor-image-file-input') as HTMLInputElement | null;
+
+  // Active Session State
+  let loadedDoc: LoadedPdfDoc | null = null;
+  let currentRenderViewport: PageViewport | null = null;
+  let lastRenderedPage = -1;
+  let lastRenderedZoom = -1;
+
+  // --- EXPORT TOAST NOTIFICATIONS ---
+  const showExportToast = (title: string, desc: string, isFinished = false, isError = false) => {
+    if (!exportToast) return;
+    exportToast.classList.remove('hidden', 'opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+    exportToast.classList.add('opacity-100', 'translate-y-0');
+
+    if (exportToastTitle) exportToastTitle.textContent = title;
+    if (exportToastDesc) exportToastDesc.textContent = desc;
+
+    if (isFinished) {
+      if (exportToastSpinner) exportToastSpinner.classList.add('hidden');
+      if (exportToastCheck) exportToastCheck.classList.remove('hidden');
+      if (isError) {
+        if (exportToastTitle) exportToastTitle.classList.add('text-rose-600');
+      }
+      setTimeout(() => {
+        exportToast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+        setTimeout(() => {
+          if (exportToastSpinner) exportToastSpinner.classList.remove('hidden');
+          if (exportToastCheck) exportToastCheck.classList.add('hidden');
+          if (exportToastTitle) exportToastTitle.classList.remove('text-rose-600');
+        }, 300);
+      }, 3500);
+    } else {
+      if (exportToastSpinner) exportToastSpinner.classList.remove('hidden');
+      if (exportToastCheck) exportToastCheck.classList.add('hidden');
+    }
+  };
+
+  // --- TRANSITIONS & FILE HANDLING ---
+  const showWorkspace = () => {
+    if (landingView) landingView.classList.add('hidden');
+    if (workspaceView) workspaceView.classList.remove('hidden');
+
+    if (overlayLayer && pdfCanvas) {
+      interactionController.attach(overlayLayer, pdfCanvas);
+    }
+
+    // Auto-fit page width on mobile screens
+    if (window.innerWidth < 768) {
+      const mobileZoom = Math.min(1.0, Math.max(0.40, (window.innerWidth - 24) / 595));
+      editorStore.setZoom(mobileZoom);
+    }
+    syncThemeUI();
+  };
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth < 768 && editorStore.getState().document) {
+      const mobileZoom = Math.min(1.0, Math.max(0.40, (window.innerWidth - 24) / 595));
+      editorStore.setZoom(mobileZoom);
+    }
+  });
+
+  const showLanding = () => {
+    interactionController.detach();
+    pdfRenderer.cancelCurrentRender();
+    if (loadedDoc) {
+      loadedDoc.destroy();
+      loadedDoc = null;
+    }
+    currentRenderViewport = null;
+    lastRenderedPage = -1;
+    lastRenderedZoom = -1;
+    editorStore.reset();
+    if (workspaceView) workspaceView.classList.add('hidden');
+    if (landingView) landingView.classList.remove('hidden');
+  };
+
+  async function createSamplePdfBytes(): Promise<ArrayBuffer> {
+    const doc = await PDFDocument.create();
+    const font = await doc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await doc.embedFont(StandardFonts.HelveticaBold);
+
+    for (let i = 1; i <= 3; i++) {
+      const page = doc.addPage([595.28, 841.89]);
+      page.drawText(`Sample Agreement — Page ${i}`, {
+        x: 50,
+        y: 780,
+        size: 20,
+        font: boldFont,
+        color: rgb(0.06, 0.09, 0.16),
+      });
+      page.drawText('Standard Confidentiality & Non-Disclosure Agreement', {
+        x: 50,
+        y: 750,
+        size: 13,
+        font,
+        color: rgb(0.2, 0.25, 0.35),
+      });
+      page.drawText('This document is processed 100% locally in your browser session. No data is sent to external servers.', {
+        x: 50,
+        y: 720,
+        size: 10,
+        font,
+        color: rgb(0.3, 0.35, 0.45),
+      });
+      page.drawRectangle({
+        x: 50,
+        y: 500,
+        width: 495,
+        height: 180,
+        borderColor: rgb(0.8, 0.85, 0.9),
+        borderWidth: 1,
+        color: rgb(0.97, 0.98, 1.0),
+      });
+      page.drawText('Section 1: Scope of Local Processing', {
+        x: 70,
+        y: 645,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.1, 0.2, 0.5),
+      });
+      page.drawText('All annotations, highlights, shapes, and signature drawings are performed using client-side WebAssembly and JavaScript engines.', {
+        x: 70,
+        y: 615,
+        size: 9.5,
+        font,
+        color: rgb(0.3, 0.35, 0.45),
+      });
+    }
+    const bytes = await doc.save();
+    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  }
+
+  const handleSelectedFile = async (file: File) => {
+    try {
+      if (loadedDoc) {
+        loadedDoc.destroy();
+        loadedDoc = null;
+      }
+      const doc = await loadPdfDocumentManager(file);
+      loadedDoc = doc;
+
+      const sampleLimit = Math.min(doc.pageCount, 20);
+      const dimensions = [];
+      for (let i = 1; i <= sampleLimit; i++) {
+        dimensions.push(await doc.getPageDimensions(i));
+      }
+      const defaultDim = dimensions[0] || { width: 595, height: 842 };
+      for (let i = sampleLimit + 1; i <= doc.pageCount; i++) {
+        dimensions.push(defaultDim);
+      }
+
+      editorStore.loadDocument(file, doc.pageCount, dimensions);
+      showWorkspace();
+      await triggerPageRender();
+      renderThumbnails(doc, 1);
+    } catch (err: any) {
+      alert(err.message || 'Failed to load PDF document.');
+    }
+  };
+
+  // Dropzone Events
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        handleSelectedFile(fileInput.files[0]);
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-active');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e: DragEvent) => {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleSelectedFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  // Sample Document Trigger
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        const sampleBytes = await createSamplePdfBytes();
+        if (loadedDoc) {
+          loadedDoc.destroy();
+          loadedDoc = null;
+        }
+        const doc = await loadPdfDocumentManager(sampleBytes);
+        loadedDoc = doc;
+
+        const mockFile = new File([sampleBytes], 'Sample Agreement.pdf', { type: 'application/pdf' });
+        const dimensions = [
+          { width: 595, height: 842 },
+          { width: 595, height: 842 },
+          { width: 595, height: 842 },
+        ];
+        editorStore.loadDocument(mockFile, 3, dimensions);
+        showWorkspace();
+        await triggerPageRender();
+        renderThumbnails(doc, 1);
+      } catch (err: any) {
+        console.error('Failed to load sample document:', err);
+        editorStore.loadSampleDocument();
+        showWorkspace();
+      }
+    });
+  }
+
+  // Navigation & Reset Buttons
+  if (newDocBtn) newDocBtn.addEventListener('click', showLanding);
+  if (backBtn) {
+    backBtn.addEventListener('click', (e) => {
+      if (editorStore.getState().document) {
+        e.preventDefault();
+        showLanding();
+      }
+    });
+  }
+
+  // Export Button (Real pdf-lib client-side export)
+  if (exportBtn) {
+    exportBtn.addEventListener('click', async () => {
+      const state = editorStore.getState();
+      if (!loadedDoc) {
+        alert('Please open or load a PDF document first.');
+        return;
+      }
+
+      showExportToast('Exporting PDF...', 'Applying annotations and preparing bytes', false);
+
+      const result = await exportPdfDocument(
+        loadedDoc.pristineBytes,
+        state.objects,
+        state.document?.name || 'document.pdf',
+        (stage) => {
+          if (exportToastDesc) exportToastDesc.textContent = stage;
+        }
+      );
+
+      if (result.success) {
+        showExportToast('Export Complete!', `Downloaded ${result.filename}`, true);
+      } else {
+        showExportToast('Export Failed', result.error || 'Failed to export PDF', true, true);
+      }
+    });
+  }
+
+  // Theme Switcher in Workspace Header
+  const syncThemeUI = () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (themeToggleBtn) {
+      themeToggleBtn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+    }
+    if (themeKnob) {
+      if (isDark) {
+        themeKnob.classList.remove('translate-x-0');
+        themeKnob.classList.add('translate-x-5');
+      } else {
+        themeKnob.classList.remove('translate-x-5');
+        themeKnob.classList.add('translate-x-0');
+      }
+    }
+  };
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+      syncThemeUI();
+    });
+  }
+
+  // Tool Selection
+  toolButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tool = btn.getAttribute('data-tool') as EditorTool;
+      if (tool) {
+        editorStore.setActiveTool(tool);
+      }
+    });
+  });
+
+  // More Menu Popover
+  if (moreToolsBtn && moreToolsMenu) {
+    moreToolsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      moreToolsMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!moreToolsMenu.contains(e.target as Node) && e.target !== moreToolsBtn) {
+        moreToolsMenu.classList.add('hidden');
+      }
+    });
+  }
+
+  // Undo / Redo
+  if (undoBtn) undoBtn.addEventListener('click', () => editorStore.undo());
+  if (redoBtn) redoBtn.addEventListener('click', () => editorStore.redo());
+
+  // Zoom Controls
+  if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => editorStore.zoomOut());
+  if (zoomInBtn) zoomInBtn.addEventListener('click', () => editorStore.zoomIn());
+  if (zoomPercentBtn) zoomPercentBtn.addEventListener('click', () => editorStore.setZoom(1.0));
+  if (zoomFitPageBtn) zoomFitPageBtn.addEventListener('click', () => editorStore.setFitMode('page'));
+  if (zoomFitWidthBtn) zoomFitWidthBtn.addEventListener('click', () => editorStore.setFitMode('width'));
+
+  // Page Controls
+  if (pagePrevBtn) pagePrevBtn.addEventListener('click', () => editorStore.prevPage());
+  if (pageNextBtn) pageNextBtn.addEventListener('click', () => editorStore.nextPage());
+  if (fullscreenBtn) fullscreenBtn.addEventListener('click', () => editorStore.toggleFullscreen());
+
+  // Sidebar Toggles
+  if (toggleThumbnailsBtn && desktopThumbnailsWrapper) {
+    toggleThumbnailsBtn.addEventListener('click', () => {
+      desktopThumbnailsWrapper.classList.toggle('hidden');
+    });
+  }
+  if (toggleInspectorBtn && desktopInspectorWrapper) {
+    toggleInspectorBtn.addEventListener('click', () => {
+      desktopInspectorWrapper.classList.toggle('hidden');
+    });
+  }
+  if (closeInspectorBtn && desktopInspectorWrapper) {
+    closeInspectorBtn.addEventListener('click', () => {
+      desktopInspectorWrapper.classList.add('hidden');
+    });
+  }
+
+  // Mobile Sheet Triggers
+  const openMobileDrawer = () => {
+    if (mobileDrawer && mobileBackdrop) {
+      mobileDrawer.classList.remove('-translate-x-full');
+      mobileBackdrop.classList.remove('hidden');
+      setTimeout(() => mobileBackdrop.classList.remove('opacity-0'), 10);
+    }
+  };
+
+  const closeMobileDrawer = () => {
+    if (mobileDrawer && mobileBackdrop) {
+      mobileDrawer.classList.add('-translate-x-full');
+      mobileBackdrop.classList.add('opacity-0');
+      setTimeout(() => mobileBackdrop.classList.add('hidden'), 200);
+    }
+  };
+
+  const openMobileSheet = () => {
+    if (mobileSheet && mobileBackdrop) {
+      mobileSheet.classList.remove('translate-y-full');
+      mobileBackdrop.classList.remove('hidden');
+      setTimeout(() => mobileBackdrop.classList.remove('opacity-0'), 10);
+      populateMobileInspector();
+    }
+  };
+
+  const closeMobileSheet = () => {
+    if (mobileSheet && mobileBackdrop) {
+      mobileSheet.classList.add('translate-y-full');
+      mobileBackdrop.classList.add('opacity-0');
+      setTimeout(() => mobileBackdrop.classList.add('hidden'), 200);
+    }
+  };
+
+  if (mobileOpenPagesBtn) mobileOpenPagesBtn.addEventListener('click', openMobileDrawer);
+  if (closeMobileDrawerBtn) closeMobileDrawerBtn.addEventListener('click', closeMobileDrawer);
+  if (mobileOpenInspectorBtn) mobileOpenInspectorBtn.addEventListener('click', openMobileSheet);
+  if (closeMobileSheetBtn) closeMobileSheetBtn.addEventListener('click', closeMobileSheet);
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener('click', () => {
+      closeMobileDrawer();
+      closeMobileSheet();
+    });
+  }
+
+  // Image Tool Handler
+  document.querySelectorAll<HTMLButtonElement>('[data-tool="image"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (imageFileInput) imageFileInput.click();
+    });
+  });
+
+  if (imageFileInput) {
+    imageFileInput.addEventListener('change', () => {
+      if (imageFileInput.files && imageFileInput.files[0]) {
+        const file = imageFileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const src = e.target?.result as string;
+          if (src) {
+            const img = new Image();
+            img.onload = () => {
+              const maxW = 200;
+              const ratio = img.naturalHeight / img.naturalWidth;
+              const w = Math.min(img.naturalWidth, maxW);
+              const h = Math.round(w * ratio);
+              const imgObj: ImageEditorObject = {
+                id: `img-${Date.now()}`,
+                type: 'image',
+                pageNumber: editorStore.getState().currentPage,
+                x: 60,
+                y: 60,
+                width: w,
+                height: h,
+                rotation: 0,
+                opacity: 1,
+                zIndex: 10,
+                src,
+                originalWidth: img.naturalWidth,
+                originalHeight: img.naturalHeight,
+                keepRatio: true,
+              };
+              editorStore.addObject(imgObj, true);
+              editorStore.setActiveTool('select');
+            };
+            img.src = src;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Signature Tool Handler
+  document.querySelectorAll<HTMLButtonElement>('[data-tool="signature"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (sigModal) sigModal.classList.remove('hidden');
+    });
+  });
+
+  if (closeSigModalBtn && sigModal) {
+    closeSigModalBtn.addEventListener('click', () => sigModal.classList.add('hidden'));
+  }
+
+  let isSigDrawing = false;
+  let sigCtx: CanvasRenderingContext2D | null = null;
+  if (sigCanvas) {
+    sigCtx = sigCanvas.getContext('2d');
+    if (sigCtx) {
+      sigCtx.strokeStyle = '#0f172a';
+      sigCtx.lineWidth = 2.5;
+      sigCtx.lineCap = 'round';
+      sigCtx.lineJoin = 'round';
+    }
+
+    const getSigPos = (e: MouseEvent | TouchEvent) => {
+      const rect = sigCanvas.getBoundingClientRect();
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (sigCanvas.width / rect.width),
+        y: (clientY - rect.top) * (sigCanvas.height / rect.height),
+      };
+    };
+
+    const startSig = (e: MouseEvent | TouchEvent) => {
+      if (!sigCtx) return;
+      isSigDrawing = true;
+      if (sigHint) sigHint.classList.add('hidden');
+      const pos = getSigPos(e);
+      sigCtx.beginPath();
+      sigCtx.moveTo(pos.x, pos.y);
+    };
+
+    const moveSig = (e: MouseEvent | TouchEvent) => {
+      if (!isSigDrawing || !sigCtx) return;
+      e.preventDefault();
+      const pos = getSigPos(e);
+      sigCtx.lineTo(pos.x, pos.y);
+      sigCtx.stroke();
+    };
+
+    const stopSig = () => {
+      isSigDrawing = false;
+    };
+
+    sigCanvas.addEventListener('mousedown', startSig);
+    sigCanvas.addEventListener('mousemove', moveSig);
+    window.addEventListener('mouseup', stopSig);
+    sigCanvas.addEventListener('touchstart', startSig);
+    sigCanvas.addEventListener('touchmove', moveSig);
+    window.addEventListener('touchend', stopSig);
+  }
+
+  if (clearSigBtn && sigCanvas && sigCtx) {
+    clearSigBtn.addEventListener('click', () => {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      if (sigHint) sigHint.classList.remove('hidden');
+    });
+  }
+
+  if (saveSigBtn && sigCanvas && sigModal) {
+    saveSigBtn.addEventListener('click', () => {
+      const dataUrl = sigCanvas.toDataURL('image/png');
+      const sigObj: ImageEditorObject = {
+        id: `sig-${Date.now()}`,
+        type: 'image',
+        pageNumber: editorStore.getState().currentPage,
+        x: 100,
+        y: 100,
+        width: 150,
+        height: 60,
+        rotation: 0,
+        opacity: 1,
+        zIndex: 15,
+        src: dataUrl,
+        originalWidth: 400,
+        originalHeight: 160,
+        keepRatio: true,
+      };
+      editorStore.addObject(sigObj, true);
+      sigModal.classList.add('hidden');
+      editorStore.setActiveTool('select');
+    });
+  }
+
+  // --- RENDER & STATE SYNCHRONIZATION ---
+  const renderThumbnails = async (doc: LoadedPdfDoc, currentPage: number) => {
+    const pageCount = doc.pageCount;
+    const maxVisibleThumbs = Math.min(pageCount, 30);
+
+    const createThumbnailHTML = (num: number, isCurrent: boolean) => `
+      <div
+        data-page="${num}"
+        class="thumbnail-card group relative cursor-pointer flex flex-col items-center select-none"
+      >
+        <div
+          class="w-36 h-48 rounded-xl bg-white dark:bg-[#1a2232] border-2 transition-all p-1 flex flex-col justify-between overflow-hidden shadow-xs relative ${
+            isCurrent
+              ? 'border-brand-500 ring-2 ring-brand-500/20 shadow-md'
+              : 'border-slate-200 dark:border-[#212b3c] hover:border-slate-300 dark:hover:border-slate-600'
+          }"
+        >
+          <canvas class="thumb-canvas w-full h-full object-contain block bg-white" data-thumb-page="${num}"></canvas>
+        </div>
+        <div class="flex items-center justify-between w-36 mt-1.5 px-1">
+          <span class="text-xs font-bold ${isCurrent ? 'text-brand-600 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}">${num}</span>
+          <span class="text-[10px] text-slate-400">Page ${num}</span>
+        </div>
+      </div>
+    `;
+
+    let html = '';
+    for (let i = 1; i <= maxVisibleThumbs; i++) {
+      html += createThumbnailHTML(i, i === currentPage);
+    }
+    if (pageCount > maxVisibleThumbs) {
+      html += `
+        <div class="text-center py-2 text-[11px] text-slate-400 dark:text-slate-500 font-medium bg-slate-50 dark:bg-[#161c28] rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-2">
+          + ${pageCount - maxVisibleThumbs} more pages
+        </div>
+      `;
+    }
+
+    if (thumbnailsContainer) {
+      thumbnailsContainer.innerHTML = html;
+      thumbnailsContainer.querySelectorAll('.thumbnail-card').forEach((el) => {
+        el.addEventListener('click', () => {
+          const p = Number(el.getAttribute('data-page'));
+          if (p) editorStore.setCurrentPage(p);
+        });
+      });
+    }
+
+    if (mobileThumbnailsList) {
+      mobileThumbnailsList.innerHTML = html;
+      mobileThumbnailsList.querySelectorAll('.thumbnail-card').forEach((el) => {
+        el.addEventListener('click', () => {
+          const p = Number(el.getAttribute('data-page'));
+          if (p) {
+            editorStore.setCurrentPage(p);
+            closeMobileDrawer();
+          }
+        });
+      });
+    }
+
+    // Asynchronously render thumbnail canvas bitmaps for the visible thumbnails
+    for (let i = 1; i <= maxVisibleThumbs; i++) {
+      const canvases = document.querySelectorAll<HTMLCanvasElement>(`canvas[data-thumb-page="${i}"]`);
+      if (canvases.length > 0) {
+        try {
+          const page = await doc.docProxy.getPage(i);
+          const viewport = page.getViewport({ scale: 0.25 });
+          canvases.forEach((c) => {
+            c.width = viewport.width;
+            c.height = viewport.height;
+            const ctx = c.getContext('2d');
+            if (ctx) {
+              page.render({ canvasContext: ctx, viewport });
+            }
+          });
+        } catch (e) {
+          // Thumbnail render non-critical
+        }
+      }
+    }
+  };
+
+  const renderOverlayObjects = (
+    objects: EditorObject[],
+    selectedId: string | null,
+    viewport: PageViewport | null
+  ) => {
+    if (!overlayLayer) return;
+    overlayLayer.innerHTML = '';
+
+    objects.forEach((obj) => {
+      const isSelected = obj.id === selectedId;
+      const el = document.createElement('div');
+      el.id = `obj-${obj.id}`;
+      el.setAttribute('data-object-id', obj.id);
+      el.className = `absolute cursor-pointer transition-shadow select-none ${
+        isSelected ? 'ring-2 ring-brand-500' : 'hover:ring-1 hover:ring-brand-300'
+      }`;
+
+      if (viewport) {
+        const screenRect = pdfRectToScreenRect(obj, viewport);
+        el.style.left = `${screenRect.left}px`;
+        el.style.top = `${screenRect.top}px`;
+        el.style.width = `${screenRect.width}px`;
+        el.style.height = `${screenRect.height}px`;
+      } else {
+        el.style.left = `${obj.x}px`;
+        el.style.top = `${obj.y}px`;
+        el.style.width = `${obj.width}px`;
+        el.style.height = `${obj.height}px`;
+      }
+
+      el.style.opacity = `${obj.opacity}`;
+      el.style.zIndex = `${obj.zIndex}`;
+
+      if (obj.type === 'text') {
+        const textObj = obj as TextEditorObject;
+        el.style.fontFamily = textObj.fontFamily;
+        const fontSize = viewport ? textObj.fontSize * viewport.scale : textObj.fontSize;
+        el.style.fontSize = `${fontSize}px`;
+        el.style.fontWeight = textObj.fontWeight;
+        el.style.fontStyle = textObj.fontStyle;
+        el.style.textDecoration = textObj.textDecoration;
+        el.style.textAlign = textObj.textAlign;
+        el.style.color = textObj.color;
+        el.style.padding = '2px 4px';
+        el.style.lineHeight = '1.3';
+        el.style.whiteSpace = 'pre-wrap';
+        el.style.wordBreak = 'break-word';
+        el.textContent = textObj.text;
+      } else if (obj.type === 'highlight') {
+        el.style.backgroundColor = (obj as any).color || '#facc15';
+        el.style.mixBlendMode = 'multiply';
+        el.style.borderRadius = '2px';
+      } else if (obj.type === 'whiteout') {
+        el.style.backgroundColor = '#ffffff';
+        el.style.border = '1px solid rgba(226, 232, 240, 0.8)';
+      } else if (obj.type === 'rectangle') {
+        const shapeObj = obj as ShapeEditorObject;
+        el.style.backgroundColor = shapeObj.fillColor;
+        el.style.border = `${shapeObj.strokeWidth}px ${shapeObj.strokeStyle} ${shapeObj.strokeColor}`;
+        el.style.borderRadius = `${shapeObj.borderRadius || 0}px`;
+      } else if (obj.type === 'ellipse') {
+        const shapeObj = obj as ShapeEditorObject;
+        el.style.backgroundColor = shapeObj.fillColor;
+        el.style.border = `${shapeObj.strokeWidth}px ${shapeObj.strokeStyle} ${shapeObj.strokeColor}`;
+        el.style.borderRadius = '9999px';
+      } else if (obj.type === 'line' || obj.type === 'arrow') {
+        const shapeObj = obj as ShapeEditorObject;
+        el.innerHTML = `
+          <svg class="w-full h-full overflow-visible">
+            <line x1="0" y1="0" x2="${el.style.width}" y2="${el.style.height}" stroke="${shapeObj.strokeColor}" stroke-width="${shapeObj.strokeWidth}" />
+          </svg>
+        `;
+      } else if (obj.type === 'pen') {
+        const penObj = obj as PenEditorObject;
+        el.innerHTML = `
+          <svg class="w-full h-full overflow-visible">
+            <path d="${penObj.pathData}" stroke="${penObj.strokeColor}" stroke-width="${penObj.strokeWidth}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+      } else if (obj.type === 'image') {
+        const imgObj = obj as ImageEditorObject;
+        const img = document.createElement('img');
+        img.src = imgObj.src;
+        img.className = 'w-full h-full object-contain pointer-events-none';
+        el.appendChild(img);
+      }
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        editorStore.selectObject(obj.id);
+      });
+
+      overlayLayer.appendChild(el);
+    });
+
+    if (selectionBox) {
+      if (selectedId) {
+        const selectedObj = objects.find((o) => o.id === selectedId);
+        if (selectedObj && viewport) {
+          const screenRect = pdfRectToScreenRect(selectedObj, viewport);
+          selectionBox.classList.remove('hidden');
+          selectionBox.style.left = `${screenRect.left}px`;
+          selectionBox.style.top = `${screenRect.top}px`;
+          selectionBox.style.width = `${screenRect.width}px`;
+          selectionBox.style.height = `${screenRect.height}px`;
+        } else {
+          selectionBox.classList.add('hidden');
+        }
+      } else {
+        selectionBox.classList.add('hidden');
+      }
+    }
+  };
+
+  const populateMobileInspector = () => {
+    if (!mobileInspectorContent) return;
+    const selected = editorStore.getSelectedObject();
+    if (!selected) {
+      if (paneDocument) mobileInspectorContent.innerHTML = paneDocument.innerHTML;
+    } else if (selected.type === 'text') {
+      if (paneText) mobileInspectorContent.innerHTML = paneText.innerHTML;
+    } else if (selected.type === 'rectangle' || selected.type === 'ellipse') {
+      if (paneShape) mobileInspectorContent.innerHTML = paneShape.innerHTML;
+    }
+  };
+
+  // Click on empty viewport deselects object
+  if (viewport) {
+    viewport.addEventListener('click', (e) => {
+      if (e.target === viewport || e.target === scaleContainer || e.target === pdfCard) {
+        editorStore.selectObject(null);
+      }
+    });
+  }
+
+  // --- INSPECTOR EVENTS & BINDINGS ---
+  if (textFontFamily) {
+    textFontFamily.addEventListener('change', () => {
+      editorStore.updateSelectedObject({ fontFamily: textFontFamily.value } as Partial<TextEditorObject>);
+    });
+  }
+
+  if (textFontSize) {
+    textFontSize.addEventListener('input', () => {
+      editorStore.updateSelectedObject({ fontSize: Number(textFontSize.value) || 14 } as Partial<TextEditorObject>);
+    });
+  }
+
+  if (textBoldBtn) {
+    textBoldBtn.addEventListener('click', () => {
+      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
+      if (selected && selected.type === 'text') {
+        const newWeight = selected.fontWeight === 'bold' ? 'normal' : 'bold';
+        editorStore.updateSelectedObject({ fontWeight: newWeight });
+      }
+    });
+  }
+
+  if (textItalicBtn) {
+    textItalicBtn.addEventListener('click', () => {
+      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
+      if (selected && selected.type === 'text') {
+        const newStyle = selected.fontStyle === 'italic' ? 'normal' : 'italic';
+        editorStore.updateSelectedObject({ fontStyle: newStyle });
+      }
+    });
+  }
+
+  if (textUnderlineBtn) {
+    textUnderlineBtn.addEventListener('click', () => {
+      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
+      if (selected && selected.type === 'text') {
+        const newDec = selected.textDecoration === 'underline' ? 'none' : 'underline';
+        editorStore.updateSelectedObject({ textDecoration: newDec });
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.text-align-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const align = btn.getAttribute('data-align') as 'left' | 'center' | 'right';
+      if (align) {
+        editorStore.updateSelectedObject({ textAlign: align });
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-color]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const color = btn.getAttribute('data-color');
+      if (color) {
+        editorStore.updateSelectedObject({ color });
+      }
+    });
+  });
+
+  if (textCustomColor) {
+    textCustomColor.addEventListener('input', () => {
+      editorStore.updateSelectedObject({ color: textCustomColor.value });
+    });
+  }
+
+  if (textOpacitySlider && textOpacityVal) {
+    textOpacitySlider.addEventListener('input', () => {
+      const opacity = Number(textOpacitySlider.value) / 100;
+      textOpacityVal.textContent = `${textOpacitySlider.value}%`;
+      editorStore.updateSelectedObject({ opacity });
+    });
+  }
+
+  if (deleteTextBtn) {
+    deleteTextBtn.addEventListener('click', () => editorStore.deleteSelectedObject());
+  }
+
+  // Shape bindings
+  document.querySelectorAll<HTMLButtonElement>('[data-shape-fill]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const fill = btn.getAttribute('data-shape-fill');
+      if (fill) {
+        editorStore.updateSelectedObject({ fillColor: fill } as Partial<ShapeEditorObject>);
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-shape-stroke]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const stroke = btn.getAttribute('data-shape-stroke');
+      if (stroke) {
+        editorStore.updateSelectedObject({ strokeColor: stroke } as Partial<ShapeEditorObject>);
+      }
+    });
+  });
+
+  if (shapeStrokeWidth && shapeStrokeVal) {
+    shapeStrokeWidth.addEventListener('input', () => {
+      const width = Number(shapeStrokeWidth.value);
+      shapeStrokeVal.textContent = `${width} px`;
+      editorStore.updateSelectedObject({ strokeWidth: width } as Partial<ShapeEditorObject>);
+    });
+  }
+
+  if (shapeRadiusSlider && shapeRadiusVal) {
+    shapeRadiusSlider.addEventListener('input', () => {
+      const r = Number(shapeRadiusSlider.value);
+      shapeRadiusVal.textContent = `${r} px`;
+      editorStore.updateSelectedObject({ borderRadius: r } as Partial<ShapeEditorObject>);
+    });
+  }
+
+  if (deleteShapeBtn) {
+    deleteShapeBtn.addEventListener('click', () => editorStore.deleteSelectedObject());
+  }
+
+  // --- TRIGGER PAGE RENDER ---
+  const triggerPageRender = async () => {
+    if (!loadedDoc || !pdfCanvas) return;
+    const state = editorStore.getState();
+    const pageNum = state.currentPage;
+    const zoom = state.viewport.zoom;
+
+    if (lastRenderedPage !== pageNum || lastRenderedZoom !== zoom || !currentRenderViewport) {
+      lastRenderedPage = pageNum;
+      lastRenderedZoom = zoom;
+
+      try {
+        const viewport = await pdfRenderer.renderPage(pdfCanvas, loadedDoc.docProxy, pageNum, {
+          scale: zoom,
+        });
+        if (viewport) {
+          currentRenderViewport = viewport;
+          interactionController.setViewport(viewport);
+
+          if (pdfCard) {
+            pdfCard.style.width = `${Math.floor(viewport.width)}px`;
+            pdfCard.style.height = `${Math.floor(viewport.height)}px`;
+          }
+          if (overlayLayer) {
+            overlayLayer.style.width = `${Math.floor(viewport.width)}px`;
+            overlayLayer.style.height = `${Math.floor(viewport.height)}px`;
+          }
+        }
+      } catch (e) {
+        console.error('Render error:', e);
+      }
+    }
+
+    if (currentRenderViewport) {
+      const pageObjects = editorStore.getPageObjects(pageNum);
+      renderOverlayObjects(pageObjects, state.selectedObjectId, currentRenderViewport);
+    }
+  };
+
+  // --- STATE STORE SUBSCRIPTION ---
+  editorStore.subscribe((state) => {
+    // Document metrics
+    if (state.document) {
+      if (docNameLabel) docNameLabel.textContent = state.document.name;
+      if (docSizeLabel) docSizeLabel.textContent = `(${state.document.fileSizeFormatted})`;
+      if (thumbnailPageCount) thumbnailPageCount.textContent = `${state.document.pageCount}`;
+      if (bottomTotalPages) bottomTotalPages.textContent = `${state.document.pageCount}`;
+      if (bottomCurrentPage) bottomCurrentPage.textContent = `${state.currentPage}`;
+      if (docPropCurrentPage) docPropCurrentPage.textContent = `${state.currentPage} of ${state.document.pageCount}`;
+      if (docPropFilename) docPropFilename.textContent = state.document.name;
+      if (docPropFilesize) docPropFilesize.textContent = state.document.fileSizeFormatted;
+      if (mobileThumbnailBadge) mobileThumbnailBadge.textContent = `${state.document.pageCount}`;
+
+      const curPageInfo = state.document.pages[state.currentPage - 1];
+      if (curPageInfo) {
+        if (docPropDimensions) {
+          docPropDimensions.textContent = `${curPageInfo.width} × ${curPageInfo.height} pt (${curPageInfo.orientation === 'portrait' ? 'A4' : 'Landscape'})`;
+        }
+        if (docPropOrientation) {
+          docPropOrientation.textContent = curPageInfo.orientation === 'portrait' ? 'Portrait' : 'Landscape';
+        }
+      }
+    }
+
+    // Page button disabled states
+    if (pagePrevBtn && state.document) {
+      pagePrevBtn.disabled = state.currentPage <= 1;
+    }
+    if (pageNextBtn && state.document) {
+      pageNextBtn.disabled = state.currentPage >= state.document.pageCount;
+    }
+
+    // Zoom displays
+    if (zoomPercentText) {
+      zoomPercentText.textContent = `${Math.round(state.viewport.zoom * 100)}%`;
+    }
+    if (docPropZoom) {
+      docPropZoom.textContent = `${Math.round(state.viewport.zoom * 100)}%`;
+    }
+
+    // Active tool buttons
+    toolButtons.forEach((btn) => {
+      const tool = btn.getAttribute('data-tool');
+      if (tool === state.activeTool) {
+        btn.classList.add('bg-brand-50', 'text-brand-600', 'dark:bg-brand-950/80', 'dark:text-brand-400', 'border-brand-200', 'dark:border-brand-800');
+        btn.classList.remove('text-slate-600', 'dark:text-slate-300', 'border-transparent');
+      } else {
+        btn.classList.remove('bg-brand-50', 'text-brand-600', 'dark:bg-brand-950/80', 'dark:text-brand-400', 'border-brand-200', 'dark:border-brand-800');
+        btn.classList.add('text-slate-600', 'dark:text-slate-300', 'border-transparent');
+      }
+    });
+
+    // Inspector Context Switching
+    const selectedObj = editorStore.getSelectedObject();
+    if (!selectedObj) {
+      if (inspectorTitle) inspectorTitle.textContent = 'Properties';
+      if (inspectorBadge) inspectorBadge.textContent = 'Document';
+      if (paneDocument) paneDocument.classList.remove('hidden');
+      if (paneText) paneText.classList.add('hidden');
+      if (paneShape) paneShape.classList.add('hidden');
+    } else if (selectedObj.type === 'text') {
+      const textObj = selectedObj as TextEditorObject;
+      if (inspectorTitle) inspectorTitle.textContent = 'Text Properties';
+      if (inspectorBadge) inspectorBadge.textContent = 'Text';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.remove('hidden');
+      if (paneShape) paneShape.classList.add('hidden');
+
+      if (textFontFamily) textFontFamily.value = textObj.fontFamily;
+      if (textFontSize) textFontSize.value = `${textObj.fontSize}`;
+      if (textBoldBtn) {
+        textBoldBtn.classList.toggle('bg-brand-100', textObj.fontWeight === 'bold');
+        textBoldBtn.classList.toggle('dark:bg-brand-950', textObj.fontWeight === 'bold');
+      }
+      if (textItalicBtn) {
+        textItalicBtn.classList.toggle('bg-brand-100', textObj.fontStyle === 'italic');
+        textItalicBtn.classList.toggle('dark:bg-brand-950', textObj.fontStyle === 'italic');
+      }
+      if (textUnderlineBtn) {
+        textUnderlineBtn.classList.toggle('bg-brand-100', textObj.textDecoration === 'underline');
+        textUnderlineBtn.classList.toggle('dark:bg-brand-950', textObj.textDecoration === 'underline');
+      }
+      if (textOpacitySlider) textOpacitySlider.value = `${Math.round(textObj.opacity * 100)}`;
+      if (textOpacityVal) textOpacityVal.textContent = `${Math.round(textObj.opacity * 100)}%`;
+    } else if (selectedObj.type === 'rectangle' || selectedObj.type === 'ellipse') {
+      const shapeObj = selectedObj as ShapeEditorObject;
+      if (inspectorTitle) inspectorTitle.textContent = 'Shape Properties';
+      if (inspectorBadge) inspectorBadge.textContent = 'Shape';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.add('hidden');
+      if (paneShape) paneShape.classList.remove('hidden');
+
+      if (shapeStrokeWidth) shapeStrokeWidth.value = `${shapeObj.strokeWidth}`;
+      if (shapeStrokeVal) shapeStrokeVal.textContent = `${shapeObj.strokeWidth} px`;
+      if (shapeRadiusSlider) shapeRadiusSlider.value = `${shapeObj.borderRadius || 0}`;
+      if (shapeRadiusVal) shapeRadiusVal.textContent = `${shapeObj.borderRadius || 0} px`;
+    }
+
+    // Trigger page re-render if loaded
+    triggerPageRender();
+  });
+
+  // Initial theme check on mount
+  syncThemeUI();
+</script>
