@@ -1,19 +1,55 @@
 ---
+interface Props {
+  activeTool?: 'extractor' | 'editor';
+}
+
+const { activeTool = 'extractor' } = Astro.props;
 ---
 
-<header class="w-full py-6 px-4 sm:px-8 max-w-7xl mx-auto flex items-center justify-between">
-  <!-- Brand Logo -->
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center shadow-sm">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
-        <line x1="10" y1="9" x2="8" y2="9"/>
-      </svg>
-    </div>
-    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">PDF Extractor</span>
+<header class="w-full py-5 px-4 sm:px-8 max-w-7xl mx-auto flex items-center justify-between">
+  <!-- Brand Logo & Navigation -->
+  <div class="flex items-center gap-4 sm:gap-6">
+    <a href="/" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-xl">
+      <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <line x1="10" y1="9" x2="8" y2="9"/>
+        </svg>
+      </div>
+      <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+        {activeTool === 'editor' ? 'PDF Editor' : 'PDF Extractor'}
+      </span>
+    </a>
+
+    <!-- Tool Switcher Segmented Pills -->
+    <nav class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] text-xs font-semibold" aria-label="Tool selection">
+      <a
+        href="/"
+        class={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all ${
+          activeTool === 'extractor'
+            ? 'bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+        }`}
+      >
+        Extractor
+      </a>
+      <a
+        href="/pdf-editor/"
+        class={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+          activeTool === 'editor'
+            ? 'bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+        }`}
+      >
+        Editor
+        <span class="px-1.5 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-md bg-brand-100 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+          New
+        </span>
+      </a>
+    </nav>
   </div>
 
   <!-- Theme Toggle -->

@@ -9,16 +9,25 @@ export interface RenderOptions {
 
 export class PdfPageRenderer {
   private activeRenderTask: RenderTask | null = null;
+  private activeRenderPromise: Promise<void> | null = null;
   private currentRenderingPage: number | null = null;
 
-  public cancelCurrentRender(): void {
+  public async cancelCurrentRender(): Promise<void> {
     if (this.activeRenderTask) {
       try {
         this.activeRenderTask.cancel();
       } catch (e) {
         // Suppress cancellation exceptions
       }
+      if (this.activeRenderPromise) {
+        try {
+          await this.activeRenderPromise;
+        } catch (e) {
+          // Expected cancellation rejection
+        }
+      }
       this.activeRenderTask = null;
+      this.activeRenderPromise = null;
       this.currentRenderingPage = null;
     }
   }
@@ -29,8 +38,8 @@ export class PdfPageRenderer {
     pageNumber: number,
     options: RenderOptions
   ): Promise<PageViewport | null> {
-    // Cancel any in-flight render task before starting a new one
-    this.cancelCurrentRender();
+    // Await cancellation of any in-flight task to ensure canvas is released cleanly
+    await this.cancelCurrentRender();
 
     try {
       this.currentRenderingPage = pageNumber;
@@ -62,11 +71,18 @@ export class PdfPageRenderer {
 
       const task = page.render(renderContext);
       this.activeRenderTask = task;
+      this.activeRenderPromise = task.promise;
 
-      await task.promise;
-      ctx.restore();
+      try {
+        await task.promise;
+      } finally {
+        ctx.restore();
+        if (this.activeRenderTask === task) {
+          this.activeRenderTask = null;
+          this.activeRenderPromise = null;
+        }
+      }
 
-      this.activeRenderTask = null;
       if (options.onRenderSuccess) options.onRenderSuccess();
       return viewport;
     } catch (err: any) {

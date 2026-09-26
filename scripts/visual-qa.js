@@ -3,8 +3,17 @@ import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib';
 
-const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const outputDir = 'C:\\Users\\A\\.gemini\\antigravity\\brain\\3a1e8236-ef37-4c10-9a79-cf9ce2225f04\\qa_screenshots';
+const browserCandidates = [
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'
+];
+const chromePath = browserCandidates.find(p => fs.existsSync(p));
+if (!chromePath) {
+  throw new Error('No Chromium browser found (Chrome or Edge).');
+}
+const outputDir = 'C:\\Users\\A\\.gemini\\antigravity\\brain\\7fd15cee-732e-4287-b99e-7575b7470022\\qa_screenshots\\extractor';
 const downloadDir = path.join(outputDir, 'downloads');
 const realPdfPath = 'C:\\Users\\A\\Desktop\\ece\\5th sem ECE organizer.pdf';
 

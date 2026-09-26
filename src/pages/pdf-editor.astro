@@ -212,6 +212,8 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   let currentRenderViewport: PageViewport | null = null;
   let lastRenderedPage = -1;
   let lastRenderedZoom = -1;
+  let isPageRendering = false;
+  let renderQueued = false;
 
   // --- EXPORT TOAST NOTIFICATIONS ---
   const showExportToast = (title: string, desc: string, isFinished = false, isError = false) => {
@@ -276,6 +278,8 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     currentRenderViewport = null;
     lastRenderedPage = -1;
     lastRenderedZoom = -1;
+    isPageRendering = false;
+    renderQueued = false;
     editorStore.reset();
     if (workspaceView) workspaceView.classList.add('hidden');
     if (landingView) landingView.classList.remove('hidden');
@@ -1089,7 +1093,14 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     const pageNum = state.currentPage;
     const zoom = state.viewport.zoom;
 
-    if (lastRenderedPage !== pageNum || lastRenderedZoom !== zoom || !currentRenderViewport) {
+    const needsCanvasRender = lastRenderedPage !== pageNum || lastRenderedZoom !== zoom || !currentRenderViewport;
+
+    if (needsCanvasRender) {
+      if (isPageRendering) {
+        renderQueued = true;
+        return;
+      }
+      isPageRendering = true;
       lastRenderedPage = pageNum;
       lastRenderedZoom = zoom;
 
@@ -1112,6 +1123,12 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         }
       } catch (e) {
         console.error('Render error:', e);
+      } finally {
+        isPageRendering = false;
+        if (renderQueued) {
+          renderQueued = false;
+          triggerPageRender();
+        }
       }
     }
 
