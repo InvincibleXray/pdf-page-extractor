@@ -1,0 +1,49 @@
+---
+---
+
+<div
+  id="editor-viewport"
+  class="flex-1 h-full overflow-auto bg-slate-100/70 dark:bg-[#090d14] relative flex justify-center p-3 sm:p-12 select-none transition-colors duration-200"
+  tabindex="0"
+>
+  <!-- Zoom & Scale Container -->
+  <div id="viewport-scale-container" class="transition-transform duration-100 origin-top flex justify-center">
+    <!-- PDF Document Page Wrapper -->
+    <div
+      id="pdf-page-card"
+      class="w-[595px] h-[842px] bg-white border border-slate-200/90 dark:border-[#212b3c] shadow-2xl shadow-slate-400/20 dark:shadow-black/80 relative rounded-xs flex-shrink-0 transition-all duration-150 text-slate-900"
+      style="width: 595px; height: 842px;"
+    >
+      <!-- LAYER 1: PDF Base Rendering Layer -->
+      <div id="pdf-render-layer" class="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
+        <canvas id="pdf-canvas" class="block bg-white"></canvas>
+      </div>
+
+      <!-- LAYER 2: Interactive Editor Overlay Layer -->
+      <div
+        id="editor-overlay-layer"
+        class="absolute inset-0 overflow-hidden pointer-events-auto"
+      >
+        <!-- Overlay objects rendered dynamically here -->
+      </div>
+
+      <!-- LAYER 3: Selection Bounding Box & Transform Handles (Single active selection box) -->
+      <div
+        id="selection-bounding-box"
+        class="hidden absolute border-2 border-brand-500 pointer-events-none z-30 transition-all duration-75"
+      >
+        <!-- Corner Handles -->
+        <div class="handle-nw absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize"></div>
+        <div class="handle-ne absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize"></div>
+        <div class="handle-se absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize"></div>
+        <div class="handle-sw absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize"></div>
+
+        <!-- Rotation Stem & Handle -->
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto cursor-grab">
+          <div class="w-3 h-3 rounded-full bg-white border-2 border-brand-500 shadow-xs"></div>
+          <div class="w-0.5 h-3 bg-brand-500"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
