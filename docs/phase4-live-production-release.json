@@ -1,0 +1,419 @@
+{
+  "phase": 4,
+  "timestamp": "2026-09-27T15:26:47.212Z",
+  "git": {
+    "branch": "main",
+    "commit": "0137a85",
+    "remote": "https://github.com/InvincibleXray/pdf-page-extractor.git",
+    "pushed": true,
+    "synchronized": true
+  },
+  "deployment": {
+    "provider": "GitHub Pages",
+    "mechanism": "GitHub Actions (.github/workflows/deploy.yml)",
+    "status": "completed (success)",
+    "commitVerified": true,
+    "runId": "36329335789",
+    "deployedUrl": "https://pdfpage.tools"
+  },
+  "live": {
+    "homepage": {
+      "url": "https://pdfpage.tools/",
+      "status": 200,
+      "canonical": "https://pdfpage.tools/",
+      "title": "Extract Pages from PDF Online — Private & No Upload",
+      "ogSiteName": "PDFPage.Tools"
+    },
+    "editor": {
+      "url": "https://pdfpage.tools/pdf-editor/",
+      "status": 200,
+      "canonical": "https://pdfpage.tools/pdf-editor/",
+      "title": "PDF Editor Online — Edit PDF In-Browser, No Upload",
+      "sampleButtonAbsent": true,
+      "cleanRoomState": true
+    },
+    "robots": {
+      "url": "https://pdfpage.tools/robots.txt",
+      "status": 200,
+      "allowed": true,
+      "sitemap": "https://pdfpage.tools/sitemap-index.xml"
+    },
+    "sitemap": {
+      "url": "https://pdfpage.tools/sitemap-index.xml",
+      "status": 200,
+      "entries": [
+        "https://pdfpage.tools/",
+        "https://pdfpage.tools/pdf-editor/"
+      ]
+    }
+  },
+  "editor": {
+    "textCreate": {
+      "status": "PASS",
+      "objectCreated": "basic",
+      "shortcutHintShown": true,
+      "shortcutHintText": "Ctrl + Enter · Save  |  Esc · Cancel"
+    },
+    "textReselect": {
+      "status": "PASS",
+      "reselectedId": "text-1790522817745",
+      "bug001Fixed": true
+    },
+    "textReedit": {
+      "status": "PASS",
+      "mutatedText": "advanced",
+      "hintReappeared": true,
+      "committed": true
+    },
+    "move": {
+      "status": "PASS",
+      "initialCoords": [160.5, 220],
+      "movedCoords": [221, 260]
+    },
+    "resize": {
+      "status": "PASS",
+      "initialWidth": 80,
+      "resizedWidth": 120,
+      "handle": "se"
+    },
+    "existingText": {
+      "status": "PASS",
+      "clickable": true,
+      "actionBarVisible": true,
+      "bug004Fixed": true
+    },
+    "forms": {
+      "status": "PASS",
+      "interactive": true,
+      "capturedValue": "JaneLive Form Test Value"
+    },
+    "redaction": {
+      "status": "PASS",
+      "objectId": "redact-1790522821726",
+      "boxDimensions": "70x40 pt"
+    },
+    "export": {
+      "status": "PASS",
+      "downloadedFile": "FIXTURE_A_SINGLE_TEXT-edited.pdf",
+      "sizeBytes": 66489
+    },
+    "reopen": {
+      "status": "PASS",
+      "verifiedInCleanSession": true,
+      "pageCount": 1
+    }
+  },
+  "seo": {
+    "status": "PASS",
+    "canonicalsVerified": true,
+    "sitemapVerified": true,
+    "robotsTxtVerified": true
+  },
+  "accessibility": {
+    "status": "PASS",
+    "keyboardShortcutsWorking": true,
+    "shortcutHintPointerEventsNone": true,
+    "toolbarAriaLabels": true
+  },
+  "mobile": {
+    "status": "PASS",
+    "breakpointsTested": [375, 390, 430, 768],
+    "horizontalOverflow": "0px across all viewports"
+  },
+  "networkPrivacy": {
+    "status": "PASS",
+    "documentDataLeaks": 0,
+    "externalRequestsCarryingData": 0
+  },
+  "console": {
+    "status": "PASS",
+    "severeErrors": 0
+  },
+  "visualQA": {
+    "status": "PASS",
+    "screenshotsCaptured": [
+      "01_live_homepage_dark.png",
+      "02_live_homepage_light.png",
+      "03_live_editor_upload_state.png",
+      "04_live_document_loaded.png",
+      "05_live_ctrl_enter_hint.png",
+      "06_live_exported_pdf_reopened.png",
+      "07_live_mobile_375.png",
+      "07_live_mobile_390.png",
+      "07_live_mobile_430.png",
+      "07_live_mobile_768.png"
+    ]
+  },
+  "tests": [
+    {
+      "id": "LIVE-HOME-01",
+      "name": "Homepage Returns HTTP 200 OK",
+      "status": "PASS",
+      "details": {
+        "message": "Status: 200"
+      }
+    },
+    {
+      "id": "LIVE-HOME-02",
+      "name": "Homepage Canonical Matches https://pdfpage.tools/",
+      "status": "PASS",
+      "details": {
+        "message": "Canonical: https://pdfpage.tools/"
+      }
+    },
+    {
+      "id": "LIVE-HOME-03",
+      "name": "OG Site Name is PDFPage.Tools",
+      "status": "PASS",
+      "details": {
+        "message": "OG Site Name: PDFPage.Tools"
+      }
+    },
+    {
+      "id": "LIVE-HOME-04",
+      "name": "Homepage JSON-LD Contains WebSite & FAQPage Schemas",
+      "status": "PASS",
+      "details": {
+        "message": "WebSite: true, FAQPage: true"
+      }
+    },
+    {
+      "id": "LIVE-HOME-05",
+      "name": "Live Theme Switcher Operates on Homepage",
+      "status": "PASS",
+      "details": {
+        "message": "Dark mode activated: true"
+      }
+    },
+    {
+      "id": "LIVE-ED-01",
+      "name": "PDF Editor Returns HTTP 200 OK",
+      "status": "PASS",
+      "details": {
+        "message": "Status: 200"
+      }
+    },
+    {
+      "id": "LIVE-ED-02",
+      "name": "Sample Button Completely Absent on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "editor-sample-btn is null"
+      }
+    },
+    {
+      "id": "LIVE-ED-03",
+      "name": "Initial Landing Visible & Workspace Hidden on Fresh Visit",
+      "status": "PASS",
+      "details": {
+        "message": "Clean dropzone is ready"
+      }
+    },
+    {
+      "id": "LIVE-ED-04",
+      "name": "Zero Preloaded Sample/Demo Text in Live DOM",
+      "status": "PASS",
+      "details": {
+        "message": "Zero demo text found"
+      }
+    },
+    {
+      "id": "LIVE-ED-05",
+      "name": "PDF Editor Canonical is https://pdfpage.tools/pdf-editor/",
+      "status": "PASS",
+      "details": {
+        "message": "Canonical: https://pdfpage.tools/pdf-editor/"
+      }
+    },
+    {
+      "id": "LIVE-ED-06",
+      "name": "WebApplication JSON-LD Schema Present on Live Editor",
+      "status": "PASS",
+      "details": {
+        "message": "WebApplication: true"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-01",
+      "name": "Document Uploads and Renders Canvas on Live Production",
+      "status": "PASS",
+      "details": {
+        "message": "Document loaded and workspace visible"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-02",
+      "name": "Contextual Shortcut Hint Appears During Text Creation",
+      "status": "PASS",
+      "details": {
+        "message": "Hint: \"Ctrl + Enter · Save  |  Esc · Cancel\""
+      }
+    },
+    {
+      "id": "LIVE-FLOW-03",
+      "name": "Hint Has Non-Interfering pointer-events: none",
+      "status": "PASS",
+      "details": {
+        "message": "pointer-events: none"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-04",
+      "name": "Text \"basic\" Committed via Ctrl+Enter & Hint Dismissed",
+      "status": "PASS",
+      "details": {
+        "message": "Object ID: text-1790522817745"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-05",
+      "name": "Deselect \"basic\" via Outside Click",
+      "status": "PASS",
+      "details": {
+        "message": "Selected: null"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-06",
+      "name": "Reselect \"basic\" Object via Mouse Click (BUG-001 Live Fix)",
+      "status": "PASS",
+      "details": {
+        "message": "Reselected: text-1790522817745"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-07",
+      "name": "Hint Reappears on Re-Editing Existing Text",
+      "status": "PASS",
+      "details": {
+        "message": "Hint visible"
+      }
+    },
+    {
+      "id": "LIVE-FLOW-08",
+      "name": "Mutate Text to \"advanced\" and Commit",
+      "status": "PASS",
+      "details": {
+        "message": "Committed text: \"advanced\""
+      }
+    },
+    {
+      "id": "LIVE-FLOW-09",
+      "name": "Repeated Reselect of \"advanced\" Object Works",
+      "status": "PASS",
+      "details": {
+        "message": "Repeated reselect: text-1790522817745"
+      }
+    },
+    {
+      "id": "LIVE-GEST-01",
+      "name": "Drag-to-Move Object on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Initial (160.5, 220) -> Moved (221, 260)"
+      }
+    },
+    {
+      "id": "LIVE-GEST-02",
+      "name": "Resize Object via SE Corner Handle on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Width before: 80 -> After: 120"
+      }
+    },
+    {
+      "id": "LIVE-TXT-01",
+      "name": "Existing PDF Text Clickable & Shows Action Bar (BUG-004 Fix)",
+      "status": "PASS",
+      "details": {
+        "message": "Action bar visible: true"
+      }
+    },
+    {
+      "id": "LIVE-FORM-01",
+      "name": "Form Field Interacts & Stores Input on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Form store captured: \"JaneLive Form Test Value\""
+      }
+    },
+    {
+      "id": "LIVE-REDACT-01",
+      "name": "Create Redaction Mask Box on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Redaction Object: redact-1790522821726 (70x40 pt)"
+      }
+    },
+    {
+      "id": "LIVE-EXPORT-01",
+      "name": "Export Generates Downloaded PDF File on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Downloaded file: FIXTURE_A_SINGLE_TEXT-edited.pdf (66489 bytes)"
+      }
+    },
+    {
+      "id": "LIVE-REOPEN-01",
+      "name": "Reopen Exported PDF in Clean Session on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Pages: 1, Name: FIXTURE_A_SINGLE_TEXT-edited.pdf"
+      }
+    },
+    {
+      "id": "LIVE-MOB-375",
+      "name": "0px Horizontal Overflow at iPhone X / SE (375x812)",
+      "status": "PASS",
+      "details": {
+        "message": "Home overflow: false, Editor overflow: false"
+      }
+    },
+    {
+      "id": "LIVE-MOB-390",
+      "name": "0px Horizontal Overflow at iPhone 13 / 14 (390x844)",
+      "status": "PASS",
+      "details": {
+        "message": "Home overflow: false, Editor overflow: false"
+      }
+    },
+    {
+      "id": "LIVE-MOB-430",
+      "name": "0px Horizontal Overflow at iPhone Pro Max (430x932)",
+      "status": "PASS",
+      "details": {
+        "message": "Home overflow: false, Editor overflow: false"
+      }
+    },
+    {
+      "id": "LIVE-MOB-768",
+      "name": "0px Horizontal Overflow at iPad Mini (768x1024)",
+      "status": "PASS",
+      "details": {
+        "message": "Home overflow: false, Editor overflow: false"
+      }
+    },
+    {
+      "id": "LIVE-SEC-01",
+      "name": "Zero Document Data Leaked to External Services on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Document data leaks: 0"
+      }
+    },
+    {
+      "id": "LIVE-SEC-02",
+      "name": "Zero Severe Browser Runtime Console Errors on Live Site",
+      "status": "PASS",
+      "details": {
+        "message": "Console errors: 0"
+      }
+    }
+  ],
+  "summary": {
+    "total": 33,
+    "passed": 33,
+    "failed": 0
+  },
+  "finalVerdict": "LIVE PRODUCTION VERIFIED"
+}

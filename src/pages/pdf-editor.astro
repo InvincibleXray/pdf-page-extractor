@@ -1853,6 +1853,29 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     deleteTextBtn.addEventListener('click', () => editorStore.deleteSelectedObject());
   }
 
+  const inspectorEditTextBtn = document.getElementById('inspector-edit-text-btn');
+  if (inspectorEditTextBtn) {
+    inspectorEditTextBtn.addEventListener('click', () => {
+      const selected = editorStore.getSelectedObject();
+      if (selected && (selected.type === 'text' || selected.type === 'text-replacement')) {
+        interactionController.openInlineTextEditor(selected);
+      }
+    });
+  }
+
+  if (mobileInspectorContent) {
+    mobileInspectorContent.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement)?.closest('#inspector-edit-text-btn');
+      if (target) {
+        const selected = editorStore.getSelectedObject();
+        if (selected && (selected.type === 'text' || selected.type === 'text-replacement')) {
+          closeMobileSheet();
+          interactionController.openInlineTextEditor(selected);
+        }
+      }
+    });
+  }
+
   // Shape bindings
   document.querySelectorAll<HTMLButtonElement>('[data-shape-fill]').forEach((btn) => {
     btn.addEventListener('click', () => {

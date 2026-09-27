@@ -1,0 +1,125 @@
+{
+  "phase": "5.1",
+  "viewports": {
+    "375x812": {
+      "name": "iPhone X / SE",
+      "width": 375,
+      "height": 812,
+      "touchCapable": true,
+      "textCreation": true,
+      "reSelection": true,
+      "existingTextReplacement": true,
+      "cancelWorkflow": true,
+      "horizontalOverflowPx": 0
+    },
+    "390x844": {
+      "name": "iPhone 13 / 14",
+      "width": 390,
+      "height": 844,
+      "touchCapable": true,
+      "textCreation": true,
+      "reSelection": true,
+      "existingTextReplacement": true,
+      "cancelWorkflow": true,
+      "horizontalOverflowPx": 0
+    },
+    "430x932": {
+      "name": "iPhone 14 Pro Max",
+      "width": 430,
+      "height": 932,
+      "touchCapable": true,
+      "textCreation": true,
+      "reSelection": true,
+      "existingTextReplacement": true,
+      "cancelWorkflow": true,
+      "horizontalOverflowPx": 0
+    },
+    "768x1024": {
+      "name": "iPad Mini / Tablet",
+      "width": 768,
+      "height": 1024,
+      "touchCapable": true,
+      "textCreation": true,
+      "horizontalOverflowPx": 0,
+      "status": "PASS"
+    }
+  },
+  "touchEmulation": {
+    "method": "CDP Touchscreen Emulation + ontouchstart Detection (hasTouch: true)",
+    "viewportsTested": [
+      "375x812",
+      "390x844",
+      "430x932",
+      "768x1024"
+    ],
+    "status": "PASS"
+  },
+  "textCreation": {
+    "noTabKeyRequired": true,
+    "noCtrlEnterRequired": true,
+    "touchTapPlacement": true,
+    "popoverSave": true,
+    "status": "PASS"
+  },
+  "createdTextReEditing": {
+    "reSelectViaTouch": true,
+    "editViaActionBar": true,
+    "saveUpdatedText": true,
+    "status": "PASS"
+  },
+  "existingTextEditing": {
+    "touchTapExistingSpan": true,
+    "actionBarFitsViewport": true,
+    "replacementCommitted": true,
+    "status": "PASS"
+  },
+  "saveCancel": {
+    "saveButtonTested": true,
+    "cancelButtonTested": true,
+    "draftDiscardedOnCancel": true,
+    "status": "PASS"
+  },
+  "scrolling": {
+    "tested": true,
+    "viewport": "375x812",
+    "scrollable": true,
+    "status": "PASS"
+  },
+  "keyboardViewport": {
+    "simulationTested": true,
+    "simulatedHeightPx": 450,
+    "popoverAccessible": true,
+    "saveCancelInteractive": true,
+    "physicalKeyboardTested": false,
+    "physicalKeyboardResult": "NOT TESTED"
+  },
+  "forms": {
+    "tested": true,
+    "viewport": "375x812",
+    "interactive": true,
+    "status": "PASS"
+  },
+  "redaction": {
+    "tested": true,
+    "viewport": "375x812",
+    "redactionCreated": true,
+    "status": "PASS"
+  },
+  "console": {
+    "errors": 0,
+    "status": "PASS"
+  },
+  "networkPrivacy": {
+    "externalLeaks": 0,
+    "status": "PASS"
+  },
+  "physicalDevice": {
+    "tested": false,
+    "result": "NOT TESTED"
+  },
+  "evidenceGaps": [
+    "Physical Mobile Keyboard (Gboard / iOS Keyboard): NOT TESTED on laptop; simulated via visualViewport height reduction (450px).",
+    "Physical Hardware Device (Android / iPhone): NOT TESTED on laptop; executed via Chromium/CDP high-fidelity mobile touch emulation."
+  ],
+  "finalVerdict": "PASS — MOBILE BEHAVIORAL QA VERIFIED"
+}

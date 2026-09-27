@@ -40,6 +40,9 @@ export class EditorInteractionController {
   private penPoints: { x: number; y: number }[] = [];
   private ghostEl: HTMLElement | null = null;
   private activeInlineEditor: HTMLElement | null = null;
+  private textPlacementPreviewEl: HTMLElement | null = null;
+  private lastPointerPos = { x: 120, y: 120 };
+  private unsubscribeStore: (() => void) | null = null;
   private lastClickObjectId: string | null = null;
   private lastClickTime = 0;
 
@@ -86,6 +89,7 @@ export class EditorInteractionController {
     }
     if (this.selectionBoxEl) {
       this.selectionBoxEl.addEventListener('pointerdown', this.boundPointerDown);
+      this.selectionBoxEl.addEventListener('dblclick', this.boundDblClick);
     }
 
     if (this.actionBarEl) {
@@ -96,7 +100,15 @@ export class EditorInteractionController {
           const selectedTextId = editorStore.getSelectedExistingTextId();
           if (selectedTextId) {
             const item = pdfTextLayerManager.getTextItem(selectedTextId);
-            if (item) this.startEditingExistingText(item);
+            if (item) {
+              this.startEditingExistingText(item);
+              return;
+            }
+          }
+          const obj = editorStore.getSelectedObject();
+          if (obj && (obj.type === 'text' || obj.type === 'text-replacement')) {
+            this.openInlineTextEditor(obj as any);
+            return;
           }
         });
       }
@@ -138,12 +150,27 @@ export class EditorInteractionController {
       }
     }
 
+    // Subscribe to tool changes for instant placement affordance
+    this.unsubscribeStore = editorStore.subscribe((state) => {
+      if (state.activeTool === 'text') {
+        if (!this.activeInlineEditor) {
+          this.initTextPlacementPreview();
+        }
+      } else {
+        this.hideTextPlacementPreview();
+      }
+    });
+
     window.addEventListener('pointermove', this.boundPointerMove);
     window.addEventListener('pointerup', this.boundPointerUp);
     window.addEventListener('keydown', this.boundKeyDown);
   }
 
   public detach(): void {
+    if (this.unsubscribeStore) {
+      this.unsubscribeStore();
+      this.unsubscribeStore = null;
+    }
     if (this.overlayEl) {
       this.overlayEl.removeEventListener('pointerdown', this.boundPointerDown);
       this.overlayEl.removeEventListener('dblclick', this.boundDblClick);
@@ -159,12 +186,14 @@ export class EditorInteractionController {
     }
     if (this.selectionBoxEl) {
       this.selectionBoxEl.removeEventListener('pointerdown', this.boundPointerDown);
+      this.selectionBoxEl.removeEventListener('dblclick', this.boundDblClick);
     }
     window.removeEventListener('pointermove', this.boundPointerMove);
     window.removeEventListener('pointerup', this.boundPointerUp);
     window.removeEventListener('keydown', this.boundKeyDown);
     this.cleanupInlineEditor();
     this.cleanupGhost();
+    this.hideTextPlacementPreview();
     this.hideExistingTextActionBar();
   }
 
@@ -172,11 +201,85 @@ export class EditorInteractionController {
     this.viewport = viewport;
   }
 
+  public initTextPlacementPreview(): void {
+    if (!this.overlayEl) return;
+    this.hideTextPlacementPreview();
+
+    const preview = document.createElement('div');
+    preview.id = 'text-placement-preview';
+    preview.className = 'absolute pointer-events-none z-40 select-none transition-opacity duration-150';
+    preview.style.pointerEvents = 'none';
+
+    // Position at last known pointer pos or top-left center
+    const overlayRect = this.overlayEl.getBoundingClientRect();
+    const initX = Math.min(Math.max(20, this.lastPointerPos.x), Math.max(20, overlayRect.width - 160));
+    const initY = Math.min(Math.max(20, this.lastPointerPos.y), Math.max(20, overlayRect.height - 50));
+    preview.style.left = `${Math.round(initX)}px`;
+    preview.style.top = `${Math.round(initY)}px`;
+
+    preview.innerHTML = `
+      <div class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/15 dark:bg-blue-400/20 border-2 border-dashed border-blue-500 dark:border-blue-400 rounded-xl shadow-md text-blue-700 dark:text-blue-300 text-xs font-semibold backdrop-blur-xs select-none">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span id="text-placement-preview-label">Click to place text</span>
+      </div>
+    `;
+
+    this.overlayEl.appendChild(preview);
+    this.textPlacementPreviewEl = preview;
+  }
+
+  public showTextPlacementPreview(x: number, y: number): void {
+    if (!this.textPlacementPreviewEl) {
+      this.initTextPlacementPreview();
+    }
+    if (this.textPlacementPreviewEl) {
+      this.textPlacementPreviewEl.style.left = `${Math.round(x + 12)}px`;
+      this.textPlacementPreviewEl.style.top = `${Math.round(y + 12)}px`;
+      this.textPlacementPreviewEl.style.opacity = '1';
+    }
+  }
+
+  public hideTextPlacementPreview(): void {
+    if (this.textPlacementPreviewEl && this.textPlacementPreviewEl.parentElement) {
+      this.textPlacementPreviewEl.parentElement.removeChild(this.textPlacementPreviewEl);
+    }
+    this.textPlacementPreviewEl = null;
+  }
+
+  public positionActionBar(screenRect: { left: number; top: number; width: number; height: number }): void {
+    if (!this.actionBarEl || !this.overlayEl) return;
+    this.actionBarEl.classList.remove('hidden');
+
+    const overlayRect = this.overlayEl.getBoundingClientRect();
+    const barWidth = Math.min(this.actionBarEl.offsetWidth || 280, overlayRect.width - 16);
+    const barHeight = this.actionBarEl.offsetHeight || 36;
+
+    // Position above text by default; if near top edge, flip below text
+    let top = screenRect.top - barHeight - 8;
+    if (top < 8) {
+      top = screenRect.top + screenRect.height + 8;
+    }
+
+    // Clamp horizontally to prevent mobile right overflow
+    let left = screenRect.left;
+    const maxLeft = overlayRect.width - barWidth - 8;
+    if (left > maxLeft) left = maxLeft;
+    if (left < 8) left = 8;
+
+    this.actionBarEl.style.top = `${Math.round(top)}px`;
+    this.actionBarEl.style.left = `${Math.round(left)}px`;
+  }
+
   private handlePointerDown(e: PointerEvent): void {
     if (!this.overlayEl || !this.canvasEl || !this.viewport) return;
     if (e.button !== 0) return; // Main left click only
 
     const target = e.target as HTMLElement;
+
+    // Ignore clicks inside active popover editor
+    if (this.activeInlineEditor && (this.activeInlineEditor.contains(target) || target.closest('#active-inline-text-popover'))) {
+      return;
+    }
 
     // Check if clicking on form resize handles
     const formHandleEl = target.closest('[data-form-handle]') as HTMLElement | null;
@@ -235,14 +338,21 @@ export class EditorInteractionController {
       }
     }
 
-    const objectEl = target.closest('[data-object-id]') as HTMLElement | null;
+    let objectEl = target.closest('[data-object-id]') as HTMLElement | null;
+    let targetObjectId = objectEl ? objectEl.getAttribute('data-object-id') : null;
+    if (!targetObjectId) {
+      const selected = editorStore.getSelectedObject();
+      if (selected && target.closest('#selection-bounding-box')) {
+        targetObjectId = selected.id;
+        objectEl = document.getElementById(`obj-${selected.id}`);
+      }
+    }
     const now = Date.now();
 
     // Double click on text or text-replacement object opens inline editor
-    const isDouble = objectEl && (e.detail === 2 || (this.lastClickObjectId === objectEl.getAttribute('data-object-id') && (now - this.lastClickTime < 280)));
-    if (objectEl && isDouble) {
-      const id = objectEl.getAttribute('data-object-id');
-      const obj = state.objects.find((o) => o.id === id);
+    const isDouble = targetObjectId && (e.detail === 2 || (this.lastClickObjectId === targetObjectId && (now - this.lastClickTime < 500)));
+    if (targetObjectId && isDouble) {
+      const obj = state.objects.find((o) => o.id === targetObjectId);
       if (obj && (obj.type === 'text' || obj.type === 'text-replacement')) {
         e.preventDefault();
         e.stopPropagation();
@@ -252,8 +362,8 @@ export class EditorInteractionController {
         return;
       }
     }
-    if (objectEl) {
-      this.lastClickObjectId = objectEl.getAttribute('data-object-id');
+    if (targetObjectId) {
+      this.lastClickObjectId = targetObjectId;
       this.lastClickTime = now;
     } else {
       this.lastClickObjectId = null;
@@ -267,6 +377,14 @@ export class EditorInteractionController {
         editorStore.selectObject(id);
         const selected = editorStore.getSelectedObject();
         if (selected) {
+          if (selected.type === 'text' || selected.type === 'text-replacement') {
+            if (this.viewport) {
+              const screenRect = pdfRectToScreenRect(selected, this.viewport);
+              this.positionActionBar(screenRect);
+            }
+          } else {
+            this.hideExistingTextActionBar();
+          }
           e.preventDefault();
           this.isInteracting = true;
           this.interactionMode = 'move-object';
@@ -297,6 +415,7 @@ export class EditorInteractionController {
     // Text tool: click-to-type lifecycle
     if (activeTool === 'text') {
       e.preventDefault();
+      this.hideTextPlacementPreview();
       this.createInlineTextEditorAt(e.clientX, e.clientY);
       return;
     }
@@ -362,6 +481,23 @@ export class EditorInteractionController {
   }
 
   private handlePointerMove(e: PointerEvent): void {
+    this.lastPointerPos = { x: e.clientX, y: e.clientY };
+
+    // Text tool: smooth cursor-following placement preview without blocking events
+    const state = editorStore.getState();
+    if (state.activeTool === 'text' && !this.activeInlineEditor && this.overlayEl) {
+      const overlayRect = this.overlayEl.getBoundingClientRect();
+      const x = e.clientX - overlayRect.left;
+      const y = e.clientY - overlayRect.top;
+      if (x >= -40 && x <= overlayRect.width + 40 && y >= -40 && y <= overlayRect.height + 40) {
+        this.showTextPlacementPreview(x, y);
+      } else {
+        if (this.textPlacementPreviewEl) {
+          this.textPlacementPreviewEl.style.opacity = '0';
+        }
+      }
+    }
+
     if (!this.isInteracting || !this.overlayEl || !this.canvasEl || !this.viewport) return;
 
     const canvasRect = this.canvasEl.getBoundingClientRect();
@@ -729,13 +865,16 @@ export class EditorInteractionController {
         }
       }
     } else if (this.interactionMode === 'move-object' || this.interactionMode === 'resize-object') {
-      // Commit one consolidated history transaction on gesture finish
-      editorStore.recordHistorySnapshot();
-      try {
-        (window as any).__PDF_JUST_DRAGGED__ = Date.now();
-      } catch (err) {}
-      this.lastClickObjectId = null;
-      this.lastClickTime = 0;
+      const dist = Math.hypot(e.clientX - this.startPointer.x, e.clientY - this.startPointer.y);
+      if (dist > 3) {
+        // Commit one consolidated history transaction on drag finish
+        editorStore.recordHistorySnapshot();
+        try {
+          (window as any).__PDF_JUST_DRAGGED__ = Date.now();
+        } catch (err) {}
+        this.lastClickObjectId = null;
+        this.lastClickTime = 0;
+      }
     }
 
     this.isInteracting = false;
@@ -745,9 +884,15 @@ export class EditorInteractionController {
 
   private handleDblClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
-    const objectEl = target.closest('[data-object-id]') as HTMLElement | null;
-    if (objectEl) {
-      const id = objectEl.getAttribute('data-object-id');
+    let objectEl = target.closest('[data-object-id]') as HTMLElement | null;
+    let id = objectEl ? objectEl.getAttribute('data-object-id') : null;
+    if (!id) {
+      const selected = editorStore.getSelectedObject();
+      if (selected && target.closest('#selection-bounding-box')) {
+        id = selected.id;
+      }
+    }
+    if (id) {
       const obj = editorStore.getState().objects.find((o) => o.id === id);
       if (obj && (obj.type === 'text' || obj.type === 'text-replacement')) {
         e.preventDefault();
@@ -817,6 +962,243 @@ export class EditorInteractionController {
         }
       }
     }
+
+    // Escape key: cancel active tool / placement preview or deselect
+    if (e.key === 'Escape') {
+      const state = editorStore.getState();
+      if (state.activeTool !== 'select') {
+        e.preventDefault();
+        this.hideTextPlacementPreview();
+        this.cleanupGhost();
+        editorStore.setActiveTool('select');
+        return;
+      }
+      if (state.selectedObjectId || editorStore.getSelectedExistingTextId()) {
+        e.preventDefault();
+        this.hideExistingTextActionBar();
+        editorStore.selectObject(null);
+        editorStore.selectExistingText(null);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Unified anchored popover text editor (Visual Source of Truth: media_1790525014357.png)
+   */
+  private showAnchoredTextPopover(options: {
+    anchorScreenRect: { left: number; top: number; width: number; height: number };
+    initialText: string;
+    fontFamily?: string;
+    fontSize?: number;
+    isExistingText?: boolean;
+    onSave: (text: string) => void;
+    onCancel: () => void;
+  }): void {
+    if (!this.overlayEl || !this.viewport) return;
+    this.cleanupInlineEditor();
+    this.hideTextPlacementPreview();
+    this.hideExistingTextActionBar();
+
+    const { anchorScreenRect, initialText, fontFamily, fontSize, isExistingText, onSave, onCancel } = options;
+
+    // 1. Mount temporary whiteout mask behind the editor if editing existing text
+    if (isExistingText) {
+      const mask = document.createElement('div');
+      mask.id = 'temp-whiteout-mask';
+      mask.className = 'absolute bg-white z-40 rounded-xs pointer-events-none shadow-xs';
+      mask.style.left = `${anchorScreenRect.left - 2}px`;
+      mask.style.top = `${anchorScreenRect.top - 2}px`;
+      mask.style.width = `${anchorScreenRect.width + 4}px`;
+      mask.style.height = `${anchorScreenRect.height + 4}px`;
+      this.overlayEl.appendChild(mask);
+      this.tempWhiteoutMaskEl = mask;
+    }
+
+    // 2. Build Popover Card (Visual Source of Truth: media_1790525014357.png)
+    const popover = document.createElement('div');
+    popover.id = 'active-inline-text-popover';
+    popover.setAttribute('data-testid', 'anchored-text-popover');
+    popover.className =
+      'absolute z-50 bg-white dark:bg-[#141a24] border border-slate-200 dark:border-[#212b3c] rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-3 select-none flex flex-col gap-2.5 transition-all pointer-events-auto';
+    popover.style.width = '320px';
+    popover.style.maxWidth = 'calc(100vw - 24px)';
+    popover.style.pointerEvents = 'auto';
+    popover.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+    // Popover beak (upward/downward caret arrow)
+    const beak = document.createElement('div');
+    beak.id = 'popover-beak';
+    beak.className = 'absolute w-3.5 h-3.5 bg-white dark:bg-[#141a24] border-slate-200 dark:border-[#212b3c] rotate-45';
+
+    // Text input area (prominent blue outline, comfortable padding, matching reference image)
+    const input = document.createElement('div');
+    input.id = 'active-inline-text-editor';
+    input.contentEditable = 'true';
+    input.role = 'textbox';
+    input.setAttribute('aria-label', 'Text content');
+    input.className =
+      'w-full min-h-[46px] max-h-[140px] overflow-y-auto outline-none border-2 border-blue-500 focus:border-blue-600 rounded-xl p-2.5 text-sm bg-white dark:bg-[#101621] text-slate-900 dark:text-white select-text pointer-events-auto';
+    input.style.pointerEvents = 'auto';
+    input.style.fontFamily = fontFamily || 'Inter, sans-serif';
+    if (fontSize && fontSize > 10) {
+      input.style.fontSize = `${Math.min(fontSize, 20)}px`;
+    }
+    input.innerText = initialText;
+
+    // Action buttons (Cancel & Save)
+    const actions = document.createElement('div');
+    actions.className = 'flex items-center justify-end gap-2 pt-1 pointer-events-auto';
+    actions.style.pointerEvents = 'auto';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.id = 'inline-text-cancel-btn';
+    cancelBtn.setAttribute('aria-label', 'Cancel');
+    cancelBtn.className =
+      'px-4 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-xs sm:text-sm font-medium transition-colors cursor-pointer shadow-2xs pointer-events-auto';
+    cancelBtn.style.pointerEvents = 'auto';
+    cancelBtn.textContent = 'Cancel';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.id = 'inline-text-save-btn';
+    saveBtn.setAttribute('aria-label', 'Save');
+    saveBtn.className =
+      'px-5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs cursor-pointer pointer-events-auto';
+    saveBtn.style.pointerEvents = 'auto';
+    saveBtn.textContent = 'Save';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(saveBtn);
+
+    popover.appendChild(beak);
+    popover.appendChild(input);
+    popover.appendChild(actions);
+
+    // Screen-reader and backward-compatibility hint (hidden from visual UI per Phase 5 spec)
+    const hint = document.createElement('div');
+    hint.id = 'inline-editor-hint';
+    hint.textContent = 'Ctrl + Enter · Save  |  Esc · Cancel';
+    hint.className = 'sr-only select-none pointer-events-none';
+    hint.style.position = 'absolute';
+    hint.style.pointerEvents = 'none';
+
+    // Positioning calculations
+    const overlayRect = this.overlayEl.getBoundingClientRect();
+    const popoverWidth = Math.min(320, overlayRect.width - 24);
+    const popoverHeight = 125;
+
+    // Default: position below anchor
+    let top = anchorScreenRect.top + anchorScreenRect.height + 10;
+    let placeBeakAt = 'top';
+
+    // If bottom overflow, flip above anchor
+    if (top + popoverHeight > overlayRect.height - 12 && anchorScreenRect.top - popoverHeight - 10 > 12) {
+      top = anchorScreenRect.top - popoverHeight - 10;
+      placeBeakAt = 'bottom';
+    }
+
+    // Horizontal positioning & clamping
+    let left = anchorScreenRect.left - 24;
+    const maxLeft = overlayRect.width - popoverWidth - 12;
+    if (left > maxLeft) left = maxLeft;
+    if (left < 12) left = 12;
+
+    popover.style.left = `${Math.round(left)}px`;
+    popover.style.top = `${Math.round(top)}px`;
+
+    // Position beak horizontally to point to center of anchor
+    const anchorCenter = anchorScreenRect.left + anchorScreenRect.width / 2;
+    const beakLeft = Math.max(16, Math.min(anchorCenter - left - 7, popoverWidth - 24));
+    beak.style.left = `${Math.round(beakLeft)}px`;
+
+    if (placeBeakAt === 'top') {
+      beak.style.top = '-7px';
+      beak.style.borderTopWidth = '1px';
+      beak.style.borderLeftWidth = '1px';
+    } else {
+      beak.style.bottom = '-7px';
+      beak.style.borderBottomWidth = '1px';
+      beak.style.borderRightWidth = '1px';
+    }
+
+    hint.style.left = popover.style.left;
+    hint.style.top = `calc(${popover.style.top} + ${popoverHeight + 10}px)`;
+
+    this.overlayEl.appendChild(popover);
+    this.overlayEl.appendChild(hint);
+    this.activeInlineEditor = popover;
+
+    // Action handlers with race prevention
+    let actionHandled = false;
+
+    const commitAndClose = (e?: Event) => {
+      if (actionHandled) return;
+      actionHandled = true;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const text = input.innerText.trim();
+      this.cleanupInlineEditor();
+      onSave(text);
+    };
+
+    const cancelAndClose = (e?: Event) => {
+      if (actionHandled) return;
+      actionHandled = true;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      this.cleanupInlineEditor();
+      onCancel();
+    };
+
+    saveBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      commitAndClose(e);
+    });
+    saveBtn.addEventListener('click', (e) => commitAndClose(e));
+
+    cancelBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      cancelAndClose(e);
+    });
+    cancelBtn.addEventListener('click', (e) => cancelAndClose(e));
+
+    // Secondary keyboard shortcuts for desktop
+    input.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        commitAndClose();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        cancelAndClose();
+      }
+    });
+
+    // Auto-focus input
+    setTimeout(() => {
+      input.focus();
+      try {
+        input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } catch (err) {}
+      if (initialText) {
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(input);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        } catch (err) {}
+      }
+    }, 20);
   }
 
   /**
@@ -824,191 +1206,90 @@ export class EditorInteractionController {
    */
   private createInlineTextEditorAt(clientX: number, clientY: number): void {
     if (!this.overlayEl || !this.canvasEl || !this.viewport) return;
-
-    this.cleanupInlineEditor();
+    this.hideTextPlacementPreview();
 
     const canvasRect = this.canvasEl.getBoundingClientRect();
     const cssX = clientX - canvasRect.left;
     const cssY = clientY - canvasRect.top;
 
-    const editor = document.createElement('div');
-    editor.id = 'active-inline-text-editor';
-    editor.contentEditable = 'true';
-    editor.className =
-      'absolute outline-none min-w-[80px] min-h-[28px] p-1.5 bg-white dark:bg-[#1a2232] border-2 border-brand-500 rounded-md shadow-lg text-slate-900 dark:text-white text-sm z-50 overflow-hidden';
-    editor.style.left = `${cssX}px`;
-    editor.style.top = `${cssY}px`;
-    editor.style.fontFamily = 'Inter, sans-serif';
-    editor.style.fontSize = '14px';
-    editor.style.lineHeight = '1.3';
-
-    this.overlayEl.appendChild(editor);
-    this.activeInlineEditor = editor;
-
-    const hint = document.createElement('div');
-    hint.id = 'inline-editor-hint';
-    hint.textContent = 'Ctrl + Enter · Save  |  Esc · Cancel';
-    hint.className = 'text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-1 select-none pointer-events-none';
-    hint.style.position = 'absolute';
-    hint.style.left = editor.style.left;
-    const updateHintPos = () => {
-      hint.style.top = `calc(${editor.style.top} + ${editor.offsetHeight}px)`;
-    };
-    updateHintPos();
-    editor.addEventListener('input', updateHintPos);
-    this.overlayEl.appendChild(hint);
-
-    // Focus editor
-    setTimeout(() => {
-      editor.focus();
-    }, 10);
-
-    const commitAndClose = () => {
-      if (!this.activeInlineEditor) return;
-      const text = this.activeInlineEditor.innerText.trim();
-      const rect = this.activeInlineEditor.getBoundingClientRect();
-      const width = Math.max(rect.width, 80);
-      const height = Math.max(rect.height, 28);
-
-      this.cleanupInlineEditor();
-
-      if (text.length > 0 && this.viewport) {
-        const pdfRect = screenRectToPdfRect({ left: cssX, top: cssY, width, height }, this.viewport);
-        const newTextObj: TextEditorObject = {
-          id: `text-${Date.now()}`,
-          type: 'text',
-          pageNumber: editorStore.getState().currentPage,
-          x: pdfRect.x,
-          y: pdfRect.y,
-          width: pdfRect.width,
-          height: pdfRect.height,
-          rotation: 0,
-          opacity: 1,
-          zIndex: 10,
-          text,
-          fontFamily: 'Inter',
-          fontSize: 14,
-          fontWeight: 'normal',
-          fontStyle: 'normal',
-          textDecoration: 'none',
-          textAlign: 'left',
-          color: '#0f172a',
-        };
-        editorStore.addObject(newTextObj, true);
+    this.showAnchoredTextPopover({
+      anchorScreenRect: { left: cssX, top: cssY, width: 20, height: 20 },
+      initialText: '',
+      onSave: (text) => {
+        if (text.length > 0 && this.viewport) {
+          const pdfRect = screenRectToPdfRect({ left: cssX, top: cssY, width: 80, height: 28 }, this.viewport);
+          const newTextObj: TextEditorObject = {
+            id: `text-${Date.now()}`,
+            type: 'text',
+            pageNumber: editorStore.getState().currentPage,
+            x: pdfRect.x,
+            y: pdfRect.y,
+            width: pdfRect.width,
+            height: pdfRect.height,
+            rotation: 0,
+            opacity: 1,
+            zIndex: 10,
+            text,
+            fontFamily: 'Inter',
+            fontSize: 14,
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            textDecoration: 'none',
+            textAlign: 'left',
+            color: '#0f172a',
+          };
+          editorStore.addObject(newTextObj, true);
+          editorStore.selectObject(newTextObj.id);
+        }
         editorStore.setActiveTool('select');
-      } else {
-        // Clean removal without leaving orphaned object
+      },
+      onCancel: () => {
         editorStore.setActiveTool('select');
-      }
-    };
-
-    editor.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        commitAndClose();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        this.cleanupInlineEditor();
-        editorStore.setActiveTool('select');
-      }
-      // Plain Enter inserts normal newline for multiline text
-    });
-
-    editor.addEventListener('blur', () => {
-      // Small timeout to allow potential button clicks
-      setTimeout(commitAndClose, 50);
+      },
     });
   }
 
   /**
    * Reopens inline editor for an existing text object or text replacement.
    */
-  private openInlineTextEditor(obj: TextEditorObject | TextReplacementEditorObject): void {
+  public openInlineTextEditor(obj: TextEditorObject | TextReplacementEditorObject): void {
     if (!this.overlayEl || !this.viewport) return;
-    this.cleanupInlineEditor();
+    this.hideTextPlacementPreview();
+    this.hideExistingTextActionBar();
 
     const screenRect = pdfRectToScreenRect(obj, this.viewport);
     const initialText = obj.type === 'text' ? (obj as TextEditorObject).text : (obj as TextReplacementEditorObject).replacementText;
 
-    const editor = document.createElement('div');
-    editor.id = 'active-inline-text-editor';
-    editor.contentEditable = 'true';
-    editor.className =
-      'absolute outline-none min-w-[80px] p-1 bg-white dark:bg-[#1a2232] border-2 border-brand-500 rounded-md shadow-lg text-slate-900 dark:text-white z-50';
-    editor.style.left = `${screenRect.left}px`;
-    editor.style.top = `${screenRect.top}px`;
-    editor.style.width = `${Math.max(screenRect.width, 100)}px`;
-    editor.style.fontFamily = obj.fontFamily;
-    editor.style.fontSize = `${obj.fontSize * this.viewport.scale}px`;
-    editor.style.fontWeight = obj.fontWeight;
-    editor.style.fontStyle = obj.fontStyle;
-    editor.style.color = obj.color;
-    editor.innerText = initialText;
-
-    this.overlayEl.appendChild(editor);
-    this.activeInlineEditor = editor;
-
-    const hint = document.createElement('div');
-    hint.id = 'inline-editor-hint';
-    hint.textContent = 'Ctrl + Enter · Save  |  Esc · Cancel';
-    hint.className = 'text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-1 select-none pointer-events-none';
-    hint.style.position = 'absolute';
-    hint.style.left = editor.style.left;
-    const updateHintPos = () => {
-      hint.style.top = `calc(${editor.style.top} + ${editor.offsetHeight}px)`;
-    };
-    updateHintPos();
-    editor.addEventListener('input', updateHintPos);
-    this.overlayEl.appendChild(hint);
-
-    setTimeout(() => {
-      editor.focus();
-      // Select all text
-      const range = document.createRange();
-      range.selectNodeContents(editor);
-      const sel = window.getSelection();
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }, 10);
-
-    const commitAndClose = () => {
-      if (!this.activeInlineEditor) return;
-      const text = this.activeInlineEditor.innerText.trim();
-      this.cleanupInlineEditor();
-      if (text.length > 0) {
-        if (obj.type === 'text') {
-          editorStore.updateObject(obj.id, { text }, true);
+    this.showAnchoredTextPopover({
+      anchorScreenRect: screenRect,
+      initialText,
+      fontFamily: obj.fontFamily,
+      fontSize: obj.fontSize * this.viewport.scale,
+      onSave: (text) => {
+        if (text.length > 0) {
+          if (obj.type === 'text') {
+            editorStore.updateObject(obj.id, { text }, true);
+          } else {
+            let measuredWidthPt = 0;
+            try {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.font = `${obj.fontSize}px ${obj.fontFamily || 'sans-serif'}`;
+                measuredWidthPt = ctx.measureText(text).width;
+              }
+            } catch (e) {}
+            const newWidth = Math.max(obj.width, measuredWidthPt + 6);
+            editorStore.updateObject(obj.id, { replacementText: text, width: Math.round(newWidth) }, true);
+          }
         } else {
-          let measuredWidthPt = 0;
-          try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.font = `${obj.fontSize}px ${obj.fontFamily || 'sans-serif'}`;
-              measuredWidthPt = ctx.measureText(text).width;
-            }
-          } catch (e) {}
-          const newWidth = Math.max(obj.width, measuredWidthPt + 6);
-          editorStore.updateObject(obj.id, { replacementText: text, width: Math.round(newWidth) }, true);
+          editorStore.deleteSelectedObject();
         }
-      } else {
-        editorStore.deleteSelectedObject();
-      }
-    };
-
-    editor.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        commitAndClose();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        this.cleanupInlineEditor();
         editorStore.setActiveTool('select');
-      }
-    });
-
-    editor.addEventListener('blur', () => {
-      setTimeout(commitAndClose, 80);
+      },
+      onCancel: () => {
+        editorStore.setActiveTool('select');
+      },
     });
   }
 
@@ -1064,11 +1345,7 @@ export class EditorInteractionController {
     // Position action bar above or below the text bounds
     if (this.actionBarEl && this.viewport) {
       const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
-      this.actionBarEl.classList.remove('hidden');
-      const pillTop = Math.max(8, screenRect.top - 38);
-      const pillLeft = Math.max(8, screenRect.left);
-      this.actionBarEl.style.top = `${pillTop}px`;
-      this.actionBarEl.style.left = `${pillLeft}px`;
+      this.positionActionBar(screenRect);
     }
   }
 
@@ -1087,136 +1364,66 @@ export class EditorInteractionController {
     if (!this.overlayEl || !this.viewport) return;
     this.hideExistingTextActionBar();
     this.cleanupInlineEditor();
+    this.hideTextPlacementPreview();
 
     const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
 
-    // 1. Mount temporary whiteout mask behind the editor so the user sees the original text covered in real time
-    const mask = document.createElement('div');
-    mask.id = 'temp-whiteout-mask';
-    mask.className = 'absolute bg-white z-40 rounded-xs pointer-events-none shadow-xs';
-    mask.style.left = `${screenRect.left - 2}px`;
-    mask.style.top = `${screenRect.top - 2}px`;
-    mask.style.width = `${screenRect.width + 4}px`;
-    mask.style.height = `${screenRect.height + 4}px`;
-    this.overlayEl.appendChild(mask);
-    this.tempWhiteoutMaskEl = mask;
+    this.showAnchoredTextPopover({
+      anchorScreenRect: screenRect,
+      initialText: item.text,
+      fontFamily: item.fontFamily,
+      fontSize: item.fontSize * this.viewport.scale,
+      isExistingText: true,
+      onSave: (text) => {
+        if (text.length > 0 && text !== item.text) {
+          let measuredWidthPt = 0;
+          try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.font = `${item.fontStyle || 'normal'} ${item.fontWeight || 'normal'} ${item.fontSize}px ${item.fontFamily || 'sans-serif'}`;
+              measuredWidthPt = ctx.measureText(text).width;
+            }
+          } catch (e) {}
 
-    // 2. Mount inline contenteditable editor directly over the mask
-    const editor = document.createElement('div');
-    editor.id = 'active-inline-text-editor';
-    editor.contentEditable = 'true';
-    editor.className =
-      'absolute outline-none min-w-[60px] p-0.5 bg-white dark:bg-[#1a2232] border-2 border-brand-500 rounded-xs shadow-lg text-slate-900 dark:text-white z-50';
-    editor.style.left = `${screenRect.left - 2}px`;
-    editor.style.top = `${screenRect.top - 2}px`;
-    editor.style.minWidth = `${screenRect.width + 4}px`;
-    editor.style.minHeight = `${screenRect.height + 4}px`;
-    editor.style.fontFamily = item.fontFamily || 'Inter, sans-serif';
-    editor.style.fontSize = `${item.fontSize * this.viewport.scale}px`;
-    editor.style.fontWeight = item.fontWeight || 'normal';
-    editor.style.fontStyle = item.fontStyle || 'normal';
-    editor.style.lineHeight = '1.2';
-    editor.innerText = item.text;
+          const finalWidth = Math.max(item.pdfBounds.width, measuredWidthPt + 6);
+          const replacementObj: TextReplacementEditorObject = {
+            id: `rep-${Date.now()}`,
+            type: 'text-replacement',
+            pageNumber: item.pageNumber,
+            sourceTextItemId: item.id,
+            originalText: item.text,
+            replacementText: text,
+            x: item.pdfBounds.x,
+            y: item.pdfBounds.y,
+            width: Math.round(finalWidth),
+            height: Math.round(item.pdfBounds.height),
+            rotation: 0,
+            opacity: 1,
+            zIndex: 10,
+            fontSize: item.fontSize,
+            fontFamily: item.fontFamily || 'Inter',
+            fontWeight: (item.fontWeight as any) || 'normal',
+            fontStyle: (item.fontStyle as any) || 'normal',
+            textDecoration: 'none',
+            textAlign: 'left',
+            color: item.color || '#0f172a',
+            backgroundColor: '#ffffff',
+            maskPadding: 2,
+          };
 
-    this.overlayEl.appendChild(editor);
-    this.activeInlineEditor = editor;
-
-    setTimeout(() => {
-      editor.focus();
-      const range = document.createRange();
-      range.selectNodeContents(editor);
-      const sel = window.getSelection();
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }, 10);
-
-    const commitAndClose = () => {
-      if (!this.activeInlineEditor) return;
-      const text = this.activeInlineEditor.innerText.trim();
-      const editorRect = this.activeInlineEditor.getBoundingClientRect();
-      const overlayRect = this.overlayEl ? this.overlayEl.getBoundingClientRect() : null;
-
-      let finalWidth = item.pdfBounds.width;
-      let finalHeight = item.pdfBounds.height;
-
-      let measuredWidthPt = 0;
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.font = `${item.fontStyle || 'normal'} ${item.fontWeight || 'normal'} ${item.fontSize}px ${item.fontFamily || 'sans-serif'}`;
-          measuredWidthPt = ctx.measureText(text).width;
+          editorStore.addObject(replacementObj, true);
+          if (this.textLayerEl) {
+            pdfTextLayerManager.hideSpan(item.id, this.textLayerEl);
+          }
         }
-      } catch (e) {}
-
-      if (editorRect && overlayRect && this.viewport) {
-        const mappedRect = screenRectToPdfRect(
-          {
-            left: editorRect.left - overlayRect.left,
-            top: editorRect.top - overlayRect.top,
-            width: editorRect.width,
-            height: editorRect.height,
-          },
-          this.viewport
-        );
-        finalWidth = Math.max(item.pdfBounds.width, mappedRect.width, measuredWidthPt + 6);
-        finalHeight = Math.max(item.pdfBounds.height, mappedRect.height);
-      } else {
-        finalWidth = Math.max(item.pdfBounds.width, measuredWidthPt + 6);
-      }
-
-      this.cleanupInlineEditor();
-
-      if (text.length > 0 && text !== item.text) {
-        // Create replacement object
-        const replacementObj: TextReplacementEditorObject = {
-          id: `rep-${Date.now()}`,
-          type: 'text-replacement',
-          pageNumber: item.pageNumber,
-          sourceTextItemId: item.id,
-          originalText: item.text,
-          replacementText: text,
-          x: item.pdfBounds.x,
-          y: item.pdfBounds.y,
-          width: Math.round(finalWidth),
-          height: Math.round(finalHeight),
-          rotation: 0,
-          opacity: 1,
-          zIndex: 10,
-          fontSize: item.fontSize,
-          fontFamily: item.fontFamily || 'Inter',
-          fontWeight: (item.fontWeight as any) || 'normal',
-          fontStyle: (item.fontStyle as any) || 'normal',
-          textDecoration: 'none',
-          textAlign: 'left',
-          color: item.color || '#0f172a',
-          backgroundColor: '#ffffff',
-          maskPadding: 2,
-        };
-
-        editorStore.addObject(replacementObj, true);
-        if (this.textLayerEl) {
-          pdfTextLayerManager.hideSpan(item.id, this.textLayerEl);
-        }
-      }
-      editorStore.selectExistingText(null);
-      editorStore.setActiveTool('select');
-    };
-
-    editor.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        commitAndClose();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        this.cleanupInlineEditor();
         editorStore.selectExistingText(null);
         editorStore.setActiveTool('select');
-      }
-    });
-
-    editor.addEventListener('blur', () => {
-      setTimeout(commitAndClose, 80);
+      },
+      onCancel: () => {
+        editorStore.selectExistingText(null);
+        editorStore.setActiveTool('select');
+      },
     });
   }
 
@@ -1394,13 +1601,35 @@ export class EditorInteractionController {
     }
     this.activeInlineEditor = null;
 
+    const popover = document.getElementById('active-inline-text-popover');
+    if (popover && popover.parentElement) {
+      popover.parentElement.removeChild(popover);
+    }
+
+    const editor = document.getElementById('active-inline-text-editor');
+    if (editor && editor.parentElement) {
+      editor.parentElement.removeChild(editor);
+    }
+
+    const commentPopover = document.getElementById('active-comment-popover');
+    if (commentPopover && commentPopover.parentElement) {
+      commentPopover.parentElement.removeChild(commentPopover);
+    }
+
     const hint = document.getElementById('inline-editor-hint');
-    if (hint) hint.remove();
+    if (hint && hint.parentElement) {
+      hint.parentElement.removeChild(hint);
+    }
 
     if (this.tempWhiteoutMaskEl && this.tempWhiteoutMaskEl.parentElement) {
       this.tempWhiteoutMaskEl.parentElement.removeChild(this.tempWhiteoutMaskEl);
     }
     this.tempWhiteoutMaskEl = null;
+
+    const strayMask = document.getElementById('temp-whiteout-mask');
+    if (strayMask && strayMask.parentElement) {
+      strayMask.parentElement.removeChild(strayMask);
+    }
   }
 
   private initGhost(tool: EditorTool): void {

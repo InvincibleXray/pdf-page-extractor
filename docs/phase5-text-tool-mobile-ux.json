@@ -1,0 +1,343 @@
+{
+  "phase": 5,
+  "phaseName": "PHASE 5 — TEXT TOOL UX REWORK + MOBILE EDITING",
+  "timestamp": "2026-09-27T16:54:57.525Z",
+  "targetUrl": "http://127.0.0.1:4321/pdf-editor/",
+  "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "summary": {
+    "total": 33,
+    "passed": 33,
+    "failed": 0,
+    "verdict": "PASS — TEXT UX VERIFIED"
+  },
+  "tests": [
+    {
+      "id": "P5-PREV-01",
+      "name": "Text Tool Activation Immediately Displays Placement Preview (No Tab/Click Required)",
+      "status": "PASS",
+      "details": {
+        "message": "Preview exists: true, display: block, text: \"Click to place text\""
+      }
+    },
+    {
+      "id": "P5-PREV-02",
+      "name": "Placement Preview has pointer-events: none (Zero Click Shielding)",
+      "status": "PASS",
+      "details": {
+        "message": "pointerEvents: none"
+      }
+    },
+    {
+      "id": "P5-PREV-03",
+      "name": "Placement Preview Dynamically Follows Cursor Over Canvas on PointerMove",
+      "status": "PASS",
+      "details": {
+        "message": "Pos1: (162, 211) -> Pos2: (262, 331)"
+      }
+    },
+    {
+      "id": "P5-PREV-04",
+      "name": "Placement Preview Hides Immediately When Tool Switches Away from Text",
+      "status": "PASS",
+      "details": {
+        "message": "Preview hidden on select tool: true"
+      }
+    },
+    {
+      "id": "P5-POP-01",
+      "name": "Canvas Click Opens Anchored Popover and Hides Placement Preview",
+      "status": "PASS",
+      "details": {
+        "message": "Popover exists: true, Preview hidden: true"
+      }
+    },
+    {
+      "id": "P5-POP-02",
+      "name": "Popover Has Directional Beak / Caret Pointing to Text Anchor",
+      "status": "PASS",
+      "details": {
+        "message": "Beak present: true"
+      }
+    },
+    {
+      "id": "P5-POP-03",
+      "name": "Popover Contains Text Input with Blue Focus Border and ContentEditable",
+      "status": "PASS",
+      "details": {
+        "message": "ContentEditable: true, Blue border: true (rgb(37, 99, 235))"
+      }
+    },
+    {
+      "id": "P5-POP-04",
+      "name": "Popover Contains Secondary \"Cancel\" Button",
+      "status": "PASS",
+      "details": {
+        "message": "Cancel button present with text \"Cancel\""
+      }
+    },
+    {
+      "id": "P5-POP-05",
+      "name": "Popover Contains Primary \"Save\" Button",
+      "status": "PASS",
+      "details": {
+        "message": "Save button present with text \"Save\""
+      }
+    },
+    {
+      "id": "P5-CANCEL-01",
+      "name": "Clicking Cancel Discards New Text, Closes Popover, and Restores \"select\" Tool",
+      "status": "PASS",
+      "details": {
+        "message": "Popover closed: true, Object count: 0, Active tool: \"select\""
+      }
+    },
+    {
+      "id": "P5-SAVE-01",
+      "name": "Clicking Save Commits Text Object and Selects It with Bounding Box",
+      "status": "PASS",
+      "details": {
+        "message": "Committed object ID: text-1790528104961, Selection visible: true"
+      }
+    },
+    {
+      "id": "P5-RESELECT-01",
+      "name": "Clicking Empty Canvas Deselects Text Object",
+      "status": "PASS",
+      "details": {
+        "message": "Deselected: true"
+      }
+    },
+    {
+      "id": "P5-RESELECT-02",
+      "name": "Clicking Created Text Object Reselects It and Displays Action Bar",
+      "status": "PASS",
+      "details": {
+        "message": "Selected ID: text-1790528104961, Action bar visible: true"
+      }
+    },
+    {
+      "id": "P5-EDIT-ACTBAR",
+      "name": "Clicking Action Bar \"Edit\" Re-Opens Anchored Popover with Current Text",
+      "status": "PASS",
+      "details": {
+        "message": "Popover open: true, Text in editor: \"Phase5 Verified Heading\""
+      }
+    },
+    {
+      "id": "P5-EDIT-SAVE-01",
+      "name": "Save Button Updates Object Text in Store and Viewport",
+      "status": "PASS",
+      "details": {
+        "message": "Text after save: \"Phase5 Mutated Once\""
+      }
+    },
+    {
+      "id": "P5-EDIT-DBLCLK",
+      "name": "Double-Clicking Text Object Directly Re-Opens Popover",
+      "status": "PASS",
+      "details": {
+        "message": "Popover open: true, Text in editor: \"Phase5 Mutated Once\""
+      }
+    },
+    {
+      "id": "P5-EDIT-CANCEL",
+      "name": "Clicking Cancel During Re-Editing Discards Mutation and Restores Prior Content",
+      "status": "PASS",
+      "details": {
+        "message": "Text preserved after cancel: \"Phase5 Mutated Once\""
+      }
+    },
+    {
+      "id": "P5-INSPECT-EDIT",
+      "name": "Clicking \"Edit Text Content\" Button in Properties Inspector Opens Popover",
+      "status": "PASS",
+      "details": {
+        "message": "Inspector button triggered popover: true, Text: \"Phase5 Mutated Once\""
+      }
+    },
+    {
+      "id": "P5-REPEATED-CYCLE",
+      "name": "Object Successfully Reselected and Edited 3+ Consecutive Times without Failure",
+      "status": "PASS",
+      "details": {
+        "message": "Passed edit via Action Bar, Double Click, and Inspector Button sequentially"
+      }
+    },
+    {
+      "id": "P5-MOB-375-BAR",
+      "name": "Existing Text Action Bar Fits Viewport [375px] Without Horizontal Overflow",
+      "status": "PASS",
+      "details": {
+        "message": "Bar visible: true, Right: 356.328125px <= 375px, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-375-EDIT",
+      "name": "Mobile Popover Opens with Accessible Save & Cancel Buttons Within Viewport [375px]",
+      "status": "PASS",
+      "details": {
+        "message": "Popover open: true, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-375-NOHINT",
+      "name": "Mobile UI Completely Free of Keyboard Shortcut Clutter (\"Ctrl+Enter\", \"Esc\")",
+      "status": "PASS",
+      "details": {
+        "message": "No shortcut text in UI: true, Hint sr-only: true"
+      }
+    },
+    {
+      "id": "P5-MOB-375-SAVE",
+      "name": "Mobile Replacement Text Saved Cleanly via Popover Save Button [375px]",
+      "status": "PASS",
+      "details": {
+        "message": "Committed replacement text: \"Mobile Replacement 375\""
+      }
+    },
+    {
+      "id": "P5-MOB-390-BAR",
+      "name": "Existing Text Action Bar Fits Viewport [390px] Without Horizontal Overflow",
+      "status": "PASS",
+      "details": {
+        "message": "Bar visible: true, Right: 363.328125px <= 390px, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-390-EDIT",
+      "name": "Mobile Popover Opens with Accessible Save & Cancel Buttons Within Viewport [390px]",
+      "status": "PASS",
+      "details": {
+        "message": "Popover open: true, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-390-NOHINT",
+      "name": "Mobile UI Completely Free of Keyboard Shortcut Clutter (\"Ctrl+Enter\", \"Esc\")",
+      "status": "PASS",
+      "details": {
+        "message": "No shortcut text in UI: true, Hint sr-only: true"
+      }
+    },
+    {
+      "id": "P5-MOB-390-SAVE",
+      "name": "Mobile Replacement Text Saved Cleanly via Popover Save Button [390px]",
+      "status": "PASS",
+      "details": {
+        "message": "Committed replacement text: \"Mobile Replacement 390\""
+      }
+    },
+    {
+      "id": "P5-MOB-430-BAR",
+      "name": "Existing Text Action Bar Fits Viewport [430px] Without Horizontal Overflow",
+      "status": "PASS",
+      "details": {
+        "message": "Bar visible: true, Right: 366.328125px <= 430px, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-430-EDIT",
+      "name": "Mobile Popover Opens with Accessible Save & Cancel Buttons Within Viewport [430px]",
+      "status": "PASS",
+      "details": {
+        "message": "Popover open: true, Fits: true"
+      }
+    },
+    {
+      "id": "P5-MOB-430-NOHINT",
+      "name": "Mobile UI Completely Free of Keyboard Shortcut Clutter (\"Ctrl+Enter\", \"Esc\")",
+      "status": "PASS",
+      "details": {
+        "message": "No shortcut text in UI: true, Hint sr-only: true"
+      }
+    },
+    {
+      "id": "P5-MOB-430-SAVE",
+      "name": "Mobile Replacement Text Saved Cleanly via Popover Save Button [430px]",
+      "status": "PASS",
+      "details": {
+        "message": "Committed replacement text: \"Mobile Replacement 430\""
+      }
+    },
+    {
+      "id": "P5-SEC-01",
+      "name": "Zero Document Data or Telemetry Leaked Over Network",
+      "status": "PASS",
+      "details": {
+        "message": "External network leaks captured: 0"
+      }
+    },
+    {
+      "id": "P5-STAB-01",
+      "name": "Zero Severe Browser Runtime Console Errors During All Workflows",
+      "status": "PASS",
+      "details": {
+        "message": "Console errors captured: 0"
+      }
+    }
+  ],
+  "mobileViewportsTested": [
+    "375x812",
+    "390x844",
+    "430x932"
+  ],
+  "bugsCovered": {
+    "BUG-A": "Placement Affordance: immediate cursor-following preview on tool select",
+    "BUG-B": "Visual Reference: anchored popover card with beak, blue border, Save & Cancel buttons",
+    "BUG-C": "Mobile Shortcut Hygiene: zero desktop keyboard shortcut hints rendered visually",
+    "BUG-D": "Mobile Existing Text Editing: action bar within bounds, tap Edit opens popover",
+    "BUG-E": "Repeated Editing: objects reselectable and re-editable repeatedly across viewports"
+  },
+  "screenshots": [
+    {
+      "filename": "01_doc_loaded.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\01_doc_loaded.png",
+      "description": "Document loaded into workspace"
+    },
+    {
+      "filename": "02_placement_preview.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\02_placement_preview.png",
+      "description": "Text placement preview following cursor"
+    },
+    {
+      "filename": "03_popover_open_creation.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\03_popover_open_creation.png",
+      "description": "Anchored popover open for new text creation"
+    },
+    {
+      "filename": "04_text_created_saved.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\04_text_created_saved.png",
+      "description": "Created text saved and selected"
+    },
+    {
+      "filename": "05_mobile_375_action_bar.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\05_mobile_375_action_bar.png",
+      "description": "Mobile action bar at 375x812"
+    },
+    {
+      "filename": "06_mobile_375_popover.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\06_mobile_375_popover.png",
+      "description": "Mobile text editing popover at 375x812"
+    },
+    {
+      "filename": "05_mobile_390_action_bar.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\05_mobile_390_action_bar.png",
+      "description": "Mobile action bar at 390x844"
+    },
+    {
+      "filename": "06_mobile_390_popover.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\06_mobile_390_popover.png",
+      "description": "Mobile text editing popover at 390x844"
+    },
+    {
+      "filename": "05_mobile_430_action_bar.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\05_mobile_430_action_bar.png",
+      "description": "Mobile action bar at 430x932"
+    },
+    {
+      "filename": "06_mobile_430_popover.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase5\\06_mobile_430_popover.png",
+      "description": "Mobile text editing popover at 430x932"
+    }
+  ]
+}
