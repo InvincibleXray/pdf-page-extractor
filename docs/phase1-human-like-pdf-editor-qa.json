@@ -1,0 +1,353 @@
+{
+  "phase": "1",
+  "editorRoute": "/pdf-editor/",
+  "tests": [
+    {
+      "id": "LOAD-01",
+      "name": "Initial Editor Landing State Visibility",
+      "status": "PASS",
+      "details": {
+        "message": "Upload container visible; workspace hidden."
+      },
+      "timestamp": "2026-09-27T09:49:39.406Z"
+    },
+    {
+      "id": "LOAD-02",
+      "name": "Real Document Load & PDF.js Text Layer Discovery",
+      "status": "PASS",
+      "details": {
+        "message": "Loaded 1 pages. TextLayer contains 3 text spans."
+      },
+      "timestamp": "2026-09-27T09:49:42.017Z"
+    },
+    {
+      "id": "TEXT-01",
+      "name": "Text Tool Activation Affordance",
+      "status": "PASS",
+      "details": {
+        "message": "Active tool is \"text\". Viewport cursor: \"auto\"."
+      },
+      "timestamp": "2026-09-27T09:49:42.270Z"
+    },
+    {
+      "id": "TEXT-02",
+      "name": "Inline Text Editor Appears at Click Location",
+      "status": "PASS",
+      "details": {
+        "message": "Editor opened at (558, 369). Focused: true"
+      },
+      "timestamp": "2026-09-27T09:49:42.815Z"
+    },
+    {
+      "id": "TEXT-03",
+      "name": "Text \"basic\" Committed into Store & DOM",
+      "status": "PASS",
+      "details": {
+        "message": "Object ID: text-1790502583192. Active tool: \"select\". Selected ID: \"text-1790502583192\"."
+      },
+      "timestamp": "2026-09-27T09:49:43.759Z"
+    },
+    {
+      "id": "TEXT-04",
+      "name": "Deselect Committed Object by Clicking Canvas",
+      "status": "PASS",
+      "details": {
+        "message": "Selected Object ID after deselect: null"
+      },
+      "timestamp": "2026-09-27T09:49:44.082Z"
+    },
+    {
+      "id": "TEXT-05",
+      "name": "Reselect Committed Text Object via Single Click",
+      "status": "FAIL",
+      "details": {
+        "message": "Selected: null (Expected: text-1790502583192). Selection box visible: false. Hit tag: <DIV id=\"pdf-form-layer\">."
+      },
+      "timestamp": "2026-09-27T09:49:44.852Z"
+    },
+    {
+      "id": "TEXT-06",
+      "name": "Re-open Inline Editor on Double Click",
+      "status": "FAIL",
+      "details": {
+        "message": "Double-click failed to reopen inline editor."
+      },
+      "timestamp": "2026-09-27T09:49:45.428Z"
+    },
+    {
+      "id": "TEXT-07",
+      "name": "Change Text \"basic\" -> \"advanced\" & Re-commit",
+      "status": "BLOCKED",
+      "details": {
+        "message": "Blocked by failure to reopen inline editor on double click."
+      },
+      "timestamp": "2026-09-27T09:49:45.428Z"
+    },
+    {
+      "id": "EXTEXT-01",
+      "name": "Existing Text Click Displays Action Bar",
+      "status": "FAIL",
+      "details": {
+        "message": "Action bar visible: false. Selected text ID: \"null\"."
+      },
+      "timestamp": "2026-09-27T09:49:45.984Z"
+    },
+    {
+      "id": "RESIZE-01",
+      "name": "Resize Object via Corner Handle (SE)",
+      "status": "FAIL",
+      "details": {
+        "message": "Initial bounds: 80x34.19 pt. After drag: 80x34.19 pt."
+      },
+      "timestamp": "2026-09-27T09:49:46.749Z"
+    },
+    {
+      "id": "FONT-01",
+      "name": "Font Style Mutation (Bold) Applied in Store & DOM",
+      "status": "PASS",
+      "details": {
+        "message": "Store weight: bold. DOM weight: 700. Font family: \"Inter\"."
+      },
+      "timestamp": "2026-09-27T09:49:47.405Z"
+    },
+    {
+      "id": "FONT-02",
+      "name": "Preserve Original Embedded PDF Font on Text Replacement",
+      "status": "FAIL",
+      "details": {
+        "message": "Replacement font family is \"Inter\" (hardcoded Inter default). Original embedded PDF font was lost."
+      },
+      "timestamp": "2026-09-27T09:49:47.408Z"
+    },
+    {
+      "id": "TOOL-01",
+      "name": "Text Tool Auto-Resets to Select on Cancel/Escape",
+      "status": "PASS",
+      "details": {
+        "message": "Active tool after Escape cancel: \"select\" (Expected: \"select\")."
+      },
+      "timestamp": "2026-09-27T09:49:47.854Z"
+    },
+    {
+      "id": "UNDO-01",
+      "name": "Undo & Redo Command Execution",
+      "status": "PASS",
+      "details": {
+        "message": "Objects before: 1, after undo: 1, after redo: 1."
+      },
+      "timestamp": "2026-09-27T09:49:48.789Z"
+    },
+    {
+      "id": "EXPORT-01",
+      "name": "Client-Side Real PDF Export Download",
+      "status": "PASS",
+      "details": {
+        "message": "Downloaded: FIXTURE_A_SINGLE_TEXT-edited.pdf (4013 bytes)"
+      },
+      "timestamp": "2026-09-27T09:49:50.139Z"
+    },
+    {
+      "id": "EXPORT-02",
+      "name": "Reopen Exported PDF & Text Layer Availability",
+      "status": "PASS",
+      "details": {
+        "message": "Exported PDF reopened successfully. Discovered 4 text spans in textLayer."
+      },
+      "timestamp": "2026-09-27T09:49:53.532Z"
+    },
+    {
+      "id": "RESP-375",
+      "name": "Responsive Layout at 375x812 (iPhone X)",
+      "status": "PASS",
+      "details": {
+        "message": "Window: 375px, Scroll: 375px. Overflow: false. Toolbar scrollable: false."
+      },
+      "timestamp": "2026-09-27T09:49:54.107Z"
+    },
+    {
+      "id": "RESP-390",
+      "name": "Responsive Layout at 390x844 (iPhone 13)",
+      "status": "PASS",
+      "details": {
+        "message": "Window: 390px, Scroll: 390px. Overflow: false. Toolbar scrollable: false."
+      },
+      "timestamp": "2026-09-27T09:49:54.491Z"
+    },
+    {
+      "id": "RESP-430",
+      "name": "Responsive Layout at 430x932 (iPhone 14 Pro Max)",
+      "status": "PASS",
+      "details": {
+        "message": "Window: 430px, Scroll: 430px. Overflow: false. Toolbar scrollable: false."
+      },
+      "timestamp": "2026-09-27T09:49:54.948Z"
+    },
+    {
+      "id": "RESP-768",
+      "name": "Responsive Layout at 768x1024 (iPad Mini)",
+      "status": "PASS",
+      "details": {
+        "message": "Window: 768px, Scroll: 768px. Overflow: false. Toolbar scrollable: false."
+      },
+      "timestamp": "2026-09-27T09:49:55.333Z"
+    },
+    {
+      "id": "RESP-1366",
+      "name": "Responsive Layout at 1366x768 (Laptop)",
+      "status": "PASS",
+      "details": {
+        "message": "Window: 1366px, Scroll: 1366px. Overflow: false. Toolbar scrollable: false."
+      },
+      "timestamp": "2026-09-27T09:49:55.760Z"
+    },
+    {
+      "id": "A11Y-01",
+      "name": "Keyboard Tab Navigation Focus Target",
+      "status": "PASS",
+      "details": {
+        "message": "Focused <BUTTON id=\"editor-new-doc-btn\"> aria-label=\"null\"."
+      },
+      "timestamp": "2026-09-27T09:49:55.804Z"
+    },
+    {
+      "id": "SEC-01",
+      "name": "Zero Document Data Leaked over Network",
+      "status": "PASS",
+      "details": {
+        "message": "External requests captured: 0."
+      },
+      "timestamp": "2026-09-27T09:49:55.804Z"
+    },
+    {
+      "id": "LARGE-01",
+      "name": "Large PDF Document (876 Pages) Load & Stable Store",
+      "status": "PASS",
+      "details": {
+        "message": "Loaded 876 pages without browser crash or memory exhaustion."
+      },
+      "timestamp": "2026-09-27T09:49:59.542Z"
+    }
+  ],
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "severity": "P1",
+      "title": "Committed user-created Text object cannot be re-selected by clicking",
+      "reproducible": true,
+      "steps": [
+        "Select Text tool in toolbar.",
+        "Click canvas and type \"basic\".",
+        "Commit text with Ctrl+Enter or click outside.",
+        "Click on empty canvas area to deselect.",
+        "Click directly on the \"basic\" text object."
+      ],
+      "expected": "The text object becomes selected, displaying the selection bounding box and inspector properties.",
+      "actual": "Object remains unselected. Click hit-tested element <DIV id=\"pdf-form-layer\"> with computed pointer-events: \"auto\" and parent pointer-events: \"auto\".",
+      "rootCause": "In EditorViewport.astro, #editor-overlay-layer has class \"pointer-events-none\". In pdf-editor.astro line 1649, object container el is assigned \"cursor-pointer\" but does not set \"pointer-events: auto\". Consequently, clicks pass through the overlay object to underlying textLayer or canvas unless explicitly selected or pointer-events: auto is applied to child elements.",
+      "affectedFiles": [
+        "src/components/editor/EditorViewport.astro",
+        "src/pages/pdf-editor.astro"
+      ],
+      "affectedFunctions": [
+        "renderOverlayObjects()"
+      ],
+      "confidence": "HIGH",
+      "suggestedFixDirection": "Add \"pointer-events-auto\" class to child object elements in renderOverlayObjects() or set el.style.pointerEvents = \"auto\" on overlay items."
+    },
+    {
+      "id": "BUG-002",
+      "severity": "P2",
+      "title": "Text Tool remains active after canceling inline text input instead of reverting to Select mode",
+      "reproducible": true,
+      "steps": [
+        "Select Text tool in toolbar.",
+        "Click canvas to open inline text editor.",
+        "Press Escape or click away without typing to cancel.",
+        "Click an existing object on canvas."
+      ],
+      "expected": "Active tool resets to 'select', allowing subsequent clicks to select and move objects.",
+      "actual": "Active tool remains in text creation mode, causing subsequent clicks on canvas to open new empty text inputs.",
+      "rootCause": "cleanupInlineEditor() in editorInteractionController.ts does not reset activeTool to 'select' when canceled via Escape or blur.",
+      "affectedFiles": [
+        "src/utils/editorInteractionController.ts"
+      ],
+      "affectedFunctions": [
+        "cleanupInlineEditor()",
+        "initCanvasClickEvents()"
+      ],
+      "confidence": "HIGH",
+      "suggestedFixDirection": "In cleanupInlineEditor() or cancel handler, call editorStore.setActiveTool('select') when destroyed without committing."
+    },
+    {
+      "id": "BUG-003",
+      "severity": "P2",
+      "title": "Edited PDF text font changes to Inter/Helvetica and does not match original document typography",
+      "reproducible": true,
+      "steps": [
+        "Load a PDF containing text with a custom, serif, or distinct font.",
+        "Click on an existing text item to display the text action bar.",
+        "Click \"Edit\" to replace text and type modifications.",
+        "Commit text replacement with Ctrl+Enter.",
+        "Inspect the DOM element and exported PDF."
+      ],
+      "expected": "Replacement text retains the original PDF font family, weight, and visual appearance.",
+      "actual": "Replacement text is forced to \"Inter\" in the overlay DOM and exported as standard Helvetica in pdfExportEngine.ts.",
+      "rootCause": "1) In pdfTextLayer.ts, fontFamily is derived from computedStyle.fontFamily (which defaults to Inter) rather than parsing textContent.styles[item.fontName]. 2) In editorInteractionController.ts line 1102, fontFamily is hardcoded to \"Inter\". 3) In pdfExportEngine.ts lines 135-142, any font not matching \"times\" or \"courier\" defaults to fontHelvetica.",
+      "affectedFiles": [
+        "src/utils/pdfTextLayer.ts",
+        "src/utils/editorInteractionController.ts",
+        "src/utils/pdfExportEngine.ts"
+      ],
+      "affectedFunctions": [
+        "renderTextLayer()",
+        "addTextReplacement()",
+        "renderPageToExport()"
+      ],
+      "confidence": "HIGH",
+      "suggestedFixDirection": "Extract fontName and font attributes from PDF.js textContent.styles; pass original font attributes to TextReplacementEditorObject; match nearest available font or preserve styling in pdfExportEngine.ts."
+    },
+    {
+      "id": "BUG-004",
+      "severity": "P1",
+      "title": "Form Overlay Layer acts as full-viewport click shield, blocking interactions with underlying Text Layer and Overlay Objects",
+      "reproducible": true,
+      "steps": [
+        "Load any PDF document containing selectable text.",
+        "Ensure select tool is active.",
+        "Click directly on rendered text in the document to select it or reveal the action bar."
+      ],
+      "expected": "Click hits the text span in #pdf-text-layer, selecting the existing text and displaying the floating action bar.",
+      "actual": "Click is absorbed by #pdf-form-layer (<DIV id=\"pdf-form-layer\"> with pointer-events: auto and z-index: 10), which covers the entire page and swallows pointer events.",
+      "rootCause": "In EditorViewport.astro, #pdf-form-layer has class 'absolute inset-0 overflow-hidden pointer-events-auto z-10'. Because pointer-events is enabled on the entire container div spanning 100% of the canvas, clicks anywhere on empty or non-widget canvas space hit this transparent layer and never reach #pdf-text-layer or #editor-overlay-layer.",
+      "affectedFiles": [
+        "src/components/editor/EditorViewport.astro",
+        "src/utils/pdfFormOverlay.ts"
+      ],
+      "affectedFunctions": [
+        "renderFormOverlay()"
+      ],
+      "confidence": "HIGH",
+      "suggestedFixDirection": "Change #pdf-form-layer class to 'pointer-events-none' and apply 'pointer-events-auto' strictly to individual form widget DOM elements (.form-field-widget)."
+    }
+  ],
+  "suspectedBugs": [],
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Microsoft Edge",
+    "browserVersion": "140.0.3541.0",
+    "nodeVersion": "v24.18.0",
+    "previewUrl": "http://127.0.0.1:4321/pdf-editor/"
+  },
+  "consoleErrors": [],
+  "networkFindings": [
+    {
+      "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+      "method": "GET"
+    },
+    {
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+      "method": "GET"
+    }
+  ],
+  "finalVerdict": "BUGS FOUND — FIX REQUIRED"
+}

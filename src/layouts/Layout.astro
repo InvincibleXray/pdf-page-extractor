@@ -33,12 +33,23 @@ const {
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="PDF Extractor" />
+    <meta property="og:site_name" content="PDFPage.Tools" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+
+    <!-- Structured Data -->
+    <script is:inline type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PDFPage.Tools",
+      "url": "https://pdfpage.tools",
+      "description": "Free browser-based PDF tools. Extract pages and edit PDFs locally without uploads."
+    }
+    </script>
 
     <!-- Dark mode script to prevent Flash of Unstyled Theme (FOUT) -->
     <script is:inline>

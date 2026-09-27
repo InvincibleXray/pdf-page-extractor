@@ -6,11 +6,11 @@ interface Props {
 const { activeTool = 'extractor' } = Astro.props;
 ---
 
-<header class="w-full py-5 px-4 sm:px-8 max-w-7xl mx-auto flex items-center justify-between">
+<header class="w-full py-4 sm:py-5 px-3 sm:px-8 max-w-7xl mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between gap-y-3 gap-x-2">
   <!-- Brand Logo & Navigation -->
-  <div class="flex items-center gap-4 sm:gap-6">
-    <a href="/" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-xl">
-      <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+  <div class="flex items-center gap-3 sm:gap-6">
+    <a href="/" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-xl">
+      <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
           <polyline points="14 2 14 8 20 8"/>
@@ -19,13 +19,13 @@ const { activeTool = 'extractor' } = Astro.props;
           <line x1="10" y1="9" x2="8" y2="9"/>
         </svg>
       </div>
-      <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+      <span class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
         {activeTool === 'editor' ? 'PDF Editor' : 'PDF Extractor'}
       </span>
     </a>
 
-    <!-- Tool Switcher Segmented Pills -->
-    <nav class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] text-xs font-semibold" aria-label="Tool selection">
+    <!-- Tool Switcher Segmented Pills (Desktop / Tablet) -->
+    <nav class="hidden sm:inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] text-xs font-semibold" aria-label="Tool selection">
       <a
         href="/"
         class={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-all ${
@@ -53,8 +53,8 @@ const { activeTool = 'extractor' } = Astro.props;
   </div>
 
   <!-- Theme Toggle -->
-  <div class="flex items-center gap-3">
-    <div class="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+  <div class="flex items-center gap-2 sm:gap-3">
+    <div class="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
       <!-- Sun Icon (Light Mode) -->
       <svg id="theme-sun-icon" class="w-4 h-4 text-amber-500 hidden dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="5"/>
@@ -72,7 +72,7 @@ const { activeTool = 'extractor' } = Astro.props;
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
       </svg>
 
-      <span id="theme-text-label">Light Mode</span>
+      <span id="theme-text-label" class="hidden sm:inline">Light Mode</span>
     </div>
 
     <!-- Toggle Pill Button -->
@@ -89,6 +89,35 @@ const { activeTool = 'extractor' } = Astro.props;
         class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0 dark:translate-x-5"
       ></span>
     </button>
+  </div>
+
+  <!-- Tool Switcher Segmented Pills (Mobile Row 2) -->
+  <div class="w-full flex justify-center sm:hidden pt-0.5">
+    <nav class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#17202f] border border-slate-200/60 dark:border-[#242e42] text-xs font-semibold" aria-label="Tool selection mobile">
+      <a
+        href="/"
+        class={`px-3 py-1.5 rounded-lg transition-all ${
+          activeTool === 'extractor'
+            ? 'bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+        }`}
+      >
+        Extractor
+      </a>
+      <a
+        href="/pdf-editor/"
+        class={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+          activeTool === 'editor'
+            ? 'bg-white dark:bg-[#232d3f] text-slate-900 dark:text-white shadow-sm'
+            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+        }`}
+      >
+        Editor
+        <span class="px-1.5 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-md bg-brand-100 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+          New
+        </span>
+      </a>
+    </nav>
   </div>
 </header>
 

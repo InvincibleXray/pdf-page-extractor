@@ -1,0 +1,32 @@
+{
+  "fileSizeMb": 212,
+  "totalPages": 876,
+  "fileReadTimeMs": 669,
+  "docLoadTimeMs": 282,
+  "fieldObjectsDiscoveryMs": 2,
+  "hasAcroForm": false,
+  "pageLatencies": [
+    {
+      "pageNumber": 1,
+      "durationMs": 9.1,
+      "widgetCount": 0
+    },
+    {
+      "pageNumber": 2,
+      "durationMs": 1.69,
+      "widgetCount": 0
+    },
+    {
+      "pageNumber": 100,
+      "durationMs": 1.99,
+      "widgetCount": 0
+    },
+    {
+      "pageNumber": 500,
+      "durationMs": 2.66,
+      "widgetCount": 0
+    }
+  ],
+  "heapDeltaMb": 4.6,
+  "recommendation": "Lazy active-page discovery MUST be used. Never iterate all 876 pages for annotations on initial document load."
+}

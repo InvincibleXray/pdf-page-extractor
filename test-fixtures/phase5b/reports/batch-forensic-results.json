@@ -1,0 +1,1122 @@
+{
+  "timestamp": "2026-09-26T14:49:02.952Z",
+  "results": [
+    {
+      "fixtureId": "FIXTURE_A_SELECTABLE",
+      "fileSize": 56757,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "REDACTION_CANARY_A_7F91X",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_B_PARTIAL",
+      "fileSize": 26671,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_B_PARTIAL_99214",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_C_ROTATED_TEXT",
+      "fileSize": 30203,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_C_ROT45_18274",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_D_TEXT_IN_IMAGE",
+      "fileSize": 41799,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_IMAGE_CANARY_D_4819",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_E_XOBJECT_IMAGE",
+      "fileSize": 31200,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_XOBJ_CANARY_E_9912",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_F_VECTOR",
+      "fileSize": 37633,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "CANARY_F_VEC_SECRET_SHAPE",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_G_HIDDEN_TEXT",
+      "fileSize": 38926,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_G_TR3_INVISIBLE",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_H_WHITE_ON_WHITE",
+      "fileSize": 35144,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_H_WHITE_ON_WHITE",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_I_CLIPPED",
+      "fileSize": 38277,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_I_CLIPPED_9021",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_J_BEHIND_OBJECT",
+      "fileSize": 27091,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_J_ZORDER_BEHIND",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_K_ANNOT_SECRET",
+      "fileSize": 39973,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_K_ANNOT_TEXT",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_L_FREETEXT",
+      "fileSize": 37658,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_L_FREETEXT",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_M_ACROFORM",
+      "fileSize": 38873,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_M_ACROFORM_FIELD",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_N_INFO_METADATA",
+      "fileSize": 38247,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_N_AUTHOR_9821",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_N_TITLE_4319",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_N_SUBJECT_1102",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_O_XMP_METADATA",
+      "fileSize": 38409,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_O_XMP_STREAM_7741",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_P_JAVASCRIPT",
+      "fileSize": 38458,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_P_JAVASCRIPT_5502",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_Q_ATTACHMENT",
+      "fileSize": 35321,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_Q_EMBEDDED_FILE_8832",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_R_OCG_LAYER",
+      "fileSize": 38725,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_R_OCG_LAYER_3190",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_S_MULTI_REDACT",
+      "fileSize": 159328,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_S_01_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_02_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_03_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_04_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_05_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_06_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_07_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_08_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_09_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_10_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_11_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_12_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_13_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_14_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_15_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_16_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_17_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_18_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_19_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_S_20_TOKEN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_T_SPANNING",
+      "fileSize": 29445,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_T_TEXT_991",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_T_VEC_992",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_U_ROTATED_PAGES",
+      "fileSize": 130780,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "842x595",
+          "hasRaster": true
+        },
+        {
+          "page": 2,
+          "pagePt": "595x842",
+          "hasRaster": true
+        },
+        {
+          "page": 3,
+          "pagePt": "842x595",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 3,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_U_ROT90_PAGE1",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_U_ROT180_PAGE2",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_U_ROT270_PAGE3",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_V_CROPBOX_MEDIABOX",
+      "fileSize": 31245,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "500x700",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_V_CROPBOX_OFFSET_719",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_W_UNUSUAL_DIMS",
+      "fileSize": 43278,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "1200x300",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_W_UNUSUAL_DIM_1200x300",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_X_PAGE_MGMT",
+      "fileSize": 27150,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 2,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 3,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_X_PAGEMGMT_REORDER",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_Y_MULTI_PAGE_MULTI_REDACT",
+      "fileSize": 79077,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "595x842",
+          "hasRaster": true
+        },
+        {
+          "page": 2,
+          "pagePt": "595x842",
+          "hasRaster": true
+        },
+        {
+          "page": 4,
+          "pagePt": "595x842",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 4,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_Y_PAGE1_SSN",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_Y_PAGE2_BANK",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        },
+        {
+          "canary": "SECRET_CANARY_Y_PAGE4_PASS",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    },
+    {
+      "fixtureId": "FIXTURE_Z_MEMORY_STRESS",
+      "fileSize": 63906,
+      "passed": true,
+      "canaryLeaks": 0,
+      "allLeaks": [],
+      "catalogIssues": [],
+      "dpiInfo": [
+        {
+          "page": 1,
+          "pagePt": "2592x3456",
+          "hasRaster": true
+        }
+      ],
+      "pageCount": 1,
+      "infoEntries": [
+        "/Producer",
+        "/ModDate",
+        "/Creator",
+        "/CreationDate"
+      ],
+      "canaryDetails": [
+        {
+          "canary": "SECRET_CANARY_Z_LARGE_PAGE_ARCH",
+          "leaked": false,
+          "rawBytes": false,
+          "decompressedStream": false,
+          "pdfJsText": false,
+          "pdfJsAnnot": false,
+          "locations": []
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalPassed": 26,
+    "totalFailed": 0,
+    "totalLeaks": 0
+  }
+}

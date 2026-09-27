@@ -1,0 +1,290 @@
+{
+  "timestamp": "2026-09-26T20:17:09.198Z",
+  "totalChecks": 35,
+  "passed": 34,
+  "failed": 1,
+  "results": [
+    {
+      "id": "ROUTE-01",
+      "name": "Extractor Route \"/\" Metadata & Title Audit",
+      "area": "SEO & Route Metadata",
+      "passed": true,
+      "details": "Title: \"Extract Pages from PDF Online — Private & No Upload\", Desc length: 94",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-01",
+      "name": "Extractor Canonical & Robots Directive",
+      "area": "SEO Technical",
+      "passed": true,
+      "details": "Canonical: https://pdfpage.tools/",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-02",
+      "name": "Structured Data Presence (JSON-LD)",
+      "area": "Structured Data",
+      "passed": true,
+      "details": "Discovered schema type: \"FAQPage\"",
+      "status": "PASS"
+    },
+    {
+      "id": "ROUTE-02",
+      "name": "PDF Editor Route \"/pdf-editor/\" Metadata Audit",
+      "area": "SEO & Route Metadata",
+      "passed": true,
+      "details": "Title: \"PDF Editor Online — Private, Local & In-Browser\"",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-03",
+      "name": "Editor Route Structured Data",
+      "area": "Structured Data",
+      "passed": false,
+      "status": "FAIL",
+      "details": "Editor route lacks dedicated JSON-LD schema (Documented backlog item)"
+    },
+    {
+      "id": "EXTRACT-01",
+      "name": "Real 876-page (~211.7 MB) PDF File Verification",
+      "area": "PDF Extractor & Large PDF",
+      "passed": true,
+      "details": "Path: C:\\Users\\A\\Desktop\\ece\\5th sem ECE organizer.pdf, Size: 211.70 MB",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-02",
+      "name": "Large PDF (876 Pages) Loaded & Discovered",
+      "area": "PDF Extractor & Performance",
+      "passed": true,
+      "details": "Discovered: 876 pages in 0.92s",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-03",
+      "name": "Large PDF Extraction Download (Pages 1 & 876)",
+      "area": "PDF Extractor Output",
+      "passed": true,
+      "details": "Downloaded: 5th sem ECE organizer - Extracted.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-04",
+      "name": "Differential Check: Extracted Page Count Exactly 2",
+      "area": "Extractor Differential",
+      "passed": true,
+      "details": "Extracted pages: 2",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-05",
+      "name": "Extracted PDF Structural Validity & Zero Leakage",
+      "area": "Forensic Verification",
+      "passed": true,
+      "details": "Valid Header: true, Revisions: 1",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-06",
+      "name": "Invalid / Out-of-Bounds Input Validation Gate",
+      "area": "Input Sanitization",
+      "passed": true,
+      "details": "Status feedback: \"⚠️ Page numbers must be at least 1 (got \"0\").\"",
+      "status": "PASS"
+    },
+    {
+      "id": "EDITOR-01",
+      "name": "Sample Agreement PDF Workspace Loaded",
+      "area": "Editor Lifecycle",
+      "passed": true,
+      "details": "Workspace displayed, canvas active",
+      "status": "PASS"
+    },
+    {
+      "id": "GOLDEN-A",
+      "name": "Golden A: Unedited Export & Reopen",
+      "area": "Golden Export",
+      "passed": true,
+      "details": "Sample Agreement-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORENSIC-01",
+      "name": "Golden A Forensic Check (3 Pages, Valid PDF)",
+      "area": "Forensic Audit",
+      "passed": true,
+      "details": "Pages: 3, Size: 2734 bytes",
+      "status": "PASS"
+    },
+    {
+      "id": "GOLDEN-B",
+      "name": "Golden B: Text Replacement & Annotations Export",
+      "area": "Golden Export",
+      "passed": true,
+      "details": "Sample Agreement-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORENSIC-02",
+      "name": "Golden B Forensic Text Extraction Confirms Replacement",
+      "area": "Forensic Audit",
+      "passed": true,
+      "details": "Replacement string discovered in PDF.js extraction",
+      "status": "PASS"
+    },
+    {
+      "id": "GOLDEN-C",
+      "name": "Golden C: Page Operations Export (Rotated & Duplicated)",
+      "area": "Golden Export",
+      "passed": true,
+      "details": "Sample Agreement-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORENSIC-03",
+      "name": "Golden C Forensic Check (4 Pages, Preserved 90° Rotation)",
+      "area": "Forensic Audit",
+      "passed": true,
+      "details": "Page count: 4, Rotations: [90, 90, 0, 0]",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-01",
+      "name": "Adversarial Redaction Export Download",
+      "area": "Secure Redaction",
+      "passed": true,
+      "details": "phase7-canary-fixture-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-02",
+      "name": "Forensic Attack: Planted Text Canary Obliteration",
+      "area": "Secure Redaction Forensics",
+      "passed": true,
+      "details": "Canary leaks detected: 0 (None)",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-03",
+      "name": "Reconciliation: Unaffected Page Retains Interactive Field",
+      "area": "Redaction Reconciliation",
+      "passed": true,
+      "details": "Discovered fields: unredacted_field",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-01",
+      "name": "Form Cross-Contamination Test (Alice / Charlie / Bob)",
+      "area": "Form Data Integrity",
+      "passed": true,
+      "details": "P1: \"Alice\", Duplicate: \"Charlie\", P3: \"Bob\"",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-02",
+      "name": "Mode A Interactive Export Downloaded",
+      "area": "Form Export Mode A",
+      "passed": true,
+      "details": "Sample Agreement-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-03",
+      "name": "Forensic Check: 3 Isolated AcroForm Fields Retain Distinct Values",
+      "area": "Form Export Mode A",
+      "passed": true,
+      "details": "Field values: {\"personName\":\"Alice\",\"personName_p2\":\"Bob\",\"personName_copy1\":\"Charlie\"}",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-04",
+      "name": "Mode B Flattened Export Downloaded",
+      "area": "Form Export Mode B",
+      "passed": true,
+      "details": "Sample Agreement-flattened.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-05",
+      "name": "Forensic Check: 0 AcroForm & 0 Widgets in Flattened PDF",
+      "area": "Form Export Mode B",
+      "passed": true,
+      "details": "AcroForm Catalog: false, Widgets: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "COORD-01",
+      "name": "Multi-Zoom Range Accuracy (25% to 500%)",
+      "area": "Coordinate System",
+      "passed": true,
+      "details": "Scales tested: 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5",
+      "status": "PASS"
+    },
+    {
+      "id": "IMMUT-01",
+      "name": "Source PDF File Immutability (Byte-for-byte Hash Match)",
+      "area": "Data Integrity",
+      "passed": true,
+      "details": "SHA-256 Verified: b27cdb5c46cf4371...",
+      "status": "PASS"
+    },
+    {
+      "id": "STRESS-01",
+      "name": "Zero-byte File Input Handled Without Browser Crash",
+      "area": "Crash Resistance",
+      "passed": true,
+      "details": "Clean failure handled gracefully",
+      "status": "PASS"
+    },
+    {
+      "id": "STRESS-02",
+      "name": "Rapid Tool Switching Stress Test (20 cycles)",
+      "area": "Stress Policy",
+      "passed": true,
+      "details": "Clean state transitions, zero uncaught errors",
+      "status": "PASS"
+    },
+    {
+      "id": "UIUX-01",
+      "name": "Zero Horizontal Overflow across 8 Viewports (320px to 1920px)",
+      "area": "UI/UX Pro Max & Responsiveness",
+      "passed": true,
+      "details": "Zero overflow detected",
+      "status": "PASS"
+    },
+    {
+      "id": "A11Y-01",
+      "name": "Keyboard Tab Focus Navigation Active",
+      "area": "Accessibility",
+      "passed": true,
+      "details": "Active focused element: A#.px-2.5 sm:px-3 py-1 ",
+      "status": "PASS"
+    },
+    {
+      "id": "PRIVACY-01",
+      "name": "Client-Side Storage Privacy (Zero Document Data in localStorage)",
+      "area": "Storage Privacy",
+      "passed": true,
+      "details": "localStorage keys: [theme]",
+      "status": "PASS"
+    },
+    {
+      "id": "PRIVACY-02",
+      "name": "Zero External Document Data Transmission",
+      "area": "Network Privacy",
+      "passed": true,
+      "details": "External doc requests: 0, Non-GET requests: 0 (Static fonts captured: 18)",
+      "status": "PASS"
+    },
+    {
+      "id": "STABILITY-01",
+      "name": "Zero Unhandled Runtime Console Errors",
+      "area": "Runtime Stability",
+      "passed": true,
+      "details": "Errors: 0 (None)",
+      "status": "PASS"
+    }
+  ],
+  "networkRequestsCaptured": 18,
+  "consoleErrors": []
+}

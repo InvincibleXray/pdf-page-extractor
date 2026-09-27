@@ -20,6 +20,7 @@
     <button
       type="button"
       id="close-inspector-btn"
+      aria-label="Close Inspector"
       class="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       title="Close Inspector"
     >
@@ -52,6 +53,10 @@
             <span id="doc-prop-orientation" class="font-bold text-slate-900 dark:text-white">Portrait</span>
           </div>
           <div class="flex justify-between items-center">
+            <span class="text-slate-500 dark:text-slate-400">Rotation</span>
+            <span id="doc-prop-rotation" class="font-bold text-slate-900 dark:text-white">0°</span>
+          </div>
+          <div class="flex justify-between items-center">
             <span class="text-slate-500 dark:text-slate-400">Scale / Zoom</span>
             <span id="doc-prop-zoom" class="font-bold text-slate-900 dark:text-white">100%</span>
           </div>
@@ -80,7 +85,7 @@
 
       <div class="p-3 rounded-xl bg-brand-50/60 dark:bg-brand-950/40 border border-brand-200/60 dark:border-brand-900/60">
         <p class="text-[11px] font-medium text-brand-800 dark:text-brand-300 leading-relaxed">
-          Tip: Click on any text, shape, or highlight on the page to customize its properties here.
+          Tip: Select text or an added object to edit its properties.
         </p>
       </div>
     </div>
@@ -115,6 +120,7 @@
             value="16"
             min="8"
             max="72"
+            aria-label="Font size in points"
             class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
@@ -126,6 +132,7 @@
             <button
               type="button"
               id="text-bold-btn"
+              aria-label="Bold text"
               class="flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 font-bold hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
               title="Bold"
             >
@@ -134,6 +141,7 @@
             <button
               type="button"
               id="text-italic-btn"
+              aria-label="Italic text"
               class="flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 italic font-serif hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
               title="Italic"
             >
@@ -142,6 +150,7 @@
             <button
               type="button"
               id="text-underline-btn"
+              aria-label="Underline text"
               class="flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 underline hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
               title="Underline"
             >
@@ -160,6 +169,7 @@
           <button
             type="button"
             data-align="left"
+            aria-label="Align text left"
             class="text-align-btn py-1 rounded-lg flex justify-center text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-[#1a2232] transition-colors bg-white dark:bg-[#1a2232] shadow-2xs"
             title="Left"
           >
@@ -168,6 +178,7 @@
           <button
             type="button"
             data-align="center"
+            aria-label="Align text center"
             class="text-align-btn py-1 rounded-lg flex justify-center text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
             title="Center"
           >
@@ -176,6 +187,7 @@
           <button
             type="button"
             data-align="right"
+            aria-label="Align text right"
             class="text-align-btn py-1 rounded-lg flex justify-center text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
             title="Right"
           >
@@ -190,12 +202,12 @@
           Text Color
         </label>
         <div class="flex items-center gap-2">
-          <button type="button" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#0f172a" title="Dark Slate"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#2563eb" title="Brand Blue"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#059669" title="Emerald"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#f59e0b" title="Amber"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-rose-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#e11d48" title="Rose"></button>
-          <input type="color" id="text-custom-color" value="#0f172a" class="w-6 h-6 rounded-full cursor-pointer border-0 p-0" title="Custom color" />
+          <button type="button" aria-label="Dark Slate text color" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#0f172a" title="Dark Slate"></button>
+          <button type="button" aria-label="Brand Blue text color" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#2563eb" title="Brand Blue"></button>
+          <button type="button" aria-label="Emerald text color" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#059669" title="Emerald"></button>
+          <button type="button" aria-label="Amber text color" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#f59e0b" title="Amber"></button>
+          <button type="button" aria-label="Rose text color" class="w-6 h-6 rounded-full bg-rose-600 border-2 border-white ring-1 ring-slate-300 focus:ring-2 focus:ring-brand-500" data-color="#e11d48" title="Rose"></button>
+          <input type="color" id="text-custom-color" aria-label="Custom text color" value="#0f172a" class="w-6 h-6 rounded-full cursor-pointer border-0 p-0" title="Custom color" />
         </div>
       </div>
 
@@ -213,6 +225,7 @@
           min="10"
           max="100"
           value="100"
+          aria-label="Text opacity percentage"
           class="w-full accent-brand-600"
         />
       </div>
@@ -238,11 +251,11 @@
           Fill Color
         </label>
         <div class="flex items-center gap-2">
-          <button type="button" class="w-6 h-6 rounded-full bg-blue-50 border-2 border-blue-400 ring-1 ring-slate-300" data-shape-fill="#eff6ff"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-400 ring-1 ring-slate-300" data-shape-fill="#ecfdf5"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-amber-50 border-2 border-amber-400 ring-1 ring-slate-300" data-shape-fill="#fffbeb"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-rose-50 border-2 border-rose-400 ring-1 ring-slate-300" data-shape-fill="#fff1f2"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-transparent border-2 border-dashed border-slate-400" data-shape-fill="transparent" title="No fill"></button>
+          <button type="button" aria-label="Blue fill color" class="w-6 h-6 rounded-full bg-blue-50 border-2 border-blue-400 ring-1 ring-slate-300" data-shape-fill="#eff6ff"></button>
+          <button type="button" aria-label="Emerald fill color" class="w-6 h-6 rounded-full bg-emerald-50 border-2 border-emerald-400 ring-1 ring-slate-300" data-shape-fill="#ecfdf5"></button>
+          <button type="button" aria-label="Amber fill color" class="w-6 h-6 rounded-full bg-amber-50 border-2 border-amber-400 ring-1 ring-slate-300" data-shape-fill="#fffbeb"></button>
+          <button type="button" aria-label="Rose fill color" class="w-6 h-6 rounded-full bg-rose-50 border-2 border-rose-400 ring-1 ring-slate-300" data-shape-fill="#fff1f2"></button>
+          <button type="button" aria-label="Transparent no fill" class="w-6 h-6 rounded-full bg-transparent border-2 border-dashed border-slate-400" data-shape-fill="transparent" title="No fill"></button>
         </div>
       </div>
 
@@ -252,10 +265,10 @@
           Border Color
         </label>
         <div class="flex items-center gap-2">
-          <button type="button" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#3b82f6"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#0f172a"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#10b981"></button>
-          <button type="button" class="w-6 h-6 rounded-full bg-rose-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#ef4444"></button>
+          <button type="button" aria-label="Blue border color" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#3b82f6"></button>
+          <button type="button" aria-label="Dark Slate border color" class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#0f172a"></button>
+          <button type="button" aria-label="Emerald border color" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#10b981"></button>
+          <button type="button" aria-label="Rose border color" class="w-6 h-6 rounded-full bg-rose-600 border-2 border-white ring-1 ring-slate-300" data-shape-stroke="#ef4444"></button>
         </div>
       </div>
 
@@ -274,6 +287,7 @@
           max="10"
           step="0.5"
           value="1.5"
+          aria-label="Shape border width in pixels"
           class="w-full accent-brand-600"
         />
       </div>
@@ -292,6 +306,7 @@
           min="0"
           max="32"
           value="8"
+          aria-label="Shape corner radius in pixels"
           class="w-full accent-brand-600"
         />
       </div>
@@ -306,6 +321,380 @@
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
           Delete Shape
         </button>
+      </div>
+    </div>
+
+    <!-- PANE 4: Comment Properties -->
+    <div id="pane-comment" class="hidden space-y-4">
+      <div>
+        <label for="comment-prop-text" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+          Comment Note
+        </label>
+        <textarea
+          id="comment-prop-text"
+          rows="4"
+          aria-label="Comment note text"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+          placeholder="Edit comment note..."
+        ></textarea>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-[#101621] rounded-xl p-3 border border-slate-100 dark:border-[#1e2738] space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Author</span>
+          <span id="comment-prop-author" class="font-bold text-slate-900 dark:text-white">User</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 dark:text-slate-400">Created</span>
+          <span id="comment-prop-time" class="text-slate-600 dark:text-slate-300">Just now</span>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button
+          type="button"
+          id="delete-comment-btn"
+          class="w-full py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          Delete Comment
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE 5: Redaction Properties -->
+    <div id="pane-redact" class="hidden space-y-4">
+      <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40">
+        <div class="flex items-center gap-2 mb-1">
+          <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+          </svg>
+          <span class="font-bold text-xs text-rose-700 dark:text-rose-300">True Secure Redaction</span>
+        </div>
+        <p class="text-[11px] text-rose-600/90 dark:text-rose-400/90 leading-tight">
+          Underlying text and images will be permanently destroyed upon export using clean-page raster reconstruction.
+        </p>
+      </div>
+
+      <!-- Fill Color Selection -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+          Blockout Fill Color
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            id="redact-color-black"
+            class="py-2 px-3 rounded-xl border-2 border-brand-500 bg-slate-900 text-white font-semibold text-xs flex items-center justify-center gap-2"
+          >
+            <span class="w-3 h-3 rounded-full bg-black border border-slate-600"></span>
+            Solid Black
+          </button>
+          <button
+            type="button"
+            id="redact-color-white"
+            class="py-2 px-3 rounded-xl border border-slate-200 dark:border-[#212836] bg-white text-slate-900 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-slate-50"
+          >
+            <span class="w-3 h-3 rounded-full bg-white border border-slate-300"></span>
+            Solid White
+          </button>
+        </div>
+      </div>
+
+      <!-- Overlay Label -->
+      <div>
+        <label for="redact-prop-overlay-text" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+          Overlay Text (Optional)
+        </label>
+        <input
+          type="text"
+          id="redact-prop-overlay-text"
+          aria-label="Redaction overlay text"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          placeholder="e.g. [REDACTED], B(6)..."
+        />
+      </div>
+
+      <!-- Delete Redaction Button -->
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button
+          type="button"
+          id="delete-redact-btn"
+          class="w-full py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          Remove Redaction
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE 9: Form Field Properties -->
+    <div id="pane-form-field" class="hidden space-y-4">
+      <!-- Field Identity & Overview -->
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+          Field Overview
+        </label>
+        <div class="bg-slate-50 dark:bg-[#101621] rounded-xl p-3 border border-slate-100 dark:border-[#1e2738] space-y-2">
+          <div>
+            <label for="form-prop-name-input" class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              Field Name (AcroForm Key)
+            </label>
+            <input
+              type="text"
+              id="form-prop-name-input"
+              aria-label="Field Name (AcroForm Key)"
+              class="w-full bg-white dark:bg-[#161c28] border border-slate-200 dark:border-[#212836] rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+              placeholder="e.g. firstName"
+            />
+            <span id="form-prop-name" class="sr-only"></span>
+            <p id="form-prop-name-error" class="hidden text-[10px] text-rose-500 font-medium mt-1">Field name must be unique</p>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-800">
+            <span class="text-slate-500 dark:text-slate-400">Type</span>
+            <span id="form-prop-type" class="font-semibold text-brand-600 dark:text-brand-400 capitalize">Text</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500 dark:text-slate-400">Status</span>
+            <div class="flex gap-1">
+              <span id="form-prop-required-badge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400">Required</span>
+              <span id="form-prop-readonly-badge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300">Read-Only</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tooltip / Accessibility description -->
+      <div>
+        <label for="form-prop-tooltip-input" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Tooltip / Help Text
+        </label>
+        <input
+          type="text"
+          id="form-prop-tooltip-input"
+          aria-label="Field tooltip or help text"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Screen reader / hover tooltip description"
+        />
+      </div>
+
+      <!-- Default Value / Initial Value -->
+      <div>
+        <label for="form-prop-default-value-input" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Default Value
+        </label>
+        <input
+          type="text"
+          id="form-prop-default-value-input"
+          aria-label="Default field value"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Default pre-filled value"
+        />
+      </div>
+
+      <!-- Export Value (Radio / Checkbox) -->
+      <div id="form-prop-export-val-group" class="hidden">
+        <label for="form-prop-export-val-input" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Export Value
+        </label>
+        <input
+          type="text"
+          id="form-prop-export-val-input"
+          aria-label="Export value when selected"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Value when selected (e.g. Yes, Option1)"
+        />
+      </div>
+
+      <!-- Behavior Toggles (Checkboxes) -->
+      <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Behavior & Constraints
+        </label>
+        <div class="flex items-center justify-between">
+          <label for="form-prop-required-chk" class="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
+            Required Field
+          </label>
+          <input
+            type="checkbox"
+            id="form-prop-required-chk"
+            aria-label="Required field"
+            class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+          />
+        </div>
+        <div class="flex items-center justify-between">
+          <label for="form-prop-readonly-chk" class="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
+            Read-Only (Locked)
+          </label>
+          <input
+            type="checkbox"
+            id="form-prop-readonly-chk"
+            aria-label="Read-only field"
+            class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+          />
+        </div>
+        <div id="form-prop-multiline-group" class="flex items-center justify-between">
+          <label for="form-prop-multiline-chk" class="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
+            Multiline Text
+          </label>
+          <input
+            type="checkbox"
+            id="form-prop-multiline-chk"
+            aria-label="Multiline text field"
+            class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+          />
+        </div>
+      </div>
+
+      <!-- Max Length (For Text Fields) -->
+      <div id="form-prop-maxlength-group">
+        <label for="form-prop-maxlength-input" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Max Length (Characters)
+        </label>
+        <input
+          type="number"
+          id="form-prop-maxlength-input"
+          min="0"
+          aria-label="Maximum character length"
+          class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          placeholder="Unlimited"
+        />
+      </div>
+
+      <!-- Appearance: Alignment & Font Size -->
+      <div id="form-prop-appearance-group" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Typography & Style
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label for="form-prop-fontsize-input" class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              Font Size (pt)
+            </label>
+            <input
+              type="number"
+              id="form-prop-fontsize-input"
+              value="12"
+              min="6"
+              max="72"
+              aria-label="Form field font size in points"
+              class="w-full bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              Alignment
+            </label>
+            <div class="flex items-center gap-1 bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-xl p-0.5">
+              <button
+                type="button"
+                data-form-align="left"
+                aria-label="Align form text left"
+                class="form-align-btn flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
+                title="Align Left"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+              </button>
+              <button
+                type="button"
+                data-form-align="center"
+                aria-label="Align form text center"
+                class="form-align-btn flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
+                title="Align Center"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>
+              </button>
+              <button
+                type="button"
+                data-form-align="right"
+                aria-label="Align form text right"
+                class="form-align-btn flex-1 py-1 rounded-lg text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-white dark:hover:bg-[#1a2232] transition-colors"
+                title="Align Right"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Choice Options (Dropdown / Listbox) -->
+      <div id="form-prop-options-group" class="hidden space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Dropdown / List Choices
+        </label>
+        <div id="form-prop-options-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="flex gap-1.5 pt-1">
+          <input
+            type="text"
+            id="form-prop-new-option-input"
+            aria-label="New dropdown choice option"
+            class="flex-1 bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-[#212836] rounded-lg px-2.5 py-1 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            placeholder="Add new option..."
+          />
+          <button
+            type="button"
+            id="form-prop-add-option-btn"
+            aria-label="Add dropdown choice option"
+            class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 transition-colors"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <button
+          type="button"
+          id="form-prop-duplicate-btn"
+          class="w-full py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Duplicate Field (Clone)
+        </button>
+
+        <button
+          type="button"
+          id="form-prop-reset-btn"
+          class="w-full py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          Reset Field Value
+        </button>
+
+        <button
+          type="button"
+          id="form-prop-delete-btn"
+          class="w-full py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+          </svg>
+          Delete Form Field
+        </button>
+      </div>
+
+      <!-- Tab Order Section -->
+      <div id="form-prop-tab-order-group" class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider">
+            Page Tab Order
+          </span>
+          <span class="text-[10px] text-slate-400">Sequence</span>
+        </div>
+        <div id="form-prop-tab-list" class="space-y-1 max-h-40 overflow-y-auto pr-1">
+          <!-- Populated dynamically -->
+        </div>
       </div>
     </div>
   </div>

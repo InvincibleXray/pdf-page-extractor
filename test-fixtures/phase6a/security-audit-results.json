@@ -1,0 +1,14 @@
+{
+  "totalRequests": 60,
+  "externalRequests": 2,
+  "staticFontRequests": 2,
+  "documentDataRequests": 0,
+  "telemetryRequests": 0,
+  "unexpectedPayloads": 0,
+  "consoleLeaks": 0,
+  "storageAudit": {
+    "localStorageEntries": [],
+    "sessionStorageEntries": [],
+    "currentUrl": "http://localhost:4321/pdf-editor/"
+  }
+}

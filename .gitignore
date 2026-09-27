@@ -21,3 +21,19 @@ qa_screenshots/
 Thumbs.db
 .vscode/
 .idea/
+
+# Python virtual environments & bytecode
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Agent and tooling state
+.agents/
+
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+.playwright/
+
+# Temporary scratch artifacts
+scratch/

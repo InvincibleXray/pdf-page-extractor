@@ -1,0 +1,364 @@
+{
+  "timestamp": "2026-09-27T02:59:22.839Z",
+  "totalChecks": 42,
+  "passed": 33,
+  "failed": 6,
+  "notTested": 2,
+  "blocked": 1,
+  "unsupported": 0,
+  "results": [
+    {
+      "id": "ROUTE-01",
+      "name": "Extractor Route \"/\" Availability & Status",
+      "area": "Route Inventory",
+      "passed": true,
+      "details": "HTTP Status: 200",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-01",
+      "name": "Extractor Route Metadata, Viewport & Canonicals",
+      "area": "SEO Technical",
+      "passed": true,
+      "details": "Title: \"Extract Pages from PDF Online — Private & No Upload\", Canonical: \"https://pdfpage.tools/\"",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-02",
+      "name": "Extractor Route Structured Data (JSON-LD)",
+      "area": "Structured Data",
+      "passed": true,
+      "details": "Valid JSON-LD schema detected",
+      "status": "PASS"
+    },
+    {
+      "id": "ROUTE-02",
+      "name": "Editor Route \"/pdf-editor/\" Availability & Status",
+      "area": "Route Inventory",
+      "passed": true,
+      "details": "HTTP Status: 200",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-03",
+      "name": "Editor Route Metadata & Canonicals",
+      "area": "SEO Technical",
+      "passed": true,
+      "details": "Title: \"PDF Editor Online — Private, Local & In-Browser\", Canonical: \"https://pdfpage.tools/pdf-editor/\"",
+      "status": "PASS"
+    },
+    {
+      "id": "SEO-04",
+      "name": "Editor Route Structured Data",
+      "area": "Structured Data",
+      "passed": false,
+      "status": "FAIL",
+      "details": "Editor route lacks dedicated JSON-LD schema (Documented backlog item)"
+    },
+    {
+      "id": "SEO-05",
+      "name": "robots.txt Presence & Technical Discoverability",
+      "area": "Technical SEO",
+      "passed": false,
+      "status": "FAIL",
+      "details": "robots.txt missing (404 Not Found)"
+    },
+    {
+      "id": "SEO-06",
+      "name": "sitemap.xml Presence & Technical Discoverability",
+      "area": "Technical SEO",
+      "passed": false,
+      "status": "FAIL",
+      "details": "sitemap.xml missing (404 Not Found)"
+    },
+    {
+      "id": "EXTRACT-01",
+      "name": "Extractor Real Browser PDF Upload & Page Detection",
+      "area": "Extractor Acceptance",
+      "passed": true,
+      "details": "Detected 3 pages correctly",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-02",
+      "name": "Extractor Out-of-Bounds & Invalid Range Sanitization",
+      "area": "Extractor Acceptance",
+      "passed": true,
+      "details": "Status feedback: \"⚠️ Page numbers must be at least 1 (got \"0\").\"",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-03",
+      "name": "Extractor Real Browser Extraction & Download",
+      "area": "Extractor Acceptance",
+      "passed": true,
+      "details": "Downloaded: phase7-1-extractor-fixture - Extracted.pdf (1651 bytes)",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-04",
+      "name": "Source PDF Immutability (Byte-for-byte SHA-256 match)",
+      "area": "Data Integrity",
+      "passed": true,
+      "details": "Source hash unmutated: 4a5f72abaf23bfaf...",
+      "status": "PASS"
+    },
+    {
+      "id": "EXTRACT-05",
+      "name": "Extracted PDF Page Count & Deduplication Fidelity",
+      "area": "Extractor Forensic Check",
+      "passed": true,
+      "details": "Expected deduplicated pages 1, 2, 3 (count: 3). Found: 3",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-01",
+      "name": "Adversarial Redaction Export Download",
+      "area": "Secure Redaction",
+      "passed": true,
+      "details": "Exported: phase7-1-canary-fixture-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-02",
+      "name": "Vector A-J Independent Forensic Audit (Zero Leaked Canaries)",
+      "area": "Forensic Redaction Gate",
+      "passed": true,
+      "details": "Canary leaks detected: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "REDACT-03",
+      "name": "Metadata & XMP Packet Sanitization",
+      "area": "Forensic Redaction Gate",
+      "passed": true,
+      "details": "XMP purged: true, Info clean: true",
+      "status": "PASS"
+    },
+    {
+      "id": "EDITOR-01",
+      "name": "Full Editor Browser Workflow & Export Download",
+      "area": "Editor Acceptance",
+      "passed": true,
+      "details": "Downloaded: Sample Agreement-edited.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "EDITOR-02",
+      "name": "Fresh Session Reopen of Exported Document",
+      "area": "Editor Acceptance",
+      "passed": true,
+      "details": "Exported PDF reopened and rendered successfully in fresh session",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-01",
+      "name": "Mode A Interactive Form Export (AcroForm Catalog & Values Preserved)",
+      "area": "Form Forensics",
+      "passed": true,
+      "details": "AcroForm present: true, Field personName: \"Jane Doe\"",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-02",
+      "name": "Mode B Flattened Export Downloaded",
+      "area": "Form Export Mode B",
+      "passed": true,
+      "details": "Sample Agreement-flattened.pdf",
+      "status": "PASS"
+    },
+    {
+      "id": "FORM-03",
+      "name": "Mode B Flattened Forensic Check (0 AcroForm & 0 Widgets)",
+      "area": "Form Forensics",
+      "passed": true,
+      "details": "AcroForm Catalog: false, Widgets: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "PAGEOPS-01",
+      "name": "Duplicated Page Form Field Re-Keying Semantics",
+      "area": "Page Operations",
+      "passed": true,
+      "details": "Generated fields: [\"personName\",\"personName_copy1\",\"personName_copy1_1\"]",
+      "status": "PASS"
+    },
+    {
+      "id": "PAGEOPS-02",
+      "name": "Page Rotation Coordinate Invariance (0°, 90°, 180°, 270°)",
+      "area": "Page Operations",
+      "passed": true,
+      "details": "Tested angles: 90° -> 90°, 180° -> 180°, 270° -> 270°, 0° -> 0°",
+      "status": "PASS"
+    },
+    {
+      "id": "LARGE-01",
+      "name": "Real 876-Page 211.7 MB PDF File Presence",
+      "area": "Large PDF",
+      "passed": true,
+      "details": "File size: 211.70 MB",
+      "status": "PASS"
+    },
+    {
+      "id": "LARGE-02",
+      "name": "Large PDF (876 Pages) Loaded & Discovered",
+      "area": "Large PDF & Extractor",
+      "passed": true,
+      "details": "Discovered 876 pages in 1.34s",
+      "status": "PASS"
+    },
+    {
+      "id": "LARGE-03",
+      "name": "Large PDF Differential Extraction (Pages 1 & 876)",
+      "area": "Large PDF Output",
+      "passed": true,
+      "details": "Downloaded: 5th sem ECE organizer - Extracted.pdf (356045 bytes)",
+      "status": "PASS"
+    },
+    {
+      "id": "LARGE-04",
+      "name": "Large PDF Extracted Page Count Verification",
+      "area": "Large PDF Output",
+      "passed": true,
+      "details": "Page count exactly 2: true",
+      "status": "PASS"
+    },
+    {
+      "id": "CRASH-01",
+      "name": "Zero-byte File Input Graceful Handling",
+      "area": "Crash Resilience",
+      "passed": true,
+      "details": "No unhandled crash occurred on zero-byte file",
+      "status": "PASS"
+    },
+    {
+      "id": "CRASH-02",
+      "name": "Non-PDF Disguised File Handling",
+      "area": "Crash Resilience",
+      "passed": true,
+      "details": "Corrupted format caught gracefully without breaking UI",
+      "status": "PASS"
+    },
+    {
+      "id": "CRASH-03",
+      "name": "Rapid Tool Switching Stress Test (20 cycles)",
+      "area": "Stress Policy",
+      "passed": true,
+      "details": "Errors encountered: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "CRASH-04",
+      "name": "Repeated Undo/Redo Stress Test (20 cycles)",
+      "area": "Stress Policy",
+      "passed": true,
+      "details": "Errors encountered: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "PERF-01",
+      "name": "Navigation Timing & Page Weight",
+      "area": "Performance",
+      "passed": true,
+      "details": "DOM Complete: 143ms, Resources: 5, Transfer: 1 KB",
+      "status": "PASS"
+    },
+    {
+      "id": "RESP-01",
+      "name": "Zero Horizontal Overflow across 8 Viewports (320px to 1920px)",
+      "area": "Responsive QA",
+      "passed": false,
+      "details": "Viewports tested: 320, 360, 390, 430, 768, 1024, 1440, 1920px. Overflows: 4",
+      "status": "FAIL"
+    },
+    {
+      "id": "A11Y-01",
+      "name": "Keyboard Tab Focus Navigation Active",
+      "area": "Accessibility",
+      "passed": true,
+      "details": "First focused element tag: <A>",
+      "status": "PASS"
+    },
+    {
+      "id": "A11Y-02",
+      "name": "Semantic Button Labeling & ARIA Attributes",
+      "area": "Accessibility",
+      "passed": false,
+      "details": "Total buttons: 9, Unlabeled: 4",
+      "status": "FAIL"
+    },
+    {
+      "id": "PRIVACY-01",
+      "name": "Zero External Document Data Transmission (Network Privacy)",
+      "area": "Network Privacy",
+      "passed": true,
+      "details": "Captured external requests: 18, Non-GET: 0, Leaked payloads: 0",
+      "status": "PASS"
+    },
+    {
+      "id": "PRIVACY-02",
+      "name": "Zero Document Content in Client Storage (Storage Privacy)",
+      "area": "Storage Privacy",
+      "passed": true,
+      "details": "localStorage keys: [], sessionStorage keys: []",
+      "status": "PASS"
+    },
+    {
+      "id": "BROWSER-01",
+      "name": "Chromium / Microsoft Edge Compatibility",
+      "area": "Cross-Browser",
+      "passed": true,
+      "details": "Verified on msedge.exe",
+      "status": "PASS"
+    },
+    {
+      "id": "BROWSER-02",
+      "name": "Google Chrome Standalone Binary",
+      "area": "Cross-Browser",
+      "passed": false,
+      "status": "NOT TESTED",
+      "details": "Google Chrome binary not installed on machine (Edge Chromium used for Chromium engine tests)"
+    },
+    {
+      "id": "BROWSER-03",
+      "name": "Mozilla Firefox Compatibility",
+      "area": "Cross-Browser",
+      "passed": false,
+      "status": "NOT TESTED",
+      "details": "Firefox executable present on machine but CDP headless automation is Chromium-based"
+    },
+    {
+      "id": "BROWSER-04",
+      "name": "Apple Safari / WebKit Compatibility",
+      "area": "Cross-Browser",
+      "passed": false,
+      "status": "BLOCKED",
+      "details": "WebKit/Safari binary unsupported on native Windows host"
+    },
+    {
+      "id": "STABILITY-01",
+      "name": "Zero Uncaught Runtime Console Errors",
+      "area": "Stability",
+      "passed": false,
+      "details": "Uncaught console errors: 14",
+      "status": "FAIL"
+    }
+  ],
+  "networkRequestsCaptured": 18,
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\"."
+  ]
+}

@@ -12,8 +12,9 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
 ---
 
 <Layout
-  title="PDF Editor Online — Private, Local & In-Browser"
-  description="Annotate, add text, highlight, and redact PDF documents directly in your browser with zero server uploads."
+  title="PDF Editor Online — Edit PDF In-Browser, No Upload"
+  description="Add text, edit existing text, annotate, highlight, and redact PDF documents directly in your browser. No server uploads, no signup required."
+  canonicalUrl="https://pdfpage.tools/pdf-editor/"
 >
   <!-- STATE 1: Landing / Upload State -->
   <div id="editor-landing-view" class="w-full flex-1 flex flex-col justify-between">
@@ -48,6 +49,35 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     <!-- Functional Tool Bar -->
     <EditorToolbar />
 
+    <!-- Dynamic XFA Notification Banner -->
+    <div
+      id="editor-xfa-banner"
+      class="hidden w-full bg-amber-50 dark:bg-amber-950/60 border-b border-amber-200 dark:border-amber-800/60 px-4 py-2 flex items-center justify-between text-xs text-amber-800 dark:text-amber-200 z-20"
+      role="alert"
+    >
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span>
+          <strong>Notice:</strong> This PDF contains dynamic Adobe XFA forms. Interactive form editing is not supported in browser-based editors. You can view, annotate, and manage pages, but dynamic form fields cannot be edited.
+        </span>
+      </div>
+      <button
+        type="button"
+        id="dismiss-xfa-banner-btn"
+        class="p-1 rounded text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-white"
+        title="Dismiss notice"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
     <!-- Main Workspace 3-Column Layout -->
     <div class="flex-1 flex overflow-hidden relative">
       <!-- Left Sidebar: Pages & Thumbnails (Desktop) -->
@@ -71,6 +101,24 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     <!-- Mobile Drawers & Bottom Sheets -->
     <EditorMobileSheets />
   </div>
+  
+  <script is:inline type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PDFPage.Tools PDF Editor",
+    "url": "https://pdfpage.tools/pdf-editor/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Add text, edit existing text, annotate, highlight, and redact PDF documents directly in your browser. No server uploads required."
+  }
+  </script>
 </Layout>
 
 <script>
@@ -78,27 +126,44 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     editorStore,
     type EditorObject,
     type TextEditorObject,
+    type TextReplacementEditorObject,
     type ShapeEditorObject,
     type AnnotationEditorObject,
     type PrivacyEditorObject,
+    type RedactionEditorObject,
     type PenEditorObject,
     type ImageEditorObject,
     type EditorTool,
+    type PageState,
   } from '../utils/editorState';
   import { loadPdfDocumentManager, type LoadedPdfDoc } from '../utils/pdfDocumentManager';
   import { pdfRenderer } from '../utils/pdfRenderer';
   import { interactionController } from '../utils/editorInteractionController';
   import { pdfRectToScreenRect } from '../utils/coordinateMapper';
-  import { exportPdfDocument } from '../utils/pdfExportEngine';
+  import { exportPdfDocument, type FormExportMode } from '../utils/pdfExportEngine';
+  import { pdfTextLayerManager } from '../utils/pdfTextLayer';
   import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
   import type { PageViewport } from 'pdfjs-dist';
+  import { formStore } from '../utils/formState';
+  import { pdfFormOverlayManager } from '../utils/pdfFormOverlay';
+
+  // Helper to detect dynamic XFA in pristine PDF bytes
+  function detectXfaInBytes(bytes: ArrayBuffer): boolean {
+    const uint8 = new Uint8Array(bytes);
+    const len = Math.min(uint8.length, 500000);
+    for (let i = 0; i < len - 4; i++) {
+      if (uint8[i] === 0x2f && uint8[i + 1] === 0x58 && uint8[i + 2] === 0x46 && uint8[i + 3] === 0x41) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   // DOM Elements - State 1
   const landingView = document.getElementById('editor-landing-view');
   const workspaceView = document.getElementById('editor-workspace-view');
   const fileInput = document.getElementById('editor-file-input') as HTMLInputElement | null;
   const dropZone = document.getElementById('editor-drop-zone');
-  const sampleBtn = document.getElementById('editor-sample-btn');
 
   // DOM Elements - State 2 Header & Tools
   const backBtn = document.getElementById('editor-back-btn');
@@ -109,6 +174,10 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const themeToggleBtn = document.getElementById('editor-theme-toggle-btn');
   const themeKnob = document.getElementById('editor-theme-knob');
 
+  // Dynamic XFA Notification Banner
+  const editorXfaBanner = document.getElementById('editor-xfa-banner');
+  const dismissXfaBannerBtn = document.getElementById('dismiss-xfa-banner-btn');
+
   // Export Toast Elements
   const exportToast = document.getElementById('editor-export-toast');
   const exportToastSpinner = document.getElementById('export-toast-spinner');
@@ -118,6 +187,7 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
 
   // Tool buttons
   const toolButtons = document.querySelectorAll<HTMLButtonElement>('.editor-tool-btn');
+  const rotatePageBtn = document.getElementById('tool-rotate-page-btn');
   const moreToolsBtn = document.getElementById('tool-more-btn');
   const moreToolsMenu = document.getElementById('tool-more-menu');
   const undoBtn = document.getElementById('tool-undo-btn') as HTMLButtonElement | null;
@@ -130,6 +200,9 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const pdfCanvas = document.getElementById('pdf-canvas') as HTMLCanvasElement | null;
   const overlayLayer = document.getElementById('editor-overlay-layer');
   const selectionBox = document.getElementById('selection-bounding-box');
+  const pdfTextLayer = document.getElementById('pdf-text-layer');
+  const pdfFormLayer = document.getElementById('pdf-form-layer');
+  const existingTextActionBar = document.getElementById('existing-text-action-bar');
 
   // Sidebars & Toggles
   const desktopThumbnailsWrapper = document.getElementById('desktop-thumbnails-wrapper');
@@ -139,6 +212,14 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const closeInspectorBtn = document.getElementById('close-inspector-btn');
   const thumbnailsContainer = document.getElementById('thumbnails-container');
   const thumbnailPageCount = document.getElementById('thumbnail-page-count');
+
+  // Thumbnail Context Menu Elements
+  const thumbnailContextMenu = document.getElementById('thumbnail-context-menu');
+  const ctxRotateBtn = document.getElementById('ctx-rotate-btn');
+  const ctxDuplicateBtn = document.getElementById('ctx-duplicate-btn');
+  const ctxMoveUpBtn = document.getElementById('ctx-move-up-btn');
+  const ctxMoveDownBtn = document.getElementById('ctx-move-down-btn');
+  const ctxDeleteBtn = document.getElementById('ctx-delete-btn');
 
   // Bottom Controls
   const zoomOutBtn = document.getElementById('zoom-out-btn');
@@ -159,11 +240,39 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const paneDocument = document.getElementById('pane-document');
   const paneText = document.getElementById('pane-text');
   const paneShape = document.getElementById('pane-shape');
+  const paneComment = document.getElementById('pane-comment');
+  const paneRedact = document.getElementById('pane-redact');
+
+  // Redact Pane Props
+  const redactColorBlack = document.getElementById('redact-color-black');
+  const redactColorWhite = document.getElementById('redact-color-white');
+  const redactPropOverlayText = document.getElementById('redact-prop-overlay-text') as HTMLInputElement | null;
+  const deleteRedactBtn = document.getElementById('delete-redact-btn');
+
+  // Redaction Modal Props
+  const redactModal = document.getElementById('redaction-confirm-modal');
+  const redactModalCount = document.getElementById('redact-modal-count');
+  const redactStripMetaCheck = document.getElementById('redact-strip-metadata-checkbox') as HTMLInputElement | null;
+  const closeRedactModalBtn = document.getElementById('close-redact-modal-btn');
+  const cancelRedactExportBtn = document.getElementById('cancel-redact-export-btn');
+  const confirmRedactExportBtn = document.getElementById('confirm-redact-export-btn');
+
+  // Form Export Mode Modal Elements (Phase 6C)
+  const formExportModeModal = document.getElementById('form-export-mode-modal');
+  const exportModeInteractiveBtn = document.getElementById('export-mode-interactive-btn');
+  const exportModeFlattenedBtn = document.getElementById('export-mode-flattened-btn');
+  const closeExportModeModalBtn = document.getElementById('close-export-mode-modal-btn');
+  const cancelExportModeBtn = document.getElementById('cancel-export-mode-btn');
+  const exportXfaWarning = document.getElementById('export-xfa-warning');
+  const exportSignatureWarning = document.getElementById('export-signature-warning');
+  const exportRedactionNotice = document.getElementById('export-redaction-notice');
+  let selectedFormExportMode: FormExportMode = 'interactive';
 
   // Document Pane Props
   const docPropCurrentPage = document.getElementById('doc-prop-current-page');
   const docPropDimensions = document.getElementById('doc-prop-dimensions');
   const docPropOrientation = document.getElementById('doc-prop-orientation');
+  const docPropRotation = document.getElementById('doc-prop-rotation');
   const docPropZoom = document.getElementById('doc-prop-zoom');
   const docPropFilename = document.getElementById('doc-prop-filename');
   const docPropFilesize = document.getElementById('doc-prop-filesize');
@@ -185,6 +294,46 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const shapeRadiusSlider = document.getElementById('shape-radius-slider') as HTMLInputElement | null;
   const shapeRadiusVal = document.getElementById('shape-radius-val');
   const deleteShapeBtn = document.getElementById('delete-shape-btn');
+
+  // Comment Pane Props
+  const commentPropText = document.getElementById('comment-prop-text') as HTMLTextAreaElement | null;
+  const commentPropAuthor = document.getElementById('comment-prop-author');
+  const commentPropTime = document.getElementById('comment-prop-time');
+  const deleteCommentBtn = document.getElementById('delete-comment-btn');
+
+  // Form Field Pane Props
+  const paneFormField = document.getElementById('pane-form-field');
+  const formPropNameInput = document.getElementById('form-prop-name-input') as HTMLInputElement | null;
+  const formPropName = document.getElementById('form-prop-name');
+  const formPropNameError = document.getElementById('form-prop-name-error');
+  const formPropType = document.getElementById('form-prop-type');
+  const formPropRequiredBadge = document.getElementById('form-prop-required-badge');
+  const formPropReadonlyBadge = document.getElementById('form-prop-readonly-badge');
+  const formPropTooltipInput = document.getElementById('form-prop-tooltip-input') as HTMLInputElement | null;
+  const formPropDefaultValueInput = document.getElementById('form-prop-default-value-input') as HTMLInputElement | null;
+  const formPropExportValGroup = document.getElementById('form-prop-export-val-group');
+  const formPropExportValInput = document.getElementById('form-prop-export-val-input') as HTMLInputElement | null;
+  const formPropRequiredChk = document.getElementById('form-prop-required-chk') as HTMLInputElement | null;
+  const formPropReadonlyChk = document.getElementById('form-prop-readonly-chk') as HTMLInputElement | null;
+  const formPropMultilineGroup = document.getElementById('form-prop-multiline-group');
+  const formPropMultilineChk = document.getElementById('form-prop-multiline-chk') as HTMLInputElement | null;
+  const formPropMaxlengthGroup = document.getElementById('form-prop-maxlength-group');
+  const formPropMaxlengthInput = document.getElementById('form-prop-maxlength-input') as HTMLInputElement | null;
+  const formPropFontsizeInput = document.getElementById('form-prop-fontsize-input') as HTMLInputElement | null;
+  const formPropOptionsGroup = document.getElementById('form-prop-options-group');
+  const formPropOptionsList = document.getElementById('form-prop-options-list');
+  const formPropNewOptionInput = document.getElementById('form-prop-new-option-input') as HTMLInputElement | null;
+  const formPropAddOptionBtn = document.getElementById('form-prop-add-option-btn');
+  const formPropDuplicateBtn = document.getElementById('form-prop-duplicate-btn');
+  const formPropResetBtn = document.getElementById('form-prop-reset-btn');
+  const formPropDeleteBtn = document.getElementById('form-prop-delete-btn');
+  const formPropTabList = document.getElementById('form-prop-tab-list');
+
+  // Toolbar Form Controls
+  const toolFormDropdownBtn = document.getElementById('tool-form-dropdown-btn');
+  const toolFormMenu = document.getElementById('tool-form-menu');
+  const toggleAuthorModeBtn = document.getElementById('toggle-author-mode-btn');
+  const authorModeThumb = document.getElementById('author-mode-thumb');
 
   // Mobile Sheets
   const mobileBackdrop = document.getElementById('mobile-sheet-backdrop');
@@ -212,8 +361,19 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   let currentRenderViewport: PageViewport | null = null;
   let lastRenderedPage = -1;
   let lastRenderedZoom = -1;
+  let lastRenderedRotation = -1;
+  let lastRenderedSourceIdx = -1;
   let isPageRendering = false;
   let renderQueued = false;
+  let lastPagesKey = '';
+  let activeContextMenuPageNum = -1;
+
+  if (typeof window !== 'undefined') {
+    (window as any).__PDF_LOADED_DOC__ = () => loadedDoc;
+    (window as any).__PDF_EDITOR_STORE__ = editorStore;
+    (window as any).__PDF_FORM_STORE__ = formStore;
+    (window as any).__PDF_FORM_OVERLAY__ = pdfFormOverlayManager;
+  }
 
   // --- EXPORT TOAST NOTIFICATIONS ---
   const showExportToast = (title: string, desc: string, isFinished = false, isError = false) => {
@@ -250,7 +410,10 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     if (workspaceView) workspaceView.classList.remove('hidden');
 
     if (overlayLayer && pdfCanvas) {
-      interactionController.attach(overlayLayer, pdfCanvas);
+      interactionController.attach(overlayLayer, pdfCanvas, pdfTextLayer, existingTextActionBar, pdfFormLayer, selectionBox);
+    }
+    if (pdfFormLayer) {
+      pdfFormOverlayManager.attach(pdfFormLayer);
     }
 
     // Auto-fit page width on mobile screens
@@ -271,6 +434,11 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const showLanding = () => {
     interactionController.detach();
     pdfRenderer.cancelCurrentRender();
+    pdfTextLayerManager.clear(pdfTextLayer);
+    pdfFormOverlayManager.clear();
+    pdfFormOverlayManager.detach();
+    formStore.reset();
+    if (editorXfaBanner) editorXfaBanner.classList.add('hidden');
     if (loadedDoc) {
       loadedDoc.destroy();
       loadedDoc = null;
@@ -285,61 +453,6 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     if (landingView) landingView.classList.remove('hidden');
   };
 
-  async function createSamplePdfBytes(): Promise<ArrayBuffer> {
-    const doc = await PDFDocument.create();
-    const font = await doc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await doc.embedFont(StandardFonts.HelveticaBold);
-
-    for (let i = 1; i <= 3; i++) {
-      const page = doc.addPage([595.28, 841.89]);
-      page.drawText(`Sample Agreement — Page ${i}`, {
-        x: 50,
-        y: 780,
-        size: 20,
-        font: boldFont,
-        color: rgb(0.06, 0.09, 0.16),
-      });
-      page.drawText('Standard Confidentiality & Non-Disclosure Agreement', {
-        x: 50,
-        y: 750,
-        size: 13,
-        font,
-        color: rgb(0.2, 0.25, 0.35),
-      });
-      page.drawText('This document is processed 100% locally in your browser session. No data is sent to external servers.', {
-        x: 50,
-        y: 720,
-        size: 10,
-        font,
-        color: rgb(0.3, 0.35, 0.45),
-      });
-      page.drawRectangle({
-        x: 50,
-        y: 500,
-        width: 495,
-        height: 180,
-        borderColor: rgb(0.8, 0.85, 0.9),
-        borderWidth: 1,
-        color: rgb(0.97, 0.98, 1.0),
-      });
-      page.drawText('Section 1: Scope of Local Processing', {
-        x: 70,
-        y: 645,
-        size: 14,
-        font: boldFont,
-        color: rgb(0.1, 0.2, 0.5),
-      });
-      page.drawText('All annotations, highlights, shapes, and signature drawings are performed using client-side WebAssembly and JavaScript engines.', {
-        x: 70,
-        y: 615,
-        size: 9.5,
-        font,
-        color: rgb(0.3, 0.35, 0.45),
-      });
-    }
-    const bytes = await doc.save();
-    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-  }
 
   const handleSelectedFile = async (file: File) => {
     try {
@@ -349,6 +462,38 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       }
       const doc = await loadPdfDocumentManager(file);
       loadedDoc = doc;
+      if (typeof window !== 'undefined') {
+        (window as any).__PDF_LOADED_DOC__ = () => loadedDoc;
+        (window as any).__PDF_EDITOR_STORE__ = editorStore;
+        (window as any).__PDF_FORM_STORE__ = formStore;
+        (window as any).__PDF_FORM_OVERLAY__ = pdfFormOverlayManager;
+      }
+
+      // Check AcroForm & dynamic XFA status
+      let hasAcroForm = false;
+      try {
+        const fieldObjects = await doc.docProxy.getFieldObjects();
+        hasAcroForm = fieldObjects !== null && Object.keys(fieldObjects).length > 0;
+      } catch (e) {
+        // Ignored
+      }
+      let isXfa = detectXfaInBytes(doc.pristineBytes);
+      try {
+        const meta = await doc.docProxy.getMetadata();
+        if ((meta?.info as any)?.IsXFAPresent) {
+          isXfa = true;
+        }
+      } catch (e) {
+        // Ignored
+      }
+      formStore.initDocument(hasAcroForm, isXfa);
+      if (editorXfaBanner) {
+        if (isXfa) {
+          editorXfaBanner.classList.remove('hidden');
+        } else {
+          editorXfaBanner.classList.add('hidden');
+        }
+      }
 
       const sampleLimit = Math.min(doc.pageCount, 20);
       const dimensions = [];
@@ -406,37 +551,6 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     });
   }
 
-  // Sample Document Trigger
-  if (sampleBtn) {
-    sampleBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      try {
-        const sampleBytes = await createSamplePdfBytes();
-        if (loadedDoc) {
-          loadedDoc.destroy();
-          loadedDoc = null;
-        }
-        const doc = await loadPdfDocumentManager(sampleBytes);
-        loadedDoc = doc;
-
-        const mockFile = new File([sampleBytes], 'Sample Agreement.pdf', { type: 'application/pdf' });
-        const dimensions = [
-          { width: 595, height: 842 },
-          { width: 595, height: 842 },
-          { width: 595, height: 842 },
-        ];
-        editorStore.loadDocument(mockFile, 3, dimensions);
-        showWorkspace();
-        await triggerPageRender();
-        renderThumbnails(doc, 1);
-      } catch (err: any) {
-        console.error('Failed to load sample document:', err);
-        editorStore.loadSampleDocument();
-        showWorkspace();
-      }
-    });
-  }
-
   // Navigation & Reset Buttons
   if (newDocBtn) newDocBtn.addEventListener('click', showLanding);
   if (backBtn) {
@@ -448,30 +562,402 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     });
   }
 
-  // Export Button (Real pdf-lib client-side export)
+  // Export Handlers (Real pdf-lib client-side export with form support and redaction synthesis)
+  const executeExport = async (options?: { sanitizeMetadata?: boolean; exportMode?: FormExportMode }) => {
+    const state = editorStore.getState();
+    if (!loadedDoc) {
+      alert('Please open or load a PDF document first.');
+      return;
+    }
+
+    // Pre-flight XFA check (FAIL-CLOSED)
+    if (formStore.isXfa()) {
+      showExportToast('Export Blocked', 'XFA forms are not supported.', true, true);
+      alert('XFA forms are not supported.');
+      return;
+    }
+
+    const mode = options?.exportMode || selectedFormExportMode || 'interactive';
+    const isForm = formStore.hasForm() || formStore.getFields().length > 0;
+    const toastTitle = isForm && mode === 'flattened' ? 'Exporting Flattened PDF...' : 'Exporting PDF...';
+    showExportToast(toastTitle, 'Applying annotations and preparing bytes', false);
+
+    const result = await exportPdfDocument(
+      loadedDoc.pristineBytes,
+      state.objects,
+      state.document?.name || 'document.pdf',
+      (stage) => {
+        if (exportToastDesc) exportToastDesc.textContent = stage;
+      },
+      state.document?.pages,
+      {
+        sanitizeMetadata: options?.sanitizeMetadata !== undefined ? options.sanitizeMetadata : true,
+        loadedDocProxy: loadedDoc.docProxy,
+        exportMode: mode,
+      }
+    );
+
+    if (result.success) {
+      showExportToast('Export Complete!', `Downloaded ${result.filename}`, true);
+    } else {
+      showExportToast('Export Failed', result.error || 'Failed to export PDF', true, true);
+    }
+  };
+
+  const handleExportClick = () => {
+    const state = editorStore.getState();
+    if (!loadedDoc) {
+      alert('Please open or load a PDF document first.');
+      return;
+    }
+
+    // 1. HARD XFA FAIL-CLOSED GATE
+    if (formStore.isXfa()) {
+      showExportToast('Export Blocked', 'XFA forms are not supported.', true, true);
+      return;
+    }
+
+    const hasForm = formStore.hasForm() || formStore.getFields().length > 0;
+    const redactions = state.objects.filter((o) => o.type === 'redact');
+    const hasSignatures = formStore.getFields().some((f) => f.type === 'signature');
+
+    if (hasForm && formExportModeModal) {
+      if (exportSignatureWarning) {
+        if (hasSignatures) exportSignatureWarning.classList.remove('hidden');
+        else exportSignatureWarning.classList.add('hidden');
+      }
+      if (exportRedactionNotice) {
+        if (redactions.length > 0) exportRedactionNotice.classList.remove('hidden');
+        else exportRedactionNotice.classList.add('hidden');
+      }
+      formExportModeModal.classList.remove('hidden');
+      return;
+    }
+
+    if (redactions.length > 0) {
+      if (redactModalCount) {
+        redactModalCount.textContent = `${redactions.length} redaction region${redactions.length > 1 ? 's' : ''}`;
+      }
+      redactModal?.classList.remove('hidden');
+      return;
+    }
+
+    executeExport();
+  };
+
   if (exportBtn) {
-    exportBtn.addEventListener('click', async () => {
+    exportBtn.addEventListener('click', handleExportClick);
+  }
+
+  // Form Export Mode Modal Listeners (Phase 6C)
+  const hideFormExportModal = () => {
+    formExportModeModal?.classList.add('hidden');
+  };
+
+  if (closeExportModeModalBtn) closeExportModeModalBtn.addEventListener('click', hideFormExportModal);
+  if (cancelExportModeBtn) cancelExportModeBtn.addEventListener('click', hideFormExportModal);
+
+  if (exportModeInteractiveBtn) {
+    exportModeInteractiveBtn.addEventListener('click', () => {
+      hideFormExportModal();
+      selectedFormExportMode = 'interactive';
       const state = editorStore.getState();
-      if (!loadedDoc) {
-        alert('Please open or load a PDF document first.');
+      const redactions = state.objects.filter((o) => o.type === 'redact');
+      if (redactions.length > 0) {
+        if (redactModalCount) {
+          redactModalCount.textContent = `${redactions.length} redaction region${redactions.length > 1 ? 's' : ''}`;
+        }
+        redactModal?.classList.remove('hidden');
         return;
       }
+      executeExport({ exportMode: 'interactive' });
+    });
+  }
 
-      showExportToast('Exporting PDF...', 'Applying annotations and preparing bytes', false);
-
-      const result = await exportPdfDocument(
-        loadedDoc.pristineBytes,
-        state.objects,
-        state.document?.name || 'document.pdf',
-        (stage) => {
-          if (exportToastDesc) exportToastDesc.textContent = stage;
+  if (exportModeFlattenedBtn) {
+    exportModeFlattenedBtn.addEventListener('click', () => {
+      hideFormExportModal();
+      selectedFormExportMode = 'flattened';
+      const state = editorStore.getState();
+      const redactions = state.objects.filter((o) => o.type === 'redact');
+      if (redactions.length > 0) {
+        if (redactModalCount) {
+          redactModalCount.textContent = `${redactions.length} redaction region${redactions.length > 1 ? 's' : ''}`;
         }
-      );
+        redactModal?.classList.remove('hidden');
+        return;
+      }
+      executeExport({ exportMode: 'flattened' });
+    });
+  }
 
-      if (result.success) {
-        showExportToast('Export Complete!', `Downloaded ${result.filename}`, true);
+  // Redaction Modal Listeners
+  if (closeRedactModalBtn) {
+    closeRedactModalBtn.addEventListener('click', () => {
+      redactModal?.classList.add('hidden');
+    });
+  }
+  if (cancelRedactExportBtn) {
+    cancelRedactExportBtn.addEventListener('click', () => {
+      redactModal?.classList.add('hidden');
+    });
+  }
+  if (confirmRedactExportBtn) {
+    confirmRedactExportBtn.addEventListener('click', () => {
+      redactModal?.classList.add('hidden');
+      const stripMeta = redactStripMetaCheck ? redactStripMetaCheck.checked : true;
+      executeExport({ sanitizeMetadata: stripMeta, exportMode: selectedFormExportMode });
+    });
+  }
+
+  // Dynamic XFA Banner Listener
+  if (dismissXfaBannerBtn && editorXfaBanner) {
+    dismissXfaBannerBtn.addEventListener('click', () => {
+      editorXfaBanner.classList.add('hidden');
+    });
+  }
+
+  // Toolbar Form Controls & Author Mode
+  const syncAuthorModeUI = (isAuthor: boolean) => {
+    if (toggleAuthorModeBtn) {
+      toggleAuthorModeBtn.setAttribute('aria-checked', isAuthor ? 'true' : 'false');
+      if (isAuthor) {
+        toggleAuthorModeBtn.classList.remove('bg-slate-200', 'dark:bg-slate-700');
+        toggleAuthorModeBtn.classList.add('bg-brand-500');
       } else {
-        showExportToast('Export Failed', result.error || 'Failed to export PDF', true, true);
+        toggleAuthorModeBtn.classList.remove('bg-brand-500');
+        toggleAuthorModeBtn.classList.add('bg-slate-200', 'dark:bg-slate-700');
+      }
+    }
+    if (authorModeThumb) {
+      if (isAuthor) {
+        authorModeThumb.classList.remove('translate-x-0');
+        authorModeThumb.classList.add('translate-x-4');
+      } else {
+        authorModeThumb.classList.remove('translate-x-4');
+        authorModeThumb.classList.add('translate-x-0');
+      }
+    }
+  };
+
+  if (toggleAuthorModeBtn) {
+    toggleAuthorModeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = formStore.isAuthorModeActive();
+      formStore.setAuthorMode(!current);
+      syncAuthorModeUI(!current);
+      if (currentRenderViewport) {
+        pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+      }
+    });
+  }
+
+  if (toolFormDropdownBtn && toolFormMenu) {
+    toolFormDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toolFormMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!toolFormMenu.contains(e.target as Node) && e.target !== toolFormDropdownBtn) {
+        toolFormMenu.classList.add('hidden');
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-tool^="form-"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (toolFormMenu) toolFormMenu.classList.add('hidden');
+      formStore.setAuthorMode(true);
+      syncAuthorModeUI(true);
+      if (currentRenderViewport) {
+        pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+      }
+    });
+  });
+
+  // Form Field Inspector Inputs Binding
+  if (formPropNameInput) {
+    formPropNameInput.addEventListener('input', () => {
+      if (formPropNameError) formPropNameError.classList.add('hidden');
+    });
+    formPropNameInput.addEventListener('change', () => {
+      const selField = formStore.getSelectedField();
+      if (!selField) return;
+      const newName = formPropNameInput.value.trim();
+      if (!newName) {
+        formPropNameInput.value = selField.name;
+        return;
+      }
+      if (newName !== selField.name) {
+        const success = formStore.updateFieldProperties(selField.id, { newName, name: newName });
+        if (!success) {
+          if (formPropNameError) formPropNameError.classList.remove('hidden');
+          formPropNameInput.value = selField.name;
+        } else {
+          if (formPropNameError) formPropNameError.classList.add('hidden');
+          if (currentRenderViewport) {
+            pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+          }
+        }
+      }
+    });
+  }
+
+  if (formPropTooltipInput) {
+    formPropTooltipInput.addEventListener('input', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { tooltip: formPropTooltipInput.value });
+      }
+    });
+  }
+
+  if (formPropDefaultValueInput) {
+    formPropDefaultValueInput.addEventListener('input', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { defaultValue: formPropDefaultValueInput.value });
+        pdfFormOverlayManager.syncDomValues();
+      }
+    });
+  }
+
+  if (formPropExportValInput) {
+    formPropExportValInput.addEventListener('input', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { exportValue: formPropExportValInput.value });
+      }
+    });
+  }
+
+  if (formPropRequiredChk) {
+    formPropRequiredChk.addEventListener('change', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { required: formPropRequiredChk.checked });
+        if (formPropRequiredBadge) formPropRequiredBadge.classList.toggle('hidden', !formPropRequiredChk.checked);
+      }
+    });
+  }
+
+  if (formPropReadonlyChk) {
+    formPropReadonlyChk.addEventListener('change', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { readOnly: formPropReadonlyChk.checked });
+        if (formPropReadonlyBadge) formPropReadonlyBadge.classList.toggle('hidden', !formPropReadonlyChk.checked);
+        if (currentRenderViewport) {
+          pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+        }
+      }
+    });
+  }
+
+  if (formPropMultilineChk) {
+    formPropMultilineChk.addEventListener('change', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.updateFieldProperties(selField.id, { multiline: formPropMultilineChk.checked });
+        if (currentRenderViewport) {
+          pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+        }
+      }
+    });
+  }
+
+  if (formPropMaxlengthInput) {
+    formPropMaxlengthInput.addEventListener('input', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        const val = Number(formPropMaxlengthInput.value);
+        formStore.updateFieldProperties(selField.id, { maxLength: isNaN(val) || val <= 0 ? undefined : val });
+      }
+    });
+  }
+
+  if (formPropFontsizeInput) {
+    formPropFontsizeInput.addEventListener('input', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        const val = Number(formPropFontsizeInput.value);
+        if (!isNaN(val) && val >= 6) {
+          formStore.updateFieldProperties(selField.id, { fontSize: val });
+          if (currentRenderViewport) {
+            pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+          }
+        }
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.form-align-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const align = btn.getAttribute('data-form-align') as 'left' | 'center' | 'right';
+      const selField = formStore.getSelectedField();
+      if (selField && align) {
+        formStore.updateFieldProperties(selField.id, { alignment: align });
+        updateFormInspector(selField.id);
+        if (currentRenderViewport) {
+          pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+        }
+      }
+    });
+  });
+
+  if (formPropAddOptionBtn && formPropNewOptionInput) {
+    formPropAddOptionBtn.addEventListener('click', () => {
+      const selField = formStore.getSelectedField();
+      const val = formPropNewOptionInput.value.trim();
+      if (selField && val) {
+        const options = selField.options ? [...selField.options] : [];
+        options.push({ label: val, value: val });
+        formStore.updateFieldProperties(selField.id, { options });
+        formPropNewOptionInput.value = '';
+        updateFormInspector(selField.id);
+        if (currentRenderViewport) {
+          pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+        }
+      }
+    });
+  }
+
+  if (formPropDuplicateBtn) {
+    formPropDuplicateBtn.addEventListener('click', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        const curPage = editorStore.getState().currentPage;
+        const duplicated = formStore.duplicateField(selField.id, curPage);
+        if (duplicated && currentRenderViewport) {
+          pdfFormOverlayManager.renderFormOverlay(curPage, currentRenderViewport);
+        }
+      }
+    });
+  }
+
+  if (formPropResetBtn) {
+    formPropResetBtn.addEventListener('click', () => {
+      const selField = formStore.getSelectedField();
+      if (selField) {
+        formStore.resetField(selField.id);
+        updateFormInspector(selField.id);
+        pdfFormOverlayManager.syncDomValues();
+      }
+    });
+  }
+
+  if (formPropDeleteBtn) {
+    formPropDeleteBtn.addEventListener('click', () => {
+      const selWidgetId = formStore.getSelectedWidgetId();
+      if (selWidgetId) {
+        formStore.deleteWidget(selWidgetId);
+      } else {
+        const selField = formStore.getSelectedField();
+        if (selField) formStore.deleteField(selField.id);
+      }
+      if (currentRenderViewport) {
+        pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
       }
     });
   }
@@ -516,6 +1002,73 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       }
     });
   });
+
+  // Rotate Page Button in Toolbar
+  if (rotatePageBtn) {
+    rotatePageBtn.addEventListener('click', () => {
+      editorStore.rotateCurrentPage();
+    });
+  }
+
+  // Thumbnail Context Menu Handlers
+  const hideContextMenu = () => {
+    if (thumbnailContextMenu) thumbnailContextMenu.classList.add('hidden');
+    activeContextMenuPageNum = -1;
+  };
+
+  const showContextMenu = (x: number, y: number, pageNum: number) => {
+    if (!thumbnailContextMenu) return;
+    activeContextMenuPageNum = pageNum;
+    thumbnailContextMenu.style.left = `${Math.min(x, window.innerWidth - 180)}px`;
+    thumbnailContextMenu.style.top = `${Math.min(y, window.innerHeight - 220)}px`;
+    thumbnailContextMenu.classList.remove('hidden');
+  };
+
+  document.addEventListener('click', (e) => {
+    if (thumbnailContextMenu && !thumbnailContextMenu.contains(e.target as Node)) {
+      hideContextMenu();
+    }
+  });
+
+  if (ctxRotateBtn) {
+    ctxRotateBtn.addEventListener('click', () => {
+      if (activeContextMenuPageNum > 0) editorStore.rotatePage(activeContextMenuPageNum);
+      hideContextMenu();
+    });
+  }
+  if (ctxDuplicateBtn) {
+    ctxDuplicateBtn.addEventListener('click', () => {
+      if (activeContextMenuPageNum > 0) editorStore.duplicatePage(activeContextMenuPageNum);
+      hideContextMenu();
+    });
+  }
+  if (ctxMoveUpBtn) {
+    ctxMoveUpBtn.addEventListener('click', () => {
+      if (activeContextMenuPageNum > 0) editorStore.movePageUp(activeContextMenuPageNum);
+      hideContextMenu();
+    });
+  }
+  if (ctxMoveDownBtn) {
+    ctxMoveDownBtn.addEventListener('click', () => {
+      if (activeContextMenuPageNum > 0) editorStore.movePageDown(activeContextMenuPageNum);
+      hideContextMenu();
+    });
+  }
+  if (ctxDeleteBtn) {
+    ctxDeleteBtn.addEventListener('click', () => {
+      if (activeContextMenuPageNum > 0) {
+        const total = editorStore.getState().document?.pageCount || 1;
+        if (total <= 1) {
+          if (!confirm('This is the only page in the document. Deleting it will leave the document empty. Continue?')) {
+            hideContextMenu();
+            return;
+          }
+        }
+        editorStore.deletePage(activeContextMenuPageNum);
+      }
+      hideContextMenu();
+    });
+  }
 
   // More Menu Popover
   if (moreToolsBtn && moreToolsMenu) {
@@ -751,13 +1304,20 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   }
 
   // --- RENDER & STATE SYNCHRONIZATION ---
-  const renderThumbnails = async (doc: LoadedPdfDoc, currentPage: number) => {
-    const pageCount = doc.pageCount;
-    const maxVisibleThumbs = Math.min(pageCount, 30);
+  let draggedThumbIndex: number | null = null;
 
-    const createThumbnailHTML = (num: number, isCurrent: boolean) => `
+  const renderThumbnails = async (doc: LoadedPdfDoc, currentPage: number) => {
+    const state = editorStore.getState();
+    const pages = state.document?.pages || [];
+    const totalPages = pages.length;
+    const maxVisibleThumbs = Math.min(totalPages, 50);
+
+    const createThumbnailHTML = (p: PageState, pNum: number, isCurrent: boolean) => `
       <div
-        data-page="${num}"
+        data-page="${pNum}"
+        data-page-index="${pNum - 1}"
+        data-page-id="${p.id}"
+        draggable="true"
         class="thumbnail-card group relative cursor-pointer flex flex-col items-center select-none"
       >
         <div
@@ -767,57 +1327,222 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
               : 'border-slate-200 dark:border-[#212b3c] hover:border-slate-300 dark:hover:border-slate-600'
           }"
         >
-          <canvas class="thumb-canvas w-full h-full object-contain block bg-white" data-thumb-page="${num}"></canvas>
+          <canvas class="thumb-canvas w-full h-full object-contain block bg-white" data-thumb-page="${pNum}" data-source-page="${p.sourcePageIndex + 1}" data-rotation="${p.rotation}"></canvas>
+          ${
+            p.rotation !== 0
+              ? `<span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-500 text-white shadow-xs">${p.rotation}°</span>`
+              : ''
+          }
         </div>
         <div class="flex items-center justify-between w-36 mt-1.5 px-1">
-          <span class="text-xs font-bold ${isCurrent ? 'text-brand-600 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}">${num}</span>
-          <span class="text-[10px] text-slate-400">Page ${num}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold ${isCurrent ? 'text-brand-600 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400'}">${pNum}</span>
+            <span class="text-[10px] text-slate-400">Page ${p.originalPageNumber}</span>
+          </div>
+          <button
+            type="button"
+            data-page-menu-trigger="${pNum}"
+            class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Page Options"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="12" cy="5" r="1" />
+              <circle cx="12" cy="19" r="1" />
+            </svg>
+          </button>
         </div>
       </div>
     `;
 
     let html = '';
-    for (let i = 1; i <= maxVisibleThumbs; i++) {
-      html += createThumbnailHTML(i, i === currentPage);
+    for (let i = 0; i < maxVisibleThumbs; i++) {
+      const p = pages[i];
+      html += createThumbnailHTML(p, i + 1, i + 1 === currentPage);
     }
-    if (pageCount > maxVisibleThumbs) {
+    if (totalPages > maxVisibleThumbs) {
       html += `
         <div class="text-center py-2 text-[11px] text-slate-400 dark:text-slate-500 font-medium bg-slate-50 dark:bg-[#161c28] rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-2">
-          + ${pageCount - maxVisibleThumbs} more pages
+          + ${totalPages - maxVisibleThumbs} more pages
         </div>
       `;
     }
 
     if (thumbnailsContainer) {
       thumbnailsContainer.innerHTML = html;
-      thumbnailsContainer.querySelectorAll('.thumbnail-card').forEach((el) => {
-        el.addEventListener('click', () => {
-          const p = Number(el.getAttribute('data-page'));
-          if (p) editorStore.setCurrentPage(p);
+      thumbnailsContainer.querySelectorAll<HTMLElement>('.thumbnail-card').forEach((el) => {
+        const pNum = Number(el.getAttribute('data-page'));
+        const pIdx = Number(el.getAttribute('data-page-index'));
+
+        el.addEventListener('click', (e) => {
+          const menuBtn = (e.target as HTMLElement).closest('[data-page-menu-trigger]');
+          if (menuBtn) {
+            e.stopPropagation();
+            const rect = menuBtn.getBoundingClientRect();
+            showContextMenu(rect.right, rect.bottom, pNum);
+            return;
+          }
+          if (pNum) editorStore.setCurrentPage(pNum);
+        });
+
+        // HTML5 Drag and drop
+        el.addEventListener('dragstart', (e) => {
+          draggedThumbIndex = pIdx;
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(pIdx));
+          }
+          el.classList.add('opacity-50');
+        });
+
+        el.addEventListener('dragend', () => {
+          el.classList.remove('opacity-50');
+          draggedThumbIndex = null;
+        });
+
+        el.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+          el.classList.add('ring-2', 'ring-brand-400');
+        });
+
+        el.addEventListener('dragleave', () => {
+          el.classList.remove('ring-2', 'ring-brand-400');
+        });
+
+        el.addEventListener('drop', (e) => {
+          e.preventDefault();
+          el.classList.remove('ring-2', 'ring-brand-400');
+          if (draggedThumbIndex !== null && draggedThumbIndex !== pIdx) {
+            editorStore.reorderPages(draggedThumbIndex, pIdx);
+          }
         });
       });
     }
 
     if (mobileThumbnailsList) {
-      mobileThumbnailsList.innerHTML = html;
-      mobileThumbnailsList.querySelectorAll('.thumbnail-card').forEach((el) => {
+      let mobileHtml = '';
+      for (let i = 0; i < maxVisibleThumbs; i++) {
+        const p = pages[i];
+        const pNum = i + 1;
+        const isCurrent = pNum === currentPage;
+        mobileHtml += `
+          <div
+            data-page="${pNum}"
+            class="mobile-thumbnail-card p-3 rounded-2xl bg-slate-50 dark:bg-[#161c28] border ${
+              isCurrent ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-slate-200 dark:border-[#212836]'
+            } flex items-center justify-between gap-3"
+          >
+            <div class="flex items-center gap-3 cursor-pointer flex-1 select-none" data-mobile-page-select="${pNum}">
+              <div class="w-16 h-20 rounded-lg bg-white dark:bg-[#1a2232] border border-slate-200 dark:border-slate-700 overflow-hidden relative flex-shrink-0">
+                <canvas class="thumb-canvas w-full h-full object-contain block bg-white" data-thumb-page="${pNum}" data-source-page="${p.sourcePageIndex + 1}" data-rotation="${p.rotation}"></canvas>
+                ${p.rotation !== 0 ? `<span class="absolute top-0.5 left-0.5 px-1 rounded text-[8px] font-bold bg-brand-500 text-white">${p.rotation}°</span>` : ''}
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white">Page ${pNum}</span>
+                <p class="text-[10px] text-slate-400">Original #${p.originalPageNumber}${p.rotation ? ` · ${p.rotation}°` : ''}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                data-mobile-move-up="${pNum}"
+                ${pNum === 1 ? 'disabled' : ''}
+                class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                title="Move Up"
+                aria-label="Move page up"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button
+                type="button"
+                data-mobile-move-down="${pNum}"
+                ${pNum === totalPages ? 'disabled' : ''}
+                class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                title="Move Down"
+                aria-label="Move page down"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button
+                type="button"
+                data-mobile-rotate="${pNum}"
+                class="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                title="Rotate 90°"
+                aria-label="Rotate page 90 degrees"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.83 6.72 2.24L21 8"/><path d="M21 3v5h-5"/></svg>
+              </button>
+              <button
+                type="button"
+                data-mobile-delete="${pNum}"
+                class="p-2 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                title="Delete Page"
+                aria-label="Delete page"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      mobileThumbnailsList.innerHTML = mobileHtml;
+
+      mobileThumbnailsList.querySelectorAll<HTMLElement>('[data-mobile-page-select]').forEach((el) => {
         el.addEventListener('click', () => {
-          const p = Number(el.getAttribute('data-page'));
+          const p = Number(el.getAttribute('data-mobile-page-select'));
           if (p) {
             editorStore.setCurrentPage(p);
             closeMobileDrawer();
           }
         });
       });
+      mobileThumbnailsList.querySelectorAll<HTMLElement>('[data-mobile-move-up]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const p = Number(el.getAttribute('data-mobile-move-up'));
+          if (p) editorStore.movePageUp(p);
+        });
+      });
+      mobileThumbnailsList.querySelectorAll<HTMLElement>('[data-mobile-move-down]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const p = Number(el.getAttribute('data-mobile-move-down'));
+          if (p) editorStore.movePageDown(p);
+        });
+      });
+      mobileThumbnailsList.querySelectorAll<HTMLElement>('[data-mobile-rotate]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const p = Number(el.getAttribute('data-mobile-rotate'));
+          if (p) editorStore.rotatePage(p);
+        });
+      });
+      mobileThumbnailsList.querySelectorAll<HTMLElement>('[data-mobile-delete]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const p = Number(el.getAttribute('data-mobile-delete'));
+          if (p) {
+            if (totalPages <= 1) {
+              if (!confirm('This is the only page in the document. Deleting it will leave the document empty. Continue?')) {
+                return;
+              }
+            }
+            editorStore.deletePage(p);
+          }
+        });
+      });
     }
 
-    // Asynchronously render thumbnail canvas bitmaps for the visible thumbnails
-    for (let i = 1; i <= maxVisibleThumbs; i++) {
-      const canvases = document.querySelectorAll<HTMLCanvasElement>(`canvas[data-thumb-page="${i}"]`);
+    // Asynchronously render thumbnail canvas bitmaps for visible thumbnails
+    for (let i = 0; i < maxVisibleThumbs; i++) {
+      const p = pages[i];
+      const pNum = i + 1;
+      const canvases = document.querySelectorAll<HTMLCanvasElement>(`canvas[data-thumb-page="${pNum}"]`);
       if (canvases.length > 0) {
         try {
-          const page = await doc.docProxy.getPage(i);
-          const viewport = page.getViewport({ scale: 0.25 });
+          const page = await doc.docProxy.getPage(p.sourcePageIndex + 1);
+          const viewport = page.getViewport({ scale: 0.25, rotation: p.rotation });
           canvases.forEach((c) => {
             c.width = viewport.width;
             c.height = viewport.height;
@@ -841,12 +1566,17 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     if (!overlayLayer) return;
     overlayLayer.innerHTML = '';
 
+    if (pdfTextLayer) {
+      const hiddenSpans = pdfTextLayer.querySelectorAll<HTMLElement>('span[style*="visibility: hidden"]');
+      hiddenSpans.forEach((s) => (s.style.visibility = 'visible'));
+    }
+
     objects.forEach((obj) => {
       const isSelected = obj.id === selectedId;
       const el = document.createElement('div');
       el.id = `obj-${obj.id}`;
       el.setAttribute('data-object-id', obj.id);
-      el.className = `absolute cursor-pointer transition-shadow select-none ${
+      el.className = `absolute cursor-pointer transition-shadow select-none pointer-events-auto ${
         isSelected ? 'ring-2 ring-brand-500' : 'hover:ring-1 hover:ring-brand-300'
       }`;
 
@@ -881,10 +1611,62 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         el.style.whiteSpace = 'pre-wrap';
         el.style.wordBreak = 'break-word';
         el.textContent = textObj.text;
+      } else if (obj.type === 'text-replacement') {
+        const repObj = obj as TextReplacementEditorObject;
+        if (pdfTextLayer && repObj.sourceTextItemId) {
+          pdfTextLayerManager.hideSpan(repObj.sourceTextItemId, pdfTextLayer);
+        }
+        el.style.backgroundColor = repObj.backgroundColor || '#ffffff';
+        el.style.fontFamily = repObj.fontFamily;
+        const fontSize = viewport ? repObj.fontSize * viewport.scale : repObj.fontSize;
+        el.style.fontSize = `${fontSize}px`;
+        el.style.fontWeight = repObj.fontWeight;
+        el.style.fontStyle = repObj.fontStyle;
+        el.style.textDecoration = repObj.textDecoration;
+        el.style.textAlign = repObj.textAlign;
+        el.style.color = repObj.color;
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.padding = '0 2px';
+        el.style.lineHeight = '1.2';
+        el.style.whiteSpace = 'nowrap';
+        el.textContent = repObj.replacementText;
       } else if (obj.type === 'highlight') {
         el.style.backgroundColor = (obj as any).color || '#facc15';
         el.style.mixBlendMode = 'multiply';
         el.style.borderRadius = '2px';
+      } else if (obj.type === 'underline') {
+        const annObj = obj as AnnotationEditorObject;
+        el.style.borderBottom = `${annObj.strokeWidth || 2}px solid ${annObj.color || '#2563eb'}`;
+      } else if (obj.type === 'strikethrough') {
+        const annObj = obj as AnnotationEditorObject;
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.innerHTML = `<div style="width: 100%; height: ${annObj.strokeWidth || 2}px; background-color: ${annObj.color || '#dc2626'};"></div>`;
+      } else if (obj.type === 'comment') {
+        const annObj = obj as AnnotationEditorObject;
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-amber-500 text-white shadow-md flex items-center justify-center hover:scale-110 transition-transform cursor-pointer" title="${annObj.commentText || 'Comment'}">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+        `;
+      } else if (obj.type === 'redact') {
+        const redObj = obj as RedactionEditorObject;
+        el.style.backgroundColor = 'rgba(239, 68, 68, 0.25)';
+        el.style.border = '2px dashed #dc2626';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        if (redObj.overlayText && redObj.overlayText.trim().length > 0) {
+          el.innerHTML = `<span class="text-[11px] font-bold text-white bg-black/85 px-1.5 py-0.5 rounded shadow">${redObj.overlayText}</span>`;
+        } else {
+          el.innerHTML = `<span class="text-[10px] font-bold tracking-wider text-rose-700 bg-white/90 px-1.5 py-0.5 rounded shadow-xs uppercase">REDACTION PREVIEW</span>`;
+        }
       } else if (obj.type === 'whiteout') {
         el.style.backgroundColor = '#ffffff';
         el.style.border = '1px solid rgba(226, 232, 240, 0.8)';
@@ -907,9 +1689,20 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         `;
       } else if (obj.type === 'pen') {
         const penObj = obj as PenEditorObject;
+        let d = penObj.pathData;
+        if (!d && (penObj as any).points && Array.isArray((penObj as any).points) && (penObj as any).points.length > 0) {
+          const pts = (penObj as any).points;
+          d = `M ${pts[0].x} ${pts[0].y}`;
+          for (let i = 1; i < pts.length; i++) {
+            d += ` L ${pts[i].x} ${pts[i].y}`;
+          }
+        }
+        if (!d || d.includes('undefined') || d.includes('NaN')) {
+          d = 'M 0 0';
+        }
         el.innerHTML = `
           <svg class="w-full h-full overflow-visible">
-            <path d="${penObj.pathData}" stroke="${penObj.strokeColor}" stroke-width="${penObj.strokeWidth}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="${d}" stroke="${penObj.strokeColor || '#2563eb'}" stroke-width="${penObj.strokeWidth || 2}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         `;
       } else if (obj.type === 'image') {
@@ -950,20 +1743,33 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
   const populateMobileInspector = () => {
     if (!mobileInspectorContent) return;
     const selected = editorStore.getSelectedObject();
+    const activeFormFieldId = formStore.getFocusedFieldId() || formStore.getActiveFieldId();
     if (!selected) {
-      if (paneDocument) mobileInspectorContent.innerHTML = paneDocument.innerHTML;
-    } else if (selected.type === 'text') {
+      if (activeFormFieldId && paneFormField) {
+        mobileInspectorContent.innerHTML = paneFormField.innerHTML;
+      } else if (paneDocument) {
+        mobileInspectorContent.innerHTML = paneDocument.innerHTML;
+      }
+    } else if (selected.type === 'text' || selected.type === 'text-replacement') {
       if (paneText) mobileInspectorContent.innerHTML = paneText.innerHTML;
     } else if (selected.type === 'rectangle' || selected.type === 'ellipse') {
       if (paneShape) mobileInspectorContent.innerHTML = paneShape.innerHTML;
+    } else if (selected.type === 'comment') {
+      if (paneComment) mobileInspectorContent.innerHTML = paneComment.innerHTML;
     }
   };
 
   // Click on empty viewport deselects object
   if (viewport) {
     viewport.addEventListener('click', (e) => {
+      if (Date.now() - ((window as any).__PDF_JUST_DRAGGED__ || 0) < 350) return;
       if (e.target === viewport || e.target === scaleContainer || e.target === pdfCard) {
         editorStore.selectObject(null);
+        formStore.setFocusedField(null);
+        if (paneFormField) paneFormField.classList.add('hidden');
+        if (paneDocument) paneDocument.classList.remove('hidden');
+        if (inspectorTitle) inspectorTitle.textContent = 'Properties';
+        if (inspectorBadge) inspectorBadge.textContent = 'Document';
       }
     });
   }
@@ -983,8 +1789,8 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
 
   if (textBoldBtn) {
     textBoldBtn.addEventListener('click', () => {
-      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
-      if (selected && selected.type === 'text') {
+      const selected = editorStore.getSelectedObject() as any;
+      if (selected && (selected.type === 'text' || selected.type === 'text-replacement')) {
         const newWeight = selected.fontWeight === 'bold' ? 'normal' : 'bold';
         editorStore.updateSelectedObject({ fontWeight: newWeight });
       }
@@ -993,8 +1799,8 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
 
   if (textItalicBtn) {
     textItalicBtn.addEventListener('click', () => {
-      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
-      if (selected && selected.type === 'text') {
+      const selected = editorStore.getSelectedObject() as any;
+      if (selected && (selected.type === 'text' || selected.type === 'text-replacement')) {
         const newStyle = selected.fontStyle === 'italic' ? 'normal' : 'italic';
         editorStore.updateSelectedObject({ fontStyle: newStyle });
       }
@@ -1003,8 +1809,8 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
 
   if (textUnderlineBtn) {
     textUnderlineBtn.addEventListener('click', () => {
-      const selected = editorStore.getSelectedObject() as TextEditorObject | null;
-      if (selected && selected.type === 'text') {
+      const selected = editorStore.getSelectedObject() as any;
+      if (selected && (selected.type === 'text' || selected.type === 'text-replacement')) {
         const newDec = selected.textDecoration === 'underline' ? 'none' : 'underline';
         editorStore.updateSelectedObject({ textDecoration: newDec });
       }
@@ -1086,14 +1892,60 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     deleteShapeBtn.addEventListener('click', () => editorStore.deleteSelectedObject());
   }
 
+  // Comment bindings
+  if (commentPropText) {
+    commentPropText.addEventListener('input', () => {
+      editorStore.updateSelectedObject({ commentText: commentPropText.value } as Partial<AnnotationEditorObject>);
+    });
+  }
+
+  if (deleteCommentBtn) {
+    deleteCommentBtn.addEventListener('click', () => {
+      editorStore.deleteSelectedObject();
+    });
+  }
+
+  // Redact bindings
+  if (redactColorBlack) {
+    redactColorBlack.addEventListener('click', () => {
+      editorStore.updateSelectedObject({ fillColor: '#000000', textColor: '#ffffff' } as Partial<RedactionEditorObject>);
+    });
+  }
+
+  if (redactColorWhite) {
+    redactColorWhite.addEventListener('click', () => {
+      editorStore.updateSelectedObject({ fillColor: '#ffffff', textColor: '#000000' } as Partial<RedactionEditorObject>);
+    });
+  }
+
+  if (redactPropOverlayText) {
+    redactPropOverlayText.addEventListener('input', () => {
+      editorStore.updateSelectedObject({ overlayText: redactPropOverlayText.value } as Partial<RedactionEditorObject>);
+    });
+  }
+
+  if (deleteRedactBtn) {
+    deleteRedactBtn.addEventListener('click', () => {
+      editorStore.deleteSelectedObject();
+    });
+  }
+
   // --- TRIGGER PAGE RENDER ---
   const triggerPageRender = async () => {
     if (!loadedDoc || !pdfCanvas) return;
     const state = editorStore.getState();
     const pageNum = state.currentPage;
     const zoom = state.viewport.zoom;
+    const pageState = state.document?.pages[pageNum - 1];
+    const sourcePageIndex = pageState ? pageState.sourcePageIndex : pageNum - 1;
+    const pageRotation = pageState ? pageState.rotation : 0;
 
-    const needsCanvasRender = lastRenderedPage !== pageNum || lastRenderedZoom !== zoom || !currentRenderViewport;
+    const needsCanvasRender =
+      lastRenderedPage !== pageNum ||
+      lastRenderedZoom !== zoom ||
+      lastRenderedRotation !== pageRotation ||
+      lastRenderedSourceIdx !== sourcePageIndex ||
+      !currentRenderViewport;
 
     if (needsCanvasRender) {
       if (isPageRendering) {
@@ -1103,10 +1955,13 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       isPageRendering = true;
       lastRenderedPage = pageNum;
       lastRenderedZoom = zoom;
+      lastRenderedRotation = pageRotation;
+      lastRenderedSourceIdx = sourcePageIndex;
 
       try {
-        const viewport = await pdfRenderer.renderPage(pdfCanvas, loadedDoc.docProxy, pageNum, {
+        const viewport = await pdfRenderer.renderPage(pdfCanvas, loadedDoc.docProxy, sourcePageIndex + 1, {
           scale: zoom,
+          rotation: pageRotation,
         });
         if (viewport) {
           currentRenderViewport = viewport;
@@ -1119,6 +1974,18 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
           if (overlayLayer) {
             overlayLayer.style.width = `${Math.floor(viewport.width)}px`;
             overlayLayer.style.height = `${Math.floor(viewport.height)}px`;
+          }
+          if (pdfTextLayer) {
+            pdfTextLayer.style.width = `${Math.floor(viewport.width)}px`;
+            pdfTextLayer.style.height = `${Math.floor(viewport.height)}px`;
+            await pdfTextLayerManager.renderTextLayer(pdfTextLayer, loadedDoc.docProxy, sourcePageIndex + 1, viewport);
+          }
+          if (pdfFormLayer) {
+            pdfFormLayer.style.width = `${Math.floor(viewport.width)}px`;
+            pdfFormLayer.style.height = `${Math.floor(viewport.height)}px`;
+            const pageProxy = await loadedDoc.docProxy.getPage(sourcePageIndex + 1);
+            await pdfFormOverlayManager.discoverPageWidgets(pageProxy, pageNum);
+            pdfFormOverlayManager.renderFormOverlay(pageNum, viewport);
           }
         }
       } catch (e) {
@@ -1135,8 +2002,242 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     if (currentRenderViewport) {
       const pageObjects = editorStore.getPageObjects(pageNum);
       renderOverlayObjects(pageObjects, state.selectedObjectId, currentRenderViewport);
+      pdfFormOverlayManager.syncDomValues();
     }
   };
+
+  const updateFormInspector = (focusedFieldId: string | null) => {
+    if (!focusedFieldId) {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      return;
+    }
+    const field = formStore.getField(focusedFieldId);
+    if (!field) {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      return;
+    }
+
+    if (inspectorTitle) inspectorTitle.textContent = 'Form Field';
+    if (inspectorBadge) inspectorBadge.textContent = 'AcroForm';
+    if (paneDocument) paneDocument.classList.add('hidden');
+    if (paneText) paneText.classList.add('hidden');
+    if (paneShape) paneShape.classList.add('hidden');
+    if (paneComment) paneComment.classList.add('hidden');
+    if (paneRedact) paneRedact.classList.add('hidden');
+    if (paneFormField) paneFormField.classList.remove('hidden');
+
+    if (formPropNameInput) {
+      formPropNameInput.value = field.name;
+    }
+    if (formPropName) {
+      formPropName.textContent = field.name;
+    }
+    if (formPropNameError) formPropNameError.classList.add('hidden');
+    if (formPropType) formPropType.textContent = field.type;
+    if (formPropRequiredBadge) formPropRequiredBadge.classList.toggle('hidden', !field.required);
+    if (formPropReadonlyBadge) formPropReadonlyBadge.classList.toggle('hidden', !field.readOnly);
+
+    if (formPropTooltipInput) formPropTooltipInput.value = field.tooltip || '';
+    if (formPropDefaultValueInput) {
+      formPropDefaultValueInput.value =
+        typeof field.defaultValue === 'string'
+          ? field.defaultValue
+          : field.defaultValue !== undefined
+            ? String(field.defaultValue)
+            : '';
+    }
+
+    if (formPropExportValGroup && formPropExportValInput) {
+      if (field.type === 'radio' || field.type === 'checkbox') {
+        formPropExportValGroup.classList.remove('hidden');
+        formPropExportValInput.value = field.exportValue || '';
+      } else {
+        formPropExportValGroup.classList.add('hidden');
+      }
+    }
+
+    if (formPropRequiredChk) formPropRequiredChk.checked = !!field.required;
+    if (formPropReadonlyChk) formPropReadonlyChk.checked = !!field.readOnly;
+
+    if (formPropMultilineGroup && formPropMultilineChk) {
+      if (field.type === 'text' || field.type === 'multiline') {
+        formPropMultilineGroup.classList.remove('hidden');
+        formPropMultilineChk.checked = !!field.multiline;
+      } else {
+        formPropMultilineGroup.classList.add('hidden');
+      }
+    }
+
+    if (formPropMaxlengthGroup && formPropMaxlengthInput) {
+      if (field.type === 'text' || field.type === 'multiline') {
+        formPropMaxlengthGroup.classList.remove('hidden');
+        formPropMaxlengthInput.value = field.maxLength ? String(field.maxLength) : '';
+      } else {
+        formPropMaxlengthGroup.classList.add('hidden');
+      }
+    }
+
+    if (formPropFontsizeInput) formPropFontsizeInput.value = String(field.fontSize || 12);
+
+    // Alignment buttons styling
+    document.querySelectorAll<HTMLButtonElement>('.form-align-btn').forEach((btn) => {
+      const align = btn.getAttribute('data-form-align');
+      if (align === (field.alignment || 'left')) {
+        btn.classList.add('bg-white', 'dark:bg-[#1a2232]', 'shadow-xs', 'font-bold', 'text-brand-600');
+      } else {
+        btn.classList.remove('bg-white', 'dark:bg-[#1a2232]', 'shadow-xs', 'font-bold', 'text-brand-600');
+      }
+    });
+
+    // Options for choice fields (dropdown / listbox)
+    if (formPropOptionsGroup && formPropOptionsList) {
+      if (field.type === 'dropdown' || field.type === 'listbox') {
+        formPropOptionsGroup.classList.remove('hidden');
+        let optionsHtml = '';
+        const opts = field.options || [];
+        opts.forEach((opt, idx) => {
+          optionsHtml += `
+            <div class="flex items-center gap-1.5 bg-slate-50 dark:bg-[#101621] p-1.5 rounded-lg border border-slate-200/60 dark:border-[#212836]" data-option-index="${idx}">
+              <input type="text" class="form-option-input flex-1 bg-white dark:bg-[#161c28] border border-slate-200 dark:border-[#212836] rounded px-1.5 py-0.5 text-xs text-slate-800 dark:text-slate-200" value="${opt.label}" data-option-idx="${idx}" />
+              <button type="button" class="form-option-remove-btn w-6 h-6 flex items-center justify-center rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40" data-remove-idx="${idx}" title="Remove Option">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          `;
+        });
+        formPropOptionsList.innerHTML = optionsHtml;
+
+        // Bind option edits and removes
+        formPropOptionsList.querySelectorAll<HTMLInputElement>('.form-option-input').forEach((input) => {
+          input.addEventListener('change', () => {
+            const idx = Number(input.getAttribute('data-option-idx'));
+            if (!isNaN(idx) && field.options && field.options[idx]) {
+              field.options[idx].label = input.value;
+              field.options[idx].value = input.value;
+              formStore.updateFieldProperties(field.id, { options: [...field.options] });
+              if (currentRenderViewport) {
+                pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+              }
+            }
+          });
+        });
+
+        formPropOptionsList.querySelectorAll<HTMLButtonElement>('.form-option-remove-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.getAttribute('data-remove-idx'));
+            if (!isNaN(idx) && field.options) {
+              const newOpts = field.options.filter((_, i) => i !== idx);
+              formStore.updateFieldProperties(field.id, { options: newOpts });
+              updateFormInspector(field.id);
+              if (currentRenderViewport) {
+                pdfFormOverlayManager.renderFormOverlay(editorStore.getState().currentPage, currentRenderViewport);
+              }
+            }
+          });
+        });
+      } else {
+        formPropOptionsGroup.classList.add('hidden');
+      }
+    }
+
+    // Render Tab Order List
+    if (formPropTabList) {
+      const curPage = editorStore.getState().currentPage;
+      const tabOrder = formStore.getTabOrder(curPage);
+      let tabHtml = '';
+      tabOrder.forEach((fId, idx) => {
+        const f = formStore.getField(fId);
+        const fName = f ? f.name : fId;
+        const isCurrent = fId === field.id;
+        tabHtml += `
+          <div class="flex items-center justify-between px-2 py-1 rounded-lg border ${
+            isCurrent
+              ? 'bg-brand-50 border-brand-300 dark:bg-brand-950/40 dark:border-brand-800'
+              : 'bg-white dark:bg-[#161c28] border-slate-200/60 dark:border-[#212836]'
+          }">
+            <div class="flex items-center gap-1.5 overflow-hidden">
+              <span class="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold flex items-center justify-center">${idx + 1}</span>
+              <span class="text-xs truncate max-w-[120px] font-medium ${isCurrent ? 'text-brand-600 dark:text-brand-400' : 'text-slate-700 dark:text-slate-300'}">${fName}</span>
+            </div>
+            <div class="flex items-center gap-0.5">
+              <button type="button" class="tab-order-up-btn p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none" data-tab-from="${idx}" ${idx === 0 ? 'disabled' : ''} title="Move Up in Tab Order">
+                <svg class="w-3 h-3 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="tab-order-down-btn p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none" data-tab-from="${idx}" ${idx === tabOrder.length - 1 ? 'disabled' : ''} title="Move Down in Tab Order">
+                <svg class="w-3 h-3 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      formPropTabList.innerHTML = tabHtml;
+
+      formPropTabList.querySelectorAll<HTMLButtonElement>('.tab-order-up-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const from = Number(btn.getAttribute('data-tab-from'));
+          if (from > 0) {
+            formStore.reorderTabItem(curPage, from, from - 1);
+            updateFormInspector(field.id);
+            if (currentRenderViewport) {
+              pdfFormOverlayManager.renderFormOverlay(curPage, currentRenderViewport);
+            }
+          }
+        });
+      });
+
+      formPropTabList.querySelectorAll<HTMLButtonElement>('.tab-order-down-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const from = Number(btn.getAttribute('data-tab-from'));
+          if (from < tabOrder.length - 1) {
+            formStore.reorderTabItem(curPage, from, from + 1);
+            updateFormInspector(field.id);
+            if (currentRenderViewport) {
+              pdfFormOverlayManager.renderFormOverlay(curPage, currentRenderViewport);
+            }
+          }
+        });
+      });
+    }
+  };
+
+  let lastAuthorMode = false;
+  let lastSelectedWidgetId: string | null = null;
+  let lastFieldsCount = 0;
+  let lastWidgetsCount = 0;
+
+  formStore.subscribe((snapshot) => {
+    const curState = editorStore.getState();
+    const targetFieldId = snapshot.selectedWidgetId
+      ? formStore.getWidget(snapshot.selectedWidgetId)?.fieldId
+      : (snapshot.focusedFieldId || snapshot.activeFieldId);
+
+    if (!editorStore.getSelectedObject() && !editorStore.getSelectedExistingTextId()) {
+      if (targetFieldId) {
+        updateFormInspector(targetFieldId);
+      } else {
+        if (paneFormField) paneFormField.classList.add('hidden');
+      }
+    }
+
+    syncAuthorModeUI(snapshot.isAuthorMode);
+
+    // Only do a structural re-render of overlay if mode, selection or field count changed
+    const needsFullRerender =
+      snapshot.isAuthorMode !== lastAuthorMode ||
+      snapshot.selectedWidgetId !== lastSelectedWidgetId ||
+      snapshot.fieldCount !== lastFieldsCount ||
+      snapshot.widgetCount !== lastWidgetsCount;
+
+    lastAuthorMode = snapshot.isAuthorMode;
+    lastSelectedWidgetId = snapshot.selectedWidgetId;
+    lastFieldsCount = snapshot.fieldCount;
+    lastWidgetsCount = snapshot.widgetCount;
+
+    if (needsFullRerender && currentRenderViewport && loadedDoc) {
+      pdfFormOverlayManager.renderFormOverlay(curState.currentPage, currentRenderViewport);
+    }
+    pdfFormOverlayManager.syncDomValues();
+  });
 
   // --- STATE STORE SUBSCRIPTION ---
   editorStore.subscribe((state) => {
@@ -1160,6 +2261,18 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         if (docPropOrientation) {
           docPropOrientation.textContent = curPageInfo.orientation === 'portrait' ? 'Portrait' : 'Landscape';
         }
+        if (docPropRotation) {
+          docPropRotation.textContent = `${curPageInfo.rotation}°`;
+        }
+      }
+
+      // Check if page sequence or count changed to re-render thumbnails
+      const currentPagesKey =
+        JSON.stringify(state.document.pages.map((p) => `${p.id}-${p.rotation}-${p.pageNumber}`)) +
+        `-${state.currentPage}`;
+      if (currentPagesKey !== lastPagesKey && loadedDoc) {
+        lastPagesKey = currentPagesKey;
+        renderThumbnails(loadedDoc, state.currentPage);
       }
     }
 
@@ -1191,21 +2304,56 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       }
     });
 
+    if (overlayLayer) {
+      overlayLayer.style.pointerEvents = 'none';
+    }
+    if (pdfFormLayer) {
+      pdfFormLayer.style.pointerEvents = 'none';
+    }
+
     // Inspector Context Switching
     const selectedObj = editorStore.getSelectedObject();
-    if (!selectedObj) {
-      if (inspectorTitle) inspectorTitle.textContent = 'Properties';
-      if (inspectorBadge) inspectorBadge.textContent = 'Document';
-      if (paneDocument) paneDocument.classList.remove('hidden');
-      if (paneText) paneText.classList.add('hidden');
+    const selectedExistingTextId = state.selectedExistingTextId;
+    const focusedFormFieldId = formStore.getFocusedFieldId();
+
+    if (!selectedObj && !selectedExistingTextId) {
+      if (focusedFormFieldId) {
+        updateFormInspector(focusedFormFieldId);
+      } else {
+        if (inspectorTitle) inspectorTitle.textContent = 'Properties';
+        if (inspectorBadge) inspectorBadge.textContent = 'Document';
+        if (paneDocument) paneDocument.classList.remove('hidden');
+        if (paneText) paneText.classList.add('hidden');
+        if (paneShape) paneShape.classList.add('hidden');
+        if (paneComment) paneComment.classList.add('hidden');
+        if (paneRedact) paneRedact.classList.add('hidden');
+        if (paneFormField) paneFormField.classList.add('hidden');
+      }
+    } else if (selectedExistingTextId) {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      const item = pdfTextLayerManager.getTextItem(selectedExistingTextId);
+      if (inspectorTitle) inspectorTitle.textContent = 'Existing Text';
+      if (inspectorBadge) inspectorBadge.textContent = 'Original';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.remove('hidden');
       if (paneShape) paneShape.classList.add('hidden');
-    } else if (selectedObj.type === 'text') {
+      if (paneComment) paneComment.classList.add('hidden');
+      if (paneRedact) paneRedact.classList.add('hidden');
+
+      if (item) {
+        if (textFontFamily) textFontFamily.value = item.fontFamily;
+        if (textFontSize) textFontSize.value = `${Math.round(item.fontSize)}`;
+      }
+    } else if (selectedObj && selectedObj.type === 'text') {
+      if (paneFormField) paneFormField.classList.add('hidden');
       const textObj = selectedObj as TextEditorObject;
       if (inspectorTitle) inspectorTitle.textContent = 'Text Properties';
       if (inspectorBadge) inspectorBadge.textContent = 'Text';
       if (paneDocument) paneDocument.classList.add('hidden');
       if (paneText) paneText.classList.remove('hidden');
       if (paneShape) paneShape.classList.add('hidden');
+      if (paneComment) paneComment.classList.add('hidden');
+      if (paneRedact) paneRedact.classList.add('hidden');
 
       if (textFontFamily) textFontFamily.value = textObj.fontFamily;
       if (textFontSize) textFontSize.value = `${textObj.fontSize}`;
@@ -1223,18 +2371,91 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       }
       if (textOpacitySlider) textOpacitySlider.value = `${Math.round(textObj.opacity * 100)}`;
       if (textOpacityVal) textOpacityVal.textContent = `${Math.round(textObj.opacity * 100)}%`;
-    } else if (selectedObj.type === 'rectangle' || selectedObj.type === 'ellipse') {
+    } else if (selectedObj && selectedObj.type === 'text-replacement') {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      const repObj = selectedObj as TextReplacementEditorObject;
+      if (inspectorTitle) inspectorTitle.textContent = 'Text Replacement';
+      if (inspectorBadge) inspectorBadge.textContent = 'Replacement';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.remove('hidden');
+      if (paneShape) paneShape.classList.add('hidden');
+      if (paneComment) paneComment.classList.add('hidden');
+      if (paneRedact) paneRedact.classList.add('hidden');
+
+      if (textFontFamily) textFontFamily.value = repObj.fontFamily;
+      if (textFontSize) textFontSize.value = `${repObj.fontSize}`;
+      if (textBoldBtn) {
+        textBoldBtn.classList.toggle('bg-brand-100', repObj.fontWeight === 'bold');
+        textBoldBtn.classList.toggle('dark:bg-brand-950', repObj.fontWeight === 'bold');
+      }
+      if (textItalicBtn) {
+        textItalicBtn.classList.toggle('bg-brand-100', repObj.fontStyle === 'italic');
+        textItalicBtn.classList.toggle('dark:bg-brand-950', repObj.fontStyle === 'italic');
+      }
+      if (textUnderlineBtn) {
+        textUnderlineBtn.classList.toggle('bg-brand-100', repObj.textDecoration === 'underline');
+        textUnderlineBtn.classList.toggle('dark:bg-brand-950', repObj.textDecoration === 'underline');
+      }
+      if (textOpacitySlider) textOpacitySlider.value = `${Math.round(repObj.opacity * 100)}`;
+      if (textOpacityVal) textOpacityVal.textContent = `${Math.round(repObj.opacity * 100)}%`;
+    } else if (selectedObj && (selectedObj.type === 'rectangle' || selectedObj.type === 'ellipse')) {
+      if (paneFormField) paneFormField.classList.add('hidden');
       const shapeObj = selectedObj as ShapeEditorObject;
       if (inspectorTitle) inspectorTitle.textContent = 'Shape Properties';
       if (inspectorBadge) inspectorBadge.textContent = 'Shape';
       if (paneDocument) paneDocument.classList.add('hidden');
       if (paneText) paneText.classList.add('hidden');
       if (paneShape) paneShape.classList.remove('hidden');
+      if (paneComment) paneComment.classList.add('hidden');
+      if (paneRedact) paneRedact.classList.add('hidden');
 
       if (shapeStrokeWidth) shapeStrokeWidth.value = `${shapeObj.strokeWidth}`;
       if (shapeStrokeVal) shapeStrokeVal.textContent = `${shapeObj.strokeWidth} px`;
       if (shapeRadiusSlider) shapeRadiusSlider.value = `${shapeObj.borderRadius || 0}`;
       if (shapeRadiusVal) shapeRadiusVal.textContent = `${shapeObj.borderRadius || 0} px`;
+    } else if (selectedObj && selectedObj.type === 'comment') {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      const annObj = selectedObj as AnnotationEditorObject;
+      if (inspectorTitle) inspectorTitle.textContent = 'Comment Note';
+      if (inspectorBadge) inspectorBadge.textContent = 'Comment';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.add('hidden');
+      if (paneShape) paneShape.classList.add('hidden');
+      if (paneComment) paneComment.classList.remove('hidden');
+      if (paneRedact) paneRedact.classList.add('hidden');
+
+      if (commentPropText && document.activeElement !== commentPropText) {
+        commentPropText.value = annObj.commentText || '';
+      }
+      if (commentPropAuthor) {
+        commentPropAuthor.textContent = annObj.author || 'User';
+      }
+      if (commentPropTime) {
+        commentPropTime.textContent = annObj.createdAt
+          ? new Date(annObj.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : 'Just now';
+      }
+    } else if (selectedObj && selectedObj.type === 'redact') {
+      if (paneFormField) paneFormField.classList.add('hidden');
+      const redObj = selectedObj as RedactionEditorObject;
+      if (inspectorTitle) inspectorTitle.textContent = 'Redaction Region';
+      if (inspectorBadge) inspectorBadge.textContent = 'Draft';
+      if (paneDocument) paneDocument.classList.add('hidden');
+      if (paneText) paneText.classList.add('hidden');
+      if (paneShape) paneShape.classList.add('hidden');
+      if (paneComment) paneComment.classList.add('hidden');
+      if (paneRedact) paneRedact.classList.remove('hidden');
+
+      if (redactPropOverlayText && document.activeElement !== redactPropOverlayText) {
+        redactPropOverlayText.value = redObj.overlayText || '';
+      }
+      if (redactColorBlack && redactColorWhite) {
+        const isWhite = redObj.fillColor && redObj.fillColor.toLowerCase() === '#ffffff';
+        redactColorWhite.classList.toggle('border-2', isWhite);
+        redactColorWhite.classList.toggle('border-brand-500', isWhite);
+        redactColorBlack.classList.toggle('border-2', !isWhite);
+        redactColorBlack.classList.toggle('border-brand-500', !isWhite);
+      }
     }
 
     // Trigger page re-render if loaded

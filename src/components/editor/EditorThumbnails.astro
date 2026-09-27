@@ -68,20 +68,29 @@
   <!-- Contextual Page Actions Menu (Floating Template) -->
   <div
     id="thumbnail-context-menu"
-    class="hidden fixed bg-white dark:bg-[#161c28] border border-slate-200 dark:border-[#212836] rounded-xl shadow-xl py-1.5 z-50 text-xs w-36 font-medium"
+    class="hidden fixed bg-white dark:bg-[#161c28] border border-slate-200 dark:border-[#212836] rounded-xl shadow-xl py-1.5 z-50 text-xs w-40 font-medium select-none"
   >
-    <button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
+    <button type="button" id="ctx-rotate-btn" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
       <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.83 6.72 2.24L21 8"/><path d="M21 3v5h-5"/></svg>
       Rotate 90°
     </button>
-    <button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
+    <button type="button" id="ctx-duplicate-btn" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
       <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       Duplicate
     </button>
     <div class="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
-    <button type="button" class="w-full text-left px-3 py-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center gap-2">
+    <button type="button" id="ctx-move-up-btn" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
+      <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+      Move Up
+    </button>
+    <button type="button" id="ctx-move-down-btn" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/60 flex items-center gap-2 text-slate-700 dark:text-slate-200">
+      <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      Move Down
+    </button>
+    <div class="h-px bg-slate-200 dark:bg-slate-700 my-1"></div>
+    <button type="button" id="ctx-delete-btn" class="w-full text-left px-3 py-1.5 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center gap-2">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-      Delete
+      Delete Page
     </button>
   </div>
 </aside>

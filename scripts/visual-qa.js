@@ -47,7 +47,7 @@ async function runVisualQA() {
   let connected = false;
   for (let i = 0; i < 15; i++) {
     try {
-      await page.goto('http://127.0.0.1:4321', { waitUntil: 'networkidle0', timeout: 5000 });
+      await page.goto('http://localhost:4321/', { waitUntil: 'networkidle0', timeout: 5000 });
       connected = true;
       break;
     } catch (e) {
@@ -57,7 +57,7 @@ async function runVisualQA() {
   }
 
   if (!connected) {
-    throw new Error('Could not connect to Astro dev server at http://127.0.0.1:4321');
+    throw new Error('Could not connect to Astro dev server at http://localhost:4321');
   }
 
   // 1. Desktop Light Mode - Initial State

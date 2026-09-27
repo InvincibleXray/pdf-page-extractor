@@ -1,0 +1,851 @@
+{
+  "pdfLib": {
+    "FIXTURE_A": {
+      "file": "FIXTURE_A_SINGLE_TEXT.pdf",
+      "totalFields": 2,
+      "fieldReports": [
+        {
+          "name": "applicant.firstName",
+          "typeName": "PDFTextField",
+          "value": "Jane",
+          "readOnly": false,
+          "required": false
+        },
+        {
+          "name": "applicant.ssn",
+          "typeName": "PDFTextField",
+          "value": "123456789",
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "FIXTURE_B": {
+      "file": "FIXTURE_B_MULTILINE_TEXT.pdf",
+      "totalFields": 1,
+      "fieldReports": [
+        {
+          "name": "document.summary",
+          "typeName": "PDFTextField",
+          "value": "Line 1: Project overview and preliminary goals.\nLine 2: Budget allocations and timeline projections.\nLine 3: Risk mitigation and sign-off criteria.",
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "FIXTURE_C": {
+      "file": "FIXTURE_C_CHECKBOX.pdf",
+      "totalFields": 3,
+      "fieldReports": [
+        {
+          "name": "terms.agree",
+          "typeName": "PDFCheckBox",
+          "value": true,
+          "readOnly": false,
+          "required": false
+        },
+        {
+          "name": "newsletter.subscribe",
+          "typeName": "PDFCheckBox",
+          "value": false,
+          "readOnly": false,
+          "required": false
+        },
+        {
+          "name": "shipping.express",
+          "typeName": "PDFCheckBox",
+          "value": true,
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "FIXTURE_D": {
+      "file": "FIXTURE_D_RADIO_GROUP.pdf",
+      "totalFields": 1,
+      "fieldReports": [
+        {
+          "name": "payment.method",
+          "typeName": "PDFRadioGroup",
+          "value": "PayPal",
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "FIXTURE_E": {
+      "file": "FIXTURE_E_DROPDOWN.pdf",
+      "totalFields": 1,
+      "fieldReports": [
+        {
+          "name": "shipping.country",
+          "typeName": "PDFDropdown",
+          "value": [
+            "United Kingdom"
+          ],
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "FIXTURE_F": {
+      "file": "FIXTURE_F_LISTBOX.pdf",
+      "totalFields": 1,
+      "fieldReports": [
+        {
+          "name": "developer.skills",
+          "typeName": "PDFOptionList",
+          "value": [
+            "TypeScript"
+          ],
+          "readOnly": false,
+          "required": false
+        }
+      ]
+    },
+    "mutationRoundTrip": {
+      "oldVal": "Jane",
+      "newVal": "EMPIRICAL_MUTATED_VALUE",
+      "reloadedVal": "EMPIRICAL_MUTATED_VALUE",
+      "mutationPass": true
+    }
+  },
+  "pdfJs": {
+    "FIXTURE_A_SINGLE_TEXT.pdf": {
+      "pages": 1,
+      "totalWidgets": 2,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "applicant",
+        "applicant.firstName",
+        "applicant.ssn"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 2,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "applicant.firstName",
+              "fieldType": "Tx",
+              "fieldValue": "Jane",
+              "rect": [
+                149.5,
+                719.5,
+                350.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 30,
+              "comb": false
+            },
+            {
+              "id": "15R",
+              "fieldName": "applicant.ssn",
+              "fieldType": "Tx",
+              "fieldValue": "123456789",
+              "rect": [
+                219.5,
+                659.5,
+                400.5,
+                685.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 9,
+              "comb": true
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_B_MULTILINE_TEXT.pdf": {
+      "pages": 1,
+      "totalWidgets": 1,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "document",
+        "document.summary"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "document.summary",
+              "fieldType": "Tx",
+              "fieldValue": "Line 1: Project overview and preliminary goals.\nLine 2: Budget allocations and timeline projections.\nLine 3: Risk mitigation and sign-off criteria.",
+              "rect": [
+                49.5,
+                599.5,
+                545.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": true,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_C_CHECKBOX.pdf": {
+      "pages": 1,
+      "totalWidgets": 3,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "terms",
+        "terms.agree",
+        "newsletter",
+        "newsletter.subscribe",
+        "shipping",
+        "shipping.express"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 3,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "terms.agree",
+              "fieldType": "Btn",
+              "fieldValue": "Off",
+              "rect": [
+                49.5,
+                729.5,
+                68.5,
+                748.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            },
+            {
+              "id": "19R",
+              "fieldName": "newsletter.subscribe",
+              "fieldType": "Btn",
+              "fieldValue": "Off",
+              "rect": [
+                49.5,
+                689.5,
+                68.5,
+                708.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            },
+            {
+              "id": "27R",
+              "fieldName": "shipping.express",
+              "fieldType": "Btn",
+              "fieldValue": "Off",
+              "rect": [
+                49.5,
+                649.5,
+                68.5,
+                668.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_D_RADIO_GROUP.pdf": {
+      "pages": 1,
+      "totalWidgets": 3,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "payment",
+        "payment.method"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 3,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "payment.method",
+              "fieldType": "Btn",
+              "fieldValue": "1",
+              "rect": [
+                49.5,
+                699.5,
+                68.5,
+                718.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            },
+            {
+              "id": "16R",
+              "fieldName": "payment.method",
+              "fieldType": "Btn",
+              "fieldValue": "1",
+              "rect": [
+                49.5,
+                659.5,
+                68.5,
+                678.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            },
+            {
+              "id": "21R",
+              "fieldName": "payment.method",
+              "fieldType": "Btn",
+              "fieldValue": "1",
+              "rect": [
+                49.5,
+                619.5,
+                68.5,
+                638.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_E_DROPDOWN.pdf": {
+      "pages": 1,
+      "totalWidgets": 1,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "shipping",
+        "shipping.country"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "shipping.country",
+              "fieldType": "Ch",
+              "fieldValue": [
+                "United Kingdom"
+              ],
+              "rect": [
+                179.5,
+                719.5,
+                400.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "options": [
+                "United States",
+                "Canada",
+                "United Kingdom",
+                "Germany",
+                "Australia",
+                "Japan"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_F_LISTBOX.pdf": {
+      "pages": 1,
+      "totalWidgets": 1,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "developer",
+        "developer.skills"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "developer.skills",
+              "fieldType": "Ch",
+              "fieldValue": [
+                "TypeScript"
+              ],
+              "rect": [
+                49.5,
+                579.5,
+                290.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "options": [
+                "TypeScript",
+                "JavaScript",
+                "Python",
+                "Go",
+                "Rust",
+                "C++",
+                "Java"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_G_REQUIRED.pdf": {
+      "pages": 1,
+      "totalWidgets": 2,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "contact",
+        "contact.email",
+        "contact.phone"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 2,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "contact.email",
+              "fieldType": "Tx",
+              "fieldValue": "user@example.com",
+              "rect": [
+                229.5,
+                719.5,
+                450.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": true,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            },
+            {
+              "id": "15R",
+              "fieldName": "contact.phone",
+              "fieldType": "Tx",
+              "fieldValue": "+1 (555) 019-2831",
+              "rect": [
+                229.5,
+                659.5,
+                450.5,
+                685.5
+              ],
+              "readOnly": false,
+              "required": true,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_H_READONLY.pdf": {
+      "pages": 1,
+      "totalWidgets": 2,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "system",
+        "system.auditId",
+        "system.verified"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 2,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "system.auditId",
+              "fieldType": "Tx",
+              "fieldValue": "AUD-2026-X892-F",
+              "rect": [
+                279.5,
+                719.5,
+                480.5,
+                745.5
+              ],
+              "readOnly": true,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            },
+            {
+              "id": "15R",
+              "fieldName": "system.verified",
+              "fieldType": "Btn",
+              "fieldValue": "Off",
+              "rect": [
+                49.5,
+                669.5,
+                68.5,
+                688.5
+              ],
+              "readOnly": true,
+              "required": false,
+              "hidden": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_I_HIDDEN.pdf": {
+      "pages": 1,
+      "totalWidgets": 2,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "visible",
+        "visible.field",
+        "hidden",
+        "hidden.trackingToken"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 2,
+          "widgetDetails": [
+            {
+              "id": "11R",
+              "fieldName": "visible.field",
+              "fieldType": "Tx",
+              "fieldValue": "I am visible",
+              "rect": [
+                149.5,
+                719.5,
+                350.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            },
+            {
+              "id": "17R",
+              "fieldName": "hidden.trackingToken",
+              "fieldType": "Tx",
+              "fieldValue": "INTERNAL_SECRET_TOKEN_9981",
+              "rect": [
+                149.5,
+                659.5,
+                350.5,
+                685.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": true,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_J_MULTI_WIDGET_FIELD.pdf": {
+      "pages": 2,
+      "totalWidgets": 2,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "document",
+        "document.headerTitle"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "13R",
+              "fieldName": "document.headerTitle",
+              "fieldType": "Tx",
+              "fieldValue": "Synchronized Header Value",
+              "rect": [
+                259.5,
+                719.5,
+                510.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        },
+        {
+          "pageNumber": 2,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "16R",
+              "fieldName": "document.headerTitle",
+              "fieldType": "Tx",
+              "fieldValue": "Synchronized Header Value",
+              "rect": [
+                319.5,
+                719.5,
+                540.5,
+                745.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_L_ROTATED_PAGE.pdf": {
+      "pages": 4,
+      "totalWidgets": 4,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "rotated",
+        "rotated.field",
+        "rotated.field.0",
+        "rotated.field.90",
+        "rotated.field.180",
+        "rotated.field.270"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "13R",
+              "fieldName": "rotated.field.0",
+              "fieldType": "Tx",
+              "fieldValue": "Value at 0 deg",
+              "rect": [
+                49.5,
+                679.5,
+                270.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        },
+        {
+          "pageNumber": 2,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "19R",
+              "fieldName": "rotated.field.90",
+              "fieldType": "Tx",
+              "fieldValue": "Value at 90 deg",
+              "rect": [
+                49.5,
+                679.5,
+                270.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        },
+        {
+          "pageNumber": 3,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "24R",
+              "fieldName": "rotated.field.180",
+              "fieldType": "Tx",
+              "fieldValue": "Value at 180 deg",
+              "rect": [
+                49.5,
+                679.5,
+                270.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        },
+        {
+          "pageNumber": 4,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "29R",
+              "fieldName": "rotated.field.270",
+              "fieldType": "Tx",
+              "fieldValue": "Value at 270 deg",
+              "rect": [
+                49.5,
+                679.5,
+                270.5,
+                710.5
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false,
+              "multiLine": false,
+              "maxLen": 0,
+              "comb": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_R_SIGNATURE.pdf": {
+      "pages": 1,
+      "totalWidgets": 1,
+      "hasFieldObjects": true,
+      "fieldObjectKeys": [
+        "CorporateSignatureField"
+      ],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 1,
+          "widgetDetails": [
+            {
+              "id": "8R",
+              "fieldName": "CorporateSignatureField",
+              "fieldType": "Sig",
+              "fieldValue": null,
+              "rect": [
+                50,
+                650,
+                300,
+                710
+              ],
+              "readOnly": false,
+              "required": false,
+              "hidden": false
+            }
+          ]
+        }
+      ]
+    },
+    "FIXTURE_S_XFA.pdf": {
+      "pages": 1,
+      "totalWidgets": 0,
+      "hasFieldObjects": false,
+      "fieldObjectKeys": [],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 0,
+          "widgetDetails": []
+        }
+      ]
+    },
+    "FIXTURE_T_FLATTENED_STATIC.pdf": {
+      "pages": 1,
+      "totalWidgets": 0,
+      "hasFieldObjects": false,
+      "fieldObjectKeys": [],
+      "pageReports": [
+        {
+          "pageNumber": 1,
+          "widgetCount": 0,
+          "widgetDetails": []
+        }
+      ]
+    }
+  },
+  "exportAndFlattening": {
+    "flattening": {
+      "interactiveFieldsRemaining": 0,
+      "annotationsRemaining": 0,
+      "textBakedIntoStream": true
+    }
+  },
+  "copyPagesVsInPlace": {
+    "copyPages": {
+      "hasAcroForm": true,
+      "fieldCount": 0
+    },
+    "inPlace": {
+      "hasAcroForm": true,
+      "fieldCount": 2
+    },
+    "architecturalImpact": "CRITICAL: copyPages() silently strips AcroForm catalog. Form export MUST use in-place mutation or catalog transfer."
+  },
+  "edgeCases": {
+    "signature": {
+      "pdfLibDetected": true,
+      "pdfLibFieldType": "PDFSignature",
+      "pdfJsDetected": true,
+      "sigAnnotName": "CorporateSignatureField",
+      "signingCapability": "NOT SUPPORTED: pdf-lib cannot generate PKCS#7 cryptographic digital signatures without external crypto provider."
+    },
+    "xfa": {
+      "detectedInCatalog": true,
+      "preservedAfterSave": false,
+      "riskAssessment": "CRITICAL: pdf-lib removes /XFA data upon saving if getForm() is invoked. Dynamic XFA editing is NOT feasible with pdf-lib."
+    },
+    "appearanceStreams": {
+      "missingApPdfJsReadable": true,
+      "missingApHasAppearance": true,
+      "needAppearancesFlag": true
+    },
+    "malformed": {
+      "pdfLibFields": [
+        "valid.field"
+      ],
+      "pdfJsWidgets": [
+        "valid.field",
+        "orphaned.field"
+      ],
+      "discrepancy": "PDF.js discovers orphaned widget directly from page /Annots, while pdf-lib ignores it because it is not in /AcroForm /Fields tree."
+    }
+  }
+}

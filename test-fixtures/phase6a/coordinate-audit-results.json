@@ -1,0 +1,142 @@
+{
+  "rotations": {
+    "0": {
+      "pdfRect": [
+        49.5,
+        679.5,
+        270.5,
+        710.5
+      ],
+      "screenRect": {
+        "left": 49.5,
+        "top": 131.5,
+        "width": 221,
+        "height": 31
+      },
+      "viewportDims": {
+        "w": 595,
+        "h": 842
+      },
+      "valid": true
+    },
+    "90": {
+      "pdfRect": [
+        49.5,
+        679.5,
+        270.5,
+        710.5
+      ],
+      "screenRect": {
+        "left": 679.5,
+        "top": 49.5,
+        "width": 31,
+        "height": 221
+      },
+      "viewportDims": {
+        "w": 842,
+        "h": 595
+      },
+      "valid": true
+    },
+    "180": {
+      "pdfRect": [
+        49.5,
+        679.5,
+        270.5,
+        710.5
+      ],
+      "screenRect": {
+        "left": 324.5,
+        "top": 679.5,
+        "width": 221,
+        "height": 31
+      },
+      "viewportDims": {
+        "w": 595,
+        "h": 842
+      },
+      "valid": true
+    },
+    "270": {
+      "pdfRect": [
+        49.5,
+        679.5,
+        270.5,
+        710.5
+      ],
+      "screenRect": {
+        "left": 131.5,
+        "top": 324.5,
+        "width": 31,
+        "height": 221
+      },
+      "viewportDims": {
+        "w": 842,
+        "h": 595
+      },
+      "valid": true
+    }
+  },
+  "zooms": {
+    "25%": {
+      "scale": 0.25,
+      "screenRect": {
+        "left": 37.38,
+        "top": 24.13,
+        "width": 50.25,
+        "height": 6.5
+      },
+      "proportional": true
+    },
+    "50%": {
+      "scale": 0.5,
+      "screenRect": {
+        "left": 74.75,
+        "top": 48.25,
+        "width": 100.5,
+        "height": 13
+      },
+      "proportional": true
+    },
+    "100%": {
+      "scale": 1,
+      "screenRect": {
+        "left": 149.5,
+        "top": 96.5,
+        "width": 201,
+        "height": 26
+      },
+      "proportional": true
+    },
+    "200%": {
+      "scale": 2,
+      "screenRect": {
+        "left": 299,
+        "top": 193,
+        "width": 402,
+        "height": 52
+      },
+      "proportional": true
+    }
+  },
+  "nonStandardDims": {
+    "banner": {
+      "rectM1": {
+        "left": 49.5,
+        "top": 109.5,
+        "width": 601,
+        "height": 41
+      },
+      "valid": true
+    },
+    "blueprint": {
+      "rectM2": {
+        "left": 24.88,
+        "top": 71.38,
+        "width": 200.25,
+        "height": 17.75
+      },
+      "valid": true
+    }
+  }
+}

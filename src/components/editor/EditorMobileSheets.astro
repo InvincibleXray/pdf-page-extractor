@@ -133,6 +133,7 @@
       <button
         type="button"
         id="close-sig-modal-btn"
+        aria-label="Close signature modal"
         class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -165,5 +166,176 @@
   </div>
 </div>
 
+<!-- Redaction Pre-Export Confirmation Modal -->
+<div
+  id="redaction-confirm-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Confirm Permanent Redaction"
+>
+  <div class="bg-white dark:bg-[#1a2232] rounded-3xl border border-rose-200 dark:border-rose-900/40 shadow-2xl p-6 w-full max-w-md flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Permanent Redaction Warning</h3>
+      </div>
+      <button
+        type="button"
+        id="close-redact-modal-btn"
+        aria-label="Close permanent redaction warning modal"
+        class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+      <p class="leading-relaxed">
+        <strong id="redact-modal-count" class="text-slate-900 dark:text-white font-semibold">1 redaction region</strong> will be permanently burned in.
+      </p>
+      <div class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 space-y-1">
+        <div class="font-bold flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Destructive Clean-Page Synthesis:
+        </div>
+        <p class="leading-tight text-[11px]">
+          Redacted pages will be rasterized at 300 DPI to physically destroy underlying text, glyphs, and images. Unredacted pages will remain untouched vector PDF pages.
+        </p>
+      </div>
+
+      <!-- Metadata sanitization toggle -->
+      <label class="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-[#101621] border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-100/70 transition-colors">
+        <input
+          type="checkbox"
+          id="redact-strip-metadata-checkbox"
+          checked
+          aria-label="Strip document metadata and author credentials"
+          class="mt-0.5 rounded border-slate-300 text-rose-600 focus:ring-rose-500 accent-rose-600"
+        />
+        <div class="flex-1 text-[11px]">
+          <span class="font-bold text-slate-900 dark:text-white block">Strip document metadata & author credentials</span>
+          <span class="text-slate-500 dark:text-slate-400">Purges Title, Author, Creation Dates, and XMP streams to prevent information leaks. (Recommended)</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-2.5 pt-2">
+      <button
+        type="button"
+        id="cancel-redact-export-btn"
+        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        id="confirm-redact-export-btn"
+        class="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-all flex items-center gap-1.5"
+      >
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        Burn & Export Clean PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Form Export Mode Modal (Phase 6C) -->
+<div
+  id="form-export-mode-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Export PDF Form Options"
+>
+  <div class="bg-white dark:bg-[#1a2232] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 w-full max-w-md flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Export PDF</h3>
+      </div>
+      <button
+        type="button"
+        id="close-export-mode-modal-btn"
+        aria-label="Close export options modal"
+        class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Warnings / Notices -->
+    <div id="export-xfa-warning" class="hidden p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs">
+      <strong>XFA forms are not supported.</strong> Export is blocked to prevent data loss.
+    </div>
+
+    <div id="export-signature-warning" class="hidden p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs">
+      Editing this PDF may invalidate its existing digital signature.
+    </div>
+
+    <div id="export-redaction-notice" class="hidden p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-xs">
+      Pages containing secure redactions will be reconstructed to remove underlying content.
+    </div>
+
+    <p class="text-xs text-slate-600 dark:text-slate-400">
+      Choose how you want to export your PDF form:
+    </p>
+
+    <div class="flex flex-col gap-2.5">
+      <!-- Option 1: Editable PDF -->
+      <button
+        type="button"
+        id="export-mode-interactive-btn"
+        class="w-full text-left p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:border-brand-500 dark:hover:border-brand-500 hover:bg-brand-50/40 dark:hover:bg-brand-950/20 transition-all flex items-start gap-3 group cursor-pointer"
+      >
+        <div class="w-5 h-5 mt-0.5 rounded-full border-2 border-brand-500 flex items-center justify-center flex-shrink-0 text-brand-600 dark:text-brand-400">
+          <div class="w-2.5 h-2.5 rounded-full bg-brand-500"></div>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400">Editable PDF</span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Form fields remain editable.</span>
+        </div>
+      </button>
+
+      <!-- Option 2: Flattened PDF -->
+      <button
+        type="button"
+        id="export-mode-flattened-btn"
+        class="w-full text-left p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 hover:border-brand-500 dark:hover:border-brand-500 hover:bg-brand-50/40 dark:hover:bg-brand-950/20 transition-all flex items-start gap-3 group cursor-pointer"
+      >
+        <div class="w-5 h-5 mt-0.5 rounded-full border-2 border-slate-400 dark:border-slate-600 flex items-center justify-center flex-shrink-0 text-slate-400 group-hover:border-brand-500">
+          <div class="w-2.5 h-2.5 rounded-full bg-transparent group-hover:bg-brand-500/50"></div>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400">Flattened PDF</span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Form values become part of the page and can no longer be edited as form fields.</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-2.5 pt-2">
+      <button
+        type="button"
+        id="cancel-export-mode-btn"
+        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Hidden image file input -->
-<input type="file" id="editor-image-file-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
+<input type="file" id="editor-image-file-input" accept="image/png,image/jpeg,image/webp" class="hidden" aria-label="Upload image to insert" />
