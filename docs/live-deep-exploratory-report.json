@@ -1,0 +1,56 @@
+{
+  "testedAt": "2026-09-27T18:48:59.543Z",
+  "target": "https://pdfpage.tools",
+  "positives": [
+    {
+      "category": "Extractor Validation",
+      "title": "Non-PDF Rejection",
+      "detail": "Cleanly rejected text file with: \"⚠️ Please upload a valid PDF document (.pdf)\""
+    },
+    {
+      "category": "Extractor Validation",
+      "title": "Out of Bounds Detection",
+      "detail": "Properly blocked page 999 with message: \"⚠️ Page 999 exceeds total PDF length (1 max).\""
+    },
+    {
+      "category": "Text Tool Popover",
+      "title": "Top Edge Flip / Containment",
+      "detail": "Popover placed at y=214px smoothly flipped below anchor without clipping off-screen"
+    },
+    {
+      "category": "Text Tool UX",
+      "title": "Keyboard Esc Cancellation",
+      "detail": "Pressing Escape dismisses popover and cancels draft without leaving orphan objects"
+    },
+    {
+      "category": "Text Tool Guardrails",
+      "title": "Blank Text Rejection",
+      "detail": "Saving blank text safely rejects empty object creation"
+    },
+    {
+      "category": "Keyboard Shortcuts",
+      "title": "Delete / Backspace Key",
+      "detail": "Selected object can be deleted directly with Delete key"
+    },
+    {
+      "category": "Editor Zoom",
+      "title": "High-DPI Zoom Support",
+      "detail": "Zoomed to 250% with crisp canvas width 1487px"
+    },
+    {
+      "category": "Editor Zoom",
+      "title": "Instant 100% Reset",
+      "detail": "Clicking zoom percentage pill instantly resets to 100%"
+    }
+  ],
+  "negativesAndBugs": [
+    {
+      "category": "Test Runner",
+      "title": "Deep Audit Crash",
+      "severity": "CRITICAL",
+      "detail": "No element found for selector: #duplicate-object-btn"
+    }
+  ],
+  "uxFrictionAndInconsistencies": [],
+  "securityAndPrivacy": []
+}

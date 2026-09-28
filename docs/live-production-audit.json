@@ -1,0 +1,261 @@
+{
+  "testedAt": "2026-09-27T18:47:58.175Z",
+  "target": "https://pdfpage.tools",
+  "summary": {
+    "goodCount": 36,
+    "bugCount": 0,
+    "inconsistencyCount": 0
+  },
+  "goodFeatures": [
+    {
+      "area": "Homepage",
+      "feature": "HTTP 200 Response",
+      "details": "Live homepage returned status 200 OK"
+    },
+    {
+      "area": "Homepage SEO",
+      "feature": "Metadata Integrity",
+      "details": "Title: \"Extract Pages from PDF Online — Private & No Upload\", Canonical: \"https://pdfpage.tools/\""
+    },
+    {
+      "area": "Homepage SEO",
+      "feature": "WebSite JSON-LD",
+      "details": "Schema.org WebSite structured data present in head"
+    },
+    {
+      "area": "Homepage UI",
+      "feature": "Dark Mode Switcher",
+      "details": "Theme toggle button successfully activates Dark Mode with smooth styling transition"
+    },
+    {
+      "area": "Homepage Navigation",
+      "feature": "Editor Navigation Pill",
+      "details": "Header navigation pill links directly to /pdf-editor/ with \"NEW\" indicator badge"
+    },
+    {
+      "area": "Extractor Core",
+      "feature": "PDF Upload & Reading",
+      "details": "Successfully loaded \"FIXTURE_B_MULTILINE_TEXT.pdf\" (1 page), pre-filling range 1-1"
+    },
+    {
+      "area": "Extractor Steppers",
+      "feature": "Start Page Stepper",
+      "details": "Increment stepper works accurately"
+    },
+    {
+      "area": "Extractor Modes",
+      "feature": "Individual Pages Mode",
+      "details": "Switched to individual pages mode, default input: \"1\""
+    },
+    {
+      "area": "Extractor Validation",
+      "feature": "Range Error Guardrails",
+      "details": "Invalid range safely caught & disabled extract button: \"Start page cannot exceed end page\""
+    },
+    {
+      "area": "Extractor Core",
+      "feature": "Extraction Process",
+      "details": "Extraction triggered, button state: \"Extract & Download PDF\""
+    },
+    {
+      "area": "Extractor Core",
+      "feature": "File Reset / Clear",
+      "details": "Remove button cleanly resets state back to empty dropzone"
+    },
+    {
+      "area": "Homepage FAQ",
+      "feature": "SEO & Structured Data",
+      "details": "Rendered 4 FAQ cards with matching Schema.org FAQPage structured data (4 questions)"
+    },
+    {
+      "area": "PDF Editor",
+      "feature": "HTTP 200 Response",
+      "details": "Live PDF Editor route returned 200 OK"
+    },
+    {
+      "area": "Editor SEO",
+      "feature": "Strict Canonical",
+      "details": "Canonical strictly points to https://pdfpage.tools/pdf-editor/"
+    },
+    {
+      "area": "Editor SEO",
+      "feature": "WebApplication JSON-LD",
+      "details": "Schema.org WebApplication structured data verified"
+    },
+    {
+      "area": "PDF Editor Core",
+      "feature": "Document Loaded & Canvas Initialized",
+      "details": "PDF.js parsed document and rendered canvas to workspace"
+    },
+    {
+      "area": "Editor Toolbar",
+      "feature": "Full Tool Suite",
+      "details": "All 13 standard annotation & authoring tools detected: select, text, image, highlight, underline, strikethrough, comment, pen, line, arrow, rectangle, ellipse, form-text, form-multiline, form-checkbox, form-radio, form-dropdown, form-listbox, whiteout, redact, signature"
+    },
+    {
+      "area": "Text Tool UX",
+      "feature": "Instant Placement Affordance",
+      "details": "Shows floating preview without Tab key: \"Click to place text\""
+    },
+    {
+      "area": "Text Tool UX",
+      "feature": "Save/Cancel Floating Popover",
+      "details": "Directional beak popover card with auto-focused editor and touch-sized Save/Cancel buttons"
+    },
+    {
+      "area": "Text Tool UX",
+      "feature": "Save Commit & Auto-Select",
+      "details": "Text placed into store with ID: text-1790534892726 and auto-selected with bounding box"
+    },
+    {
+      "area": "Editor Selection",
+      "feature": "Deselection on Canvas Click",
+      "details": "Clicking empty canvas cleanly clears object selection"
+    },
+    {
+      "area": "Editor Selection",
+      "feature": "Click Reselection",
+      "details": "Clicking placed text re-establishes selection and shows bounding box"
+    },
+    {
+      "area": "Text Tool UX",
+      "feature": "Double-Click Re-edit",
+      "details": "Double-clicking text object reopens popover editor with existing content"
+    },
+    {
+      "area": "Text Tool UX",
+      "feature": "Cancel Button Discard",
+      "details": "Cancel button cleanly dismisses popover without altering content"
+    },
+    {
+      "area": "PDF Text Layer",
+      "feature": "Contextual Action Bar",
+      "details": "Clicking PDF text (\"Fixture A: Single-Line Text Fields\") reveals action bar"
+    },
+    {
+      "area": "PDF Text Layer",
+      "feature": "Text Replacement Mutation",
+      "details": "Successfully masked original text and placed replacement text object"
+    },
+    {
+      "area": "Drawing Tool",
+      "feature": "Freehand Pen Tool",
+      "details": "Drawing with pen tool creates path object"
+    },
+    {
+      "area": "Shapes Tool",
+      "feature": "Rectangle Shape",
+      "details": "Dragging rectangle tool creates rectangle object"
+    },
+    {
+      "area": "Shapes Tool",
+      "feature": "Circle/Ellipse Shape",
+      "details": "Dragging ellipse tool creates circle object"
+    },
+    {
+      "area": "Redaction Tool",
+      "feature": "Redaction Mask Placement",
+      "details": "Dragging redaction tool creates black redaction mask in store"
+    },
+    {
+      "area": "Editor History",
+      "feature": "Undo Support",
+      "details": "Undo button reduced object count from 6 to 5"
+    },
+    {
+      "area": "Editor Viewport",
+      "feature": "Zoom Scaling",
+      "details": "Zoom controls scaled viewport (100% -> 125%)"
+    },
+    {
+      "area": "Editor Sidebars",
+      "feature": "Thumbnails Drawer",
+      "details": "Thumbnails sidebar opens and displays page navigation list"
+    },
+    {
+      "area": "Security & Privacy",
+      "feature": "100% Client-Side Privacy",
+      "details": "Verified ZERO external network calls during document export & compilation"
+    },
+    {
+      "area": "Mobile Responsiveness",
+      "feature": "Zero Horizontal Overflow",
+      "details": "Strict document viewport containment (375px <= 375px)"
+    },
+    {
+      "area": "Mobile UI",
+      "feature": "Mobile Bottom Navigation Buttons",
+      "details": "Dedicated mobile Pages & Properties bottom buttons rendered with 44px+ touch targets"
+    }
+  ],
+  "bugsAndGaps": [],
+  "inconsistencies": [],
+  "networkRequests": [
+    {
+      "page": "/",
+      "url": "https://pdfpage.tools/",
+      "method": "GET"
+    },
+    {
+      "page": "/",
+      "url": "https://pdfpage.tools/_astro/index.Dv3xbnQ9.css",
+      "method": "GET"
+    },
+    {
+      "page": "/",
+      "url": "https://pdfpage.tools/_astro/hoisted.BByfdR-Q.js",
+      "method": "GET"
+    },
+    {
+      "page": "/",
+      "url": "https://pdfpage.tools/_astro/Header.astro_astro_type_script_index_0_lang.BIPQnWW-.js",
+      "method": "GET"
+    },
+    {
+      "page": "/",
+      "url": "https://pdfpage.tools/favicon.svg",
+      "method": "GET"
+    }
+  ],
+  "consoleMessages": [
+    {
+      "page": "/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    },
+    {
+      "page": "/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    },
+    {
+      "page": "/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    },
+    {
+      "page": "/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    },
+    {
+      "page": "/pdf-editor/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    },
+    {
+      "page": "/pdf-editor/",
+      "type": "warn",
+      "text": "Tracking Prevention blocked access to storage for https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2."
+    }
+  ],
+  "viewportsTested": [
+    "1440x900",
+    "768x1024",
+    "375x812"
+  ],
+  "pagesTested": [
+    "/",
+    "/pdf-editor/"
+  ]
+}

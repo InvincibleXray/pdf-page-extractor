@@ -27,6 +27,7 @@ export class EditorInteractionController {
   private formLayerEl: HTMLElement | null = null;
   private selectionBoxEl: HTMLElement | null = null;
   private actionBarEl: HTMLElement | null = null;
+  private lastSelectedScreenRect: { left: number; top: number; width: number; height: number } | null = null;
   private tempWhiteoutMaskEl: HTMLElement | null = null;
   private viewport: PageViewport | null = null;
 
@@ -93,6 +94,10 @@ export class EditorInteractionController {
     }
 
     if (this.actionBarEl) {
+      this.actionBarEl.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+      });
+
       const editBtn = this.actionBarEl.querySelector('#edit-existing-text-btn');
       if (editBtn) {
         editBtn.addEventListener('click', (e) => {
@@ -246,28 +251,202 @@ export class EditorInteractionController {
     this.textPlacementPreviewEl = null;
   }
 
+  public setActionBarInteractivity(active: boolean): void {
+    if (!this.actionBarEl) return;
+    if (active) {
+      this.actionBarEl.style.pointerEvents = 'auto';
+      this.actionBarEl.style.opacity = '1';
+    } else {
+      this.actionBarEl.style.pointerEvents = 'none';
+      this.actionBarEl.style.opacity = '0.25';
+    }
+  }
+
+  public repositionCurrentActionBar(): void {
+    if (!this.actionBarEl || this.actionBarEl.classList.contains('hidden')) return;
+    const selected = editorStore.getSelectedObject();
+    if (selected && (selected.type === 'text' || selected.type === 'text-replacement') && this.viewport) {
+      const screenRect = pdfRectToScreenRect(selected, this.viewport);
+      this.positionActionBar(screenRect);
+      return;
+    }
+    const selectedExistingTextId = editorStore.getSelectedExistingTextId();
+    if (selectedExistingTextId && this.viewport) {
+      const item = pdfTextLayerManager.getTextItem(selectedExistingTextId);
+      if (item) {
+        const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
+        this.positionActionBar(screenRect);
+        return;
+      }
+    }
+    if (this.lastSelectedScreenRect) {
+      this.positionActionBar(this.lastSelectedScreenRect);
+    }
+  }
+
   public positionActionBar(screenRect: { left: number; top: number; width: number; height: number }): void {
     if (!this.actionBarEl || !this.overlayEl) return;
+    this.lastSelectedScreenRect = { ...screenRect };
     this.actionBarEl.classList.remove('hidden');
 
     const overlayRect = this.overlayEl.getBoundingClientRect();
-    const barWidth = Math.min(this.actionBarEl.offsetWidth || 280, overlayRect.width - 16);
-    const barHeight = this.actionBarEl.offsetHeight || 36;
+    const barWidth = Math.min(this.actionBarEl.offsetWidth || 280, Math.max(160, overlayRect.width - 16));
+    const barHeight = this.actionBarEl.offsetHeight || 38;
 
-    // Position above text by default; if near top edge, flip below text
-    let top = screenRect.top - barHeight - 8;
-    if (top < 8) {
-      top = screenRect.top + screenRect.height + 8;
+    // Detect touch / coarse input mode
+    const isTouch =
+      typeof window !== 'undefined' &&
+      (('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
+
+    // Clearances and protected region around selection
+    // Top requires extra clearance to not overlap the selectionBox rotation stem (-24px)
+    const marginAbove = isTouch ? 36 : 28;
+    const marginBelow = isTouch ? 18 : 10;
+    const marginSide = isTouch ? 18 : 10;
+
+    const protTop = screenRect.top - (isTouch ? 32 : 24);
+    const protBottom = screenRect.top + screenRect.height + (isTouch ? 14 : 8);
+    const protLeft = screenRect.left - (isTouch ? 14 : 8);
+    const protRight = screenRect.left + screenRect.width + (isTouch ? 14 : 8);
+
+    const collidesWithProtected = (cLeft: number, cTop: number): boolean => {
+      const cRight = cLeft + barWidth;
+      const cBottom = cTop + barHeight;
+      return !(
+        cRight <= protLeft ||
+        cLeft >= protRight ||
+        cBottom <= protTop ||
+        cTop >= protBottom
+      );
+    };
+
+    // Calculate viewport & visual viewport boundaries in overlay coordinate space
+    const viewportEl = document.getElementById('editor-viewport');
+    const vpRect = viewportEl
+      ? viewportEl.getBoundingClientRect()
+      : { top: 0, bottom: window.innerHeight, left: 0, right: window.innerWidth, width: window.innerWidth, height: window.innerHeight };
+
+    const vv = typeof window !== 'undefined' && window.visualViewport ? window.visualViewport : null;
+    const vvTop = vv ? vv.offsetTop : 0;
+    const vvBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+
+    let visibleClientTop = Math.max(vpRect.top + 8, vvTop + 8);
+    let visibleClientBottom = Math.min(vpRect.bottom - 8, vvBottom - 8);
+
+    // Factor in fixed overlapping elements: bottom floating bar and mobile nav
+    const bottomBar = document.querySelector('#zoom-in-btn')?.closest('[role="toolbar"]');
+    const bottomBarRect = bottomBar ? bottomBar.getBoundingClientRect() : null;
+    if (bottomBarRect && bottomBarRect.top > visibleClientTop + 60 && bottomBarRect.top < visibleClientBottom) {
+      visibleClientBottom = bottomBarRect.top - 8;
     }
 
-    // Clamp horizontally to prevent mobile right overflow
-    let left = screenRect.left;
-    const maxLeft = overlayRect.width - barWidth - 8;
-    if (left > maxLeft) left = maxLeft;
-    if (left < 8) left = 8;
+    const mobileNav = document.getElementById('mobile-open-pages-btn')?.parentElement;
+    const mobileNavRect = (mobileNav && mobileNav.offsetParent !== null) ? mobileNav.getBoundingClientRect() : null;
+    if (mobileNavRect && mobileNavRect.top > visibleClientTop + 60 && mobileNavRect.top < visibleClientBottom) {
+      visibleClientBottom = mobileNavRect.top - 8;
+    }
 
-    this.actionBarEl.style.top = `${Math.round(top)}px`;
-    this.actionBarEl.style.left = `${Math.round(left)}px`;
+    const visibleClientLeft = Math.max(vpRect.left + 8, vv ? vv.offsetLeft + 8 : 8);
+    const visibleClientRight = Math.min(vpRect.right - 8, vv ? vv.offsetLeft + vv.width - 8 : window.innerWidth - 8);
+
+    // Transform visible client constraints into overlay coordinates
+    let minOverlayY = Math.max(8, visibleClientTop - overlayRect.top);
+    let maxOverlayY = Math.min(overlayRect.height - barHeight - 8, visibleClientBottom - overlayRect.top - barHeight);
+    let minOverlayX = Math.max(8, visibleClientLeft - overlayRect.left);
+    let maxOverlayX = Math.min(overlayRect.width - barWidth - 8, visibleClientRight - overlayRect.left - barWidth);
+
+    // If overlay is scrolled/zoomed such that constraints are inverted, relax to page card boundaries
+    if (maxOverlayY < minOverlayY) {
+      minOverlayY = 8;
+      maxOverlayY = Math.max(8, overlayRect.height - barHeight - 8);
+    }
+    if (maxOverlayX < minOverlayX) {
+      minOverlayX = 8;
+      maxOverlayX = Math.max(8, overlayRect.width - barWidth - 8);
+    }
+
+    let finalLeft = 8;
+    let finalTop = 8;
+    let chosenPlacement = 'above';
+
+    // 1. Candidate 1: ABOVE SELECTION
+    const topAbove = screenRect.top - barHeight - marginAbove;
+    let leftAbove = screenRect.left + (screenRect.width - barWidth) / 2;
+    leftAbove = Math.max(minOverlayX, Math.min(leftAbove, maxOverlayX));
+    const fitsAbove = topAbove >= minOverlayY && topAbove >= 8 && !collidesWithProtected(leftAbove, topAbove);
+
+    // 2. Candidate 2: BELOW SELECTION
+    const topBelow = screenRect.top + screenRect.height + marginBelow;
+    let leftBelow = screenRect.left + (screenRect.width - barWidth) / 2;
+    leftBelow = Math.max(minOverlayX, Math.min(leftBelow, maxOverlayX));
+    const fitsBelow = topBelow <= maxOverlayY && topBelow + barHeight <= overlayRect.height - 8 && !collidesWithProtected(leftBelow, topBelow);
+
+    // 3. Candidate 3: LEFT SIDE OF SELECTION
+    const leftSide = screenRect.left - barWidth - marginSide;
+    let topSide = screenRect.top + (screenRect.height - barHeight) / 2;
+    topSide = Math.max(minOverlayY, Math.min(topSide, maxOverlayY));
+    const fitsLeft = leftSide >= minOverlayX && leftSide >= 8 && !collidesWithProtected(leftSide, topSide);
+
+    // 4. Candidate 4: RIGHT SIDE OF SELECTION
+    const rightSide = screenRect.left + screenRect.width + marginSide;
+    let topSideRight = screenRect.top + (screenRect.height - barHeight) / 2;
+    topSideRight = Math.max(minOverlayY, Math.min(topSideRight, maxOverlayY));
+    const fitsRight = rightSide <= maxOverlayX && rightSide + barWidth <= overlayRect.width - 8 && !collidesWithProtected(rightSide, topSideRight);
+
+    if (fitsAbove) {
+      finalLeft = leftAbove;
+      finalTop = topAbove;
+      chosenPlacement = 'above';
+    } else if (fitsBelow) {
+      finalLeft = leftBelow;
+      finalTop = topBelow;
+      chosenPlacement = 'below';
+    } else if (fitsLeft) {
+      finalLeft = leftSide;
+      finalTop = topSide;
+      chosenPlacement = 'left';
+    } else if (fitsRight) {
+      finalLeft = rightSide;
+      finalTop = topSideRight;
+      chosenPlacement = 'right';
+    } else {
+      // 5. Candidate 5: SAFE VIEWPORT FALLBACK
+      // Determine if object is located more in upper or lower half of available space
+      const objCenterY = screenRect.top + screenRect.height / 2;
+      const overlayCenterY = (minOverlayY + maxOverlayY) / 2;
+      let fallbackTop = objCenterY > overlayCenterY ? minOverlayY : maxOverlayY;
+      let fallbackLeft = Math.max(minOverlayX, Math.min((overlayRect.width - barWidth) / 2, maxOverlayX));
+
+      // Verify no collision with protected zone
+      if (collidesWithProtected(fallbackLeft, fallbackTop)) {
+        // Try opposite edge
+        const alternateTop = fallbackTop === minOverlayY ? maxOverlayY : minOverlayY;
+        if (!collidesWithProtected(fallbackLeft, alternateTop)) {
+          fallbackTop = alternateTop;
+        } else {
+          // If still colliding, shift horizontally to left or right margin
+          if (!collidesWithProtected(minOverlayX, fallbackTop)) {
+            fallbackLeft = minOverlayX;
+          } else if (!collidesWithProtected(maxOverlayX, fallbackTop)) {
+            fallbackLeft = maxOverlayX;
+          }
+        }
+      }
+
+      finalLeft = fallbackLeft;
+      finalTop = fallbackTop;
+      chosenPlacement = fallbackTop === minOverlayY ? 'fallback-top' : 'fallback-bottom';
+    }
+
+    // Strict boundary clamping guarantees no document overflow
+    finalLeft = Math.max(8, Math.min(finalLeft, overlayRect.width - barWidth - 8));
+    finalTop = Math.max(8, Math.min(finalTop, overlayRect.height - barHeight - 8));
+
+    this.actionBarEl.style.top = `${Math.round(finalTop)}px`;
+    this.actionBarEl.style.left = `${Math.round(finalLeft)}px`;
+    this.actionBarEl.setAttribute('data-placement', chosenPlacement);
   }
 
   private handlePointerDown(e: PointerEvent): void {
@@ -278,6 +457,10 @@ export class EditorInteractionController {
 
     // Ignore clicks inside active popover editor
     if (this.activeInlineEditor && (this.activeInlineEditor.contains(target) || target.closest('#active-inline-text-popover'))) {
+      return;
+    }
+    // Ignore clicks inside active action bar
+    if (this.actionBarEl && (this.actionBarEl.contains(target) || target.closest('#existing-text-action-bar'))) {
       return;
     }
 
@@ -312,6 +495,7 @@ export class EditorInteractionController {
         this.activeResizeHandle = handle;
         this.startPointer = { x: e.clientX, y: e.clientY };
         this.startObjectBounds = { ...selected };
+        this.setActionBarInteractivity(false);
         return;
       }
     }
@@ -390,6 +574,7 @@ export class EditorInteractionController {
           this.interactionMode = 'move-object';
           this.startPointer = { x: e.clientX, y: e.clientY };
           this.startObjectBounds = { ...selected };
+          this.setActionBarInteractivity(false);
           return;
         }
       }
@@ -470,7 +655,7 @@ export class EditorInteractionController {
     }
 
     // Deselect if clicking on empty overlay
-    if (activeTool === 'select' && !objectEl && !formWidgetEl) {
+    if (activeTool === 'select' && !objectEl && !formWidgetEl && !target.closest('#existing-text-action-bar')) {
       this.hideExistingTextActionBar();
       editorStore.selectExistingText(null);
       editorStore.selectObject(null);
@@ -875,8 +1060,15 @@ export class EditorInteractionController {
         this.lastClickObjectId = null;
         this.lastClickTime = 0;
       }
+      this.setActionBarInteractivity(true);
+      const selected = editorStore.getSelectedObject();
+      if (selected && (selected.type === 'text' || selected.type === 'text-replacement') && this.viewport) {
+        const newScreenRect = pdfRectToScreenRect(selected, this.viewport);
+        this.positionActionBar(newScreenRect);
+      }
     }
 
+    this.setActionBarInteractivity(true);
     this.isInteracting = false;
     this.interactionMode = 'idle';
     this.activeResizeHandle = null;
@@ -1282,8 +1474,11 @@ export class EditorInteractionController {
             const newWidth = Math.max(obj.width, measuredWidthPt + 6);
             editorStore.updateObject(obj.id, { replacementText: text, width: Math.round(newWidth) }, true);
           }
+          editorStore.selectObject(null);
+          this.hideExistingTextActionBar();
         } else {
           editorStore.deleteSelectedObject();
+          this.hideExistingTextActionBar();
         }
         editorStore.setActiveTool('select');
       },
@@ -1340,6 +1535,7 @@ export class EditorInteractionController {
       span.classList.add('text-item-selected');
     }
 
+    editorStore.selectObject(null);
     editorStore.selectExistingText(item.id);
 
     // Position action bar above or below the text bounds
@@ -1352,7 +1548,9 @@ export class EditorInteractionController {
   public hideExistingTextActionBar(): void {
     if (this.actionBarEl) {
       this.actionBarEl.classList.add('hidden');
+      this.actionBarEl.removeAttribute('data-placement');
     }
+    this.lastSelectedScreenRect = null;
     if (this.textLayerEl) {
       this.textLayerEl.querySelectorAll('.text-item-selected').forEach((el) => {
         el.classList.remove('text-item-selected');

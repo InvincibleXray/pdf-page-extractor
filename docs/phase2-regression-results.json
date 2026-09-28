@@ -1,6 +1,6 @@
 {
   "phase": 2,
-  "timestamp": "2026-09-27T16:55:49.154Z",
+  "timestamp": "2026-09-28T01:04:20.808Z",
   "bugs": {
     "BUG-001": {
       "title": "Committed user-created Text object cannot be re-selected",
@@ -29,9 +29,9 @@
       "name": "Create Text Object \"basic\"",
       "status": "PASS",
       "details": {
-        "message": "Created object text-1790528127366 at (608, 403)"
+        "message": "Created object text-1790557439854 at (608, 403)"
       },
-      "timestamp": "2026-09-27T16:55:28.076Z"
+      "timestamp": "2026-09-28T01:04:00.447Z"
     },
     {
       "id": "REG-A-02",
@@ -40,16 +40,16 @@
       "details": {
         "message": "Selected object after deselect: null"
       },
-      "timestamp": "2026-09-27T16:55:28.397Z"
+      "timestamp": "2026-09-28T01:04:00.775Z"
     },
     {
       "id": "REG-A-03",
       "name": "Reselect \"basic\" via Mouse Click (BUG-001 Verification)",
       "status": "PASS",
       "details": {
-        "message": "Selected ID: text-1790528127366 (Expected: text-1790528127366). Selection box visible: true. Hit tag: <DIV id=\"obj-text-1790528127366\">."
+        "message": "Selected ID: text-1790557439854 (Expected: text-1790557439854). Selection box visible: true. Hit tag: <DIV id=\"obj-text-1790557439854\">."
       },
-      "timestamp": "2026-09-27T16:55:28.916Z"
+      "timestamp": "2026-09-28T01:04:01.244Z"
     },
     {
       "id": "REG-A-04",
@@ -58,7 +58,7 @@
       "details": {
         "message": "Inline editor open with text: \"basic\""
       },
-      "timestamp": "2026-09-27T16:55:29.794Z"
+      "timestamp": "2026-09-28T01:04:01.806Z"
     },
     {
       "id": "REG-A-05",
@@ -67,7 +67,7 @@
       "details": {
         "message": "Object text after edit: \"advanced\""
       },
-      "timestamp": "2026-09-27T16:55:30.257Z"
+      "timestamp": "2026-09-28T01:04:02.308Z"
     },
     {
       "id": "REG-A-06",
@@ -76,7 +76,7 @@
       "details": {
         "message": "Repeated reselection successful: true"
       },
-      "timestamp": "2026-09-27T16:55:30.805Z"
+      "timestamp": "2026-09-28T01:04:02.858Z"
     },
     {
       "id": "REG-B-01",
@@ -85,7 +85,7 @@
       "details": {
         "message": "Initial position: (160.5, 220) pt -> After move: (221, 260) pt"
       },
-      "timestamp": "2026-09-27T16:55:31.817Z"
+      "timestamp": "2026-09-28T01:04:04.027Z"
     },
     {
       "id": "REG-B-02",
@@ -94,7 +94,7 @@
       "details": {
         "message": "Reselect after move: true"
       },
-      "timestamp": "2026-09-27T16:55:32.362Z"
+      "timestamp": "2026-09-28T01:04:04.744Z"
     },
     {
       "id": "REG-C-01",
@@ -103,7 +103,7 @@
       "details": {
         "message": "Width before: 80 pt -> After: 120 pt"
       },
-      "timestamp": "2026-09-27T16:55:32.921Z"
+      "timestamp": "2026-09-28T01:04:05.277Z"
     },
     {
       "id": "REG-D-01",
@@ -112,7 +112,7 @@
       "details": {
         "message": "Font: \"Times New Roman\", Weight: \"bold\" (DOM: 700)"
       },
-      "timestamp": "2026-09-27T16:55:33.244Z"
+      "timestamp": "2026-09-28T01:04:05.640Z"
     },
     {
       "id": "REG-E-01",
@@ -121,7 +121,7 @@
       "details": {
         "message": "Active tool after Escape cancel: \"select\""
       },
-      "timestamp": "2026-09-27T16:55:33.885Z"
+      "timestamp": "2026-09-28T01:04:06.287Z"
     },
     {
       "id": "REG-E-02",
@@ -130,7 +130,7 @@
       "details": {
         "message": "Existing object selectable immediately after text cancel: true"
       },
-      "timestamp": "2026-09-27T16:55:34.212Z"
+      "timestamp": "2026-09-28T01:04:06.632Z"
     },
     {
       "id": "REG-F-01",
@@ -139,7 +139,7 @@
       "details": {
         "message": "Hit element: <SPAN id=\"\" class=\"\">"
       },
-      "timestamp": "2026-09-27T16:55:34.437Z"
+      "timestamp": "2026-09-28T01:04:06.854Z"
     },
     {
       "id": "REG-F-02",
@@ -148,7 +148,7 @@
       "details": {
         "message": "Action bar visible: true, Selected Text: \"p1-t0\""
       },
-      "timestamp": "2026-09-27T16:55:34.880Z"
+      "timestamp": "2026-09-28T01:04:07.294Z"
     },
     {
       "id": "REG-F-03",
@@ -157,7 +157,7 @@
       "details": {
         "message": "Editor open: true, Font: \"Inter, Helvetica, Arial, sans-serif\", Initial Text: \"Fixture A: Single-Line Text Fields\""
       },
-      "timestamp": "2026-09-27T16:55:35.368Z"
+      "timestamp": "2026-09-28T01:04:07.754Z"
     },
     {
       "id": "REG-F-04",
@@ -166,7 +166,7 @@
       "details": {
         "message": "Replacement Object created: true, Font Family: \"Inter, Helvetica, Arial, sans-serif\", Text: \"[MODIFIED]\""
       },
-      "timestamp": "2026-09-27T16:55:35.948Z"
+      "timestamp": "2026-09-28T01:04:08.335Z"
     },
     {
       "id": "REG-G-01",
@@ -175,7 +175,7 @@
       "details": {
         "message": "Hit element on form field: <INPUT class=\"w-full h-full px-1 text-xs text-slate-900 dark:text-slate-100 rounded-xs transition-colors outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-slate-900 border border-blue-400/70 dark:border-blue-500/70 bg-blue-50/25 dark:bg-blue-950/20\">"
       },
-      "timestamp": "2026-09-27T16:55:35.953Z"
+      "timestamp": "2026-09-28T01:04:08.339Z"
     },
     {
       "id": "REG-G-02",
@@ -184,16 +184,16 @@
       "details": {
         "message": "Form store captured value: \"JaneTest User Input\""
       },
-      "timestamp": "2026-09-27T16:55:36.315Z"
+      "timestamp": "2026-09-28T01:04:08.693Z"
     },
     {
       "id": "REG-H-01",
       "name": "Create Redaction Mask Box",
       "status": "PASS",
       "details": {
-        "message": "Created redaction object: redact-1790528136677 (70x40 pt)"
+        "message": "Created redaction object: redact-1790557449028 (70x40 pt)"
       },
-      "timestamp": "2026-09-27T16:55:37.085Z"
+      "timestamp": "2026-09-28T01:04:09.443Z"
     },
     {
       "id": "REG-I-01",
@@ -202,7 +202,7 @@
       "details": {
         "message": "Downloaded: FIXTURE_A_SINGLE_TEXT-edited.pdf (60313 bytes)"
       },
-      "timestamp": "2026-09-27T16:55:42.153Z"
+      "timestamp": "2026-09-28T01:04:13.963Z"
     },
     {
       "id": "REG-I-02",
@@ -211,7 +211,7 @@
       "details": {
         "message": "Reopened document page count: 1, Text spans: 1"
       },
-      "timestamp": "2026-09-27T16:55:45.379Z"
+      "timestamp": "2026-09-28T01:04:16.992Z"
     },
     {
       "id": "REG-J-01",
@@ -220,16 +220,16 @@
       "details": {
         "message": "Initial count: 3 -> After Undo: 2 -> After Redo: 3"
       },
-      "timestamp": "2026-09-27T16:55:46.111Z"
+      "timestamp": "2026-09-28T01:04:17.724Z"
     },
     {
       "id": "REG-K-01",
       "name": "Duplicate Object Without Deadlock or Cross-Linking",
       "status": "PASS",
       "details": {
-        "message": "Duplicate ID: text-1790528146140, Total Objects: 4"
+        "message": "Duplicate ID: text-1790557457756, Total Objects: 4"
       },
-      "timestamp": "2026-09-27T16:55:46.450Z"
+      "timestamp": "2026-09-28T01:04:18.081Z"
     },
     {
       "id": "REG-L-375",
@@ -238,7 +238,7 @@
       "details": {
         "message": "Window: 375px, ScrollWidth: 375px, Overflow: false"
       },
-      "timestamp": "2026-09-27T16:55:46.893Z"
+      "timestamp": "2026-09-28T01:04:18.549Z"
     },
     {
       "id": "REG-L-390",
@@ -247,7 +247,7 @@
       "details": {
         "message": "Window: 390px, ScrollWidth: 390px, Overflow: false"
       },
-      "timestamp": "2026-09-27T16:55:47.334Z"
+      "timestamp": "2026-09-28T01:04:18.864Z"
     },
     {
       "id": "REG-L-430",
@@ -256,7 +256,7 @@
       "details": {
         "message": "Window: 430px, ScrollWidth: 430px, Overflow: false"
       },
-      "timestamp": "2026-09-27T16:55:47.692Z"
+      "timestamp": "2026-09-28T01:04:19.180Z"
     },
     {
       "id": "REG-L-768",
@@ -265,7 +265,7 @@
       "details": {
         "message": "Window: 768px, ScrollWidth: 768px, Overflow: false"
       },
-      "timestamp": "2026-09-27T16:55:48.111Z"
+      "timestamp": "2026-09-28T01:04:19.583Z"
     },
     {
       "id": "REG-M-01",
@@ -274,7 +274,7 @@
       "details": {
         "message": "Focused element: <BUTTON>"
       },
-      "timestamp": "2026-09-27T16:55:48.206Z"
+      "timestamp": "2026-09-28T01:04:19.702Z"
     },
     {
       "id": "SEC-01",
@@ -283,7 +283,7 @@
       "details": {
         "message": "External requests captured: 0"
       },
-      "timestamp": "2026-09-27T16:55:48.211Z"
+      "timestamp": "2026-09-28T01:04:19.734Z"
     },
     {
       "id": "STAB-01",
@@ -292,7 +292,7 @@
       "details": {
         "message": "Console errors captured: 0"
       },
-      "timestamp": "2026-09-27T16:55:48.211Z"
+      "timestamp": "2026-09-28T01:04:19.734Z"
     }
   ],
   "pointerHitTests": [
@@ -310,7 +310,7 @@
       "x": 655,
       "y": 258,
       "hitTag": "DIV",
-      "hitId": "obj-rep-1790528135440",
+      "hitId": "obj-rep-1790557447820",
       "hitClass": "absolute cursor-pointer transition-shadow select-none pointer-events-auto hover:ring-1 hover:ring-brand-300",
       "computedPointerEvents": "auto",
       "pass": true
@@ -321,7 +321,7 @@
       "x": 694,
       "y": 420,
       "hitTag": "DIV",
-      "hitId": "obj-text-1790528146140",
+      "hitId": "obj-text-1790557457756",
       "hitClass": "absolute cursor-pointer transition-shadow select-none pointer-events-auto ring-2 ring-brand-500",
       "computedPointerEvents": "auto",
       "pass": true
@@ -354,7 +354,7 @@
       "x": 708,
       "y": 433,
       "hitTag": "DIV",
-      "hitId": "obj-text-1790528146140",
+      "hitId": "obj-text-1790557457756",
       "hitClass": "absolute cursor-pointer transition-shadow select-none pointer-events-auto ring-2 ring-brand-500",
       "computedPointerEvents": "auto",
       "pass": true
@@ -367,7 +367,7 @@
     "interactive": true
   },
   "redactionRegression": {
-    "redactObjId": "redact-1790528136677",
+    "redactObjId": "redact-1790557449028",
     "status": "PASS"
   },
   "exportReopen": {

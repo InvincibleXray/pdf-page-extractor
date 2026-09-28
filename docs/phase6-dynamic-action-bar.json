@@ -1,0 +1,1130 @@
+{
+  "phase": 6,
+  "phaseName": "PHASE 6 — DYNAMIC CONTEXT ACTION BAR + TOUCH-FIRST OBJECT MANIPULATION",
+  "timestamp": "2026-09-28T01:02:40.842Z",
+  "targetUrl": "http://127.0.0.1:4321/pdf-editor/",
+  "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "summary": {
+    "total": 29,
+    "passed": 29,
+    "failed": 0,
+    "verdict": "PASS"
+  },
+  "adversarialMatrix": [
+    {
+      "id": "POS-A-CENTER",
+      "name": "Center placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 109,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-B-TOP",
+      "name": "Top edge placement (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 109,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-C-BOTTOM",
+      "name": "Bottom edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 109,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-D-LEFT",
+      "name": "Left edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 9,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-E-RIGHT",
+      "name": "Right edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 263,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-F-TOP-LEFT",
+      "name": "Top-left corner (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 9,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-G-TOP-RIGHT",
+      "name": "Top-right corner (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 263,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-H-BOTTOM-LEFT",
+      "name": "Bottom-left corner (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 9,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-I-BOTTOM-RIGHT",
+      "name": "Bottom-right corner (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 263,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "DRAG-01-INITIAL",
+      "name": "Action bar active and interactable initially",
+      "status": "PASS",
+      "details": {
+        "visible": true,
+        "pointerEvents": "auto",
+        "opacity": "1"
+      }
+    },
+    {
+      "id": "DRAG-02-NON-INTERFERING",
+      "name": "Action bar non-interfering during drag (pointer-events: none, dimmed opacity)",
+      "status": "PASS",
+      "details": {
+        "pointerEvents": "none",
+        "opacity": 0.25
+      }
+    },
+    {
+      "id": "DRAG-03-COMPLETED",
+      "name": "Drag completion: object moved, action bar restored, 0 collision at new coords",
+      "status": "PASS",
+      "details": {
+        "objectMoved": true,
+        "postDragState": {
+          "newCoords": {
+            "x": 260,
+            "y": 410
+          },
+          "pointerEvents": "auto",
+          "opacity": 1,
+          "barRel": {
+            "left": 169,
+            "top": 341,
+            "width": 325.328125,
+            "height": 42
+          },
+          "objRel": {
+            "left": 261,
+            "top": 411,
+            "width": 140,
+            "height": 36
+          }
+        },
+        "postDragCollision": false
+      }
+    },
+    {
+      "id": "NET-PRIVACY",
+      "name": "Zero external network leaks observed",
+      "status": "PASS",
+      "details": {
+        "leakCount": 0,
+        "leaks": []
+      }
+    },
+    {
+      "id": "CONSOLE-ERRORS",
+      "name": "Zero unhandled console errors during session",
+      "status": "PASS",
+      "details": {
+        "errorCount": 0,
+        "errors": []
+      }
+    }
+  ],
+  "mobileTouchMatrix": [
+    {
+      "id": "MOB-375",
+      "name": "Mobile 375×812 (iPhone 12/13 mini) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 12/13 mini",
+          "width": 375,
+          "height": 812,
+          "dpr": 3,
+          "shot": "p6_12_mobile_375x812.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-375",
+      "name": "Mobile 375px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-390",
+      "name": "Mobile 390×844 (iPhone 13/14) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 13/14",
+          "width": 390,
+          "height": 844,
+          "dpr": 3,
+          "shot": "p6_13_mobile_390x844.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-390",
+      "name": "Mobile 390px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-430",
+      "name": "Mobile 430×932 (iPhone 14/15 Pro Max) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 14/15 Pro Max",
+          "width": 430,
+          "height": 932,
+          "dpr": 3,
+          "shot": "p6_14_mobile_430x932.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-430",
+      "name": "Mobile 430px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-768",
+      "name": "Mobile 768×1024 (iPad Portrait) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPad Portrait",
+          "width": 768,
+          "height": 1024,
+          "dpr": 2,
+          "shot": "p6_15_tablet_768x1024.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-768",
+      "name": "Mobile 768px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    }
+  ],
+  "zoomMatrix": [
+    {
+      "id": "ZOOM-50",
+      "name": "Zoom 50%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 0.5,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 564.5,
+            "top": 435.5,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-75",
+      "name": "Zoom 75%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 0.75,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 567,
+            "top": 433.5,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-100",
+      "name": "Zoom 100%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 575.5,
+            "top": 509,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-125",
+      "name": "Zoom 125%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1.25,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 583.5,
+            "top": 612,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-150",
+      "name": "Zoom 150%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1.5,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 638,
+            "top": 714,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    }
+  ],
+  "existingTextTests": [
+    {
+      "id": "EXT-TEXT-01",
+      "name": "Existing PDF text click activates dynamic action bar",
+      "status": "PASS",
+      "details": {
+        "barVisible": true,
+        "selectedTextId": "p1-t0",
+        "placement": "below"
+      }
+    },
+    {
+      "id": "EXT-TEXT-02",
+      "name": "Underline button creates underline object from existing text",
+      "status": "PASS",
+      "details": {
+        "underlineCreated": true
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "POS-A-CENTER",
+      "name": "Center placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 109,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-B-TOP",
+      "name": "Top edge placement (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 109,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-C-BOTTOM",
+      "name": "Bottom edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 109,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 201,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-D-LEFT",
+      "name": "Left edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 9,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-E-RIGHT",
+      "name": "Right edge placement (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 263,
+          "top": 281,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 351,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-F-TOP-LEFT",
+      "name": "Top-left corner (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 9,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-G-TOP-RIGHT",
+      "name": "Top-right corner (no collision, within bounds, placement: below)",
+      "status": "PASS",
+      "details": {
+        "placement": "below",
+        "barRel": {
+          "left": 263,
+          "top": 62,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 16,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-H-BOTTOM-LEFT",
+      "name": "Bottom-left corner (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 9,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 11,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "POS-I-BOTTOM-RIGHT",
+      "name": "Bottom-right corner (no collision, within bounds, placement: above)",
+      "status": "PASS",
+      "details": {
+        "placement": "above",
+        "barRel": {
+          "left": 263,
+          "top": 711,
+          "width": 325.328125,
+          "height": 42
+        },
+        "objRel": {
+          "left": 441,
+          "top": 781,
+          "width": 140,
+          "height": 36
+        },
+        "hasOverlap": false,
+        "withinCard": true
+      }
+    },
+    {
+      "id": "DRAG-01-INITIAL",
+      "name": "Action bar active and interactable initially",
+      "status": "PASS",
+      "details": {
+        "visible": true,
+        "pointerEvents": "auto",
+        "opacity": "1"
+      }
+    },
+    {
+      "id": "DRAG-02-NON-INTERFERING",
+      "name": "Action bar non-interfering during drag (pointer-events: none, dimmed opacity)",
+      "status": "PASS",
+      "details": {
+        "pointerEvents": "none",
+        "opacity": 0.25
+      }
+    },
+    {
+      "id": "DRAG-03-COMPLETED",
+      "name": "Drag completion: object moved, action bar restored, 0 collision at new coords",
+      "status": "PASS",
+      "details": {
+        "objectMoved": true,
+        "postDragState": {
+          "newCoords": {
+            "x": 260,
+            "y": 410
+          },
+          "pointerEvents": "auto",
+          "opacity": 1,
+          "barRel": {
+            "left": 169,
+            "top": 341,
+            "width": 325.328125,
+            "height": 42
+          },
+          "objRel": {
+            "left": 261,
+            "top": 411,
+            "width": 140,
+            "height": 36
+          }
+        },
+        "postDragCollision": false
+      }
+    },
+    {
+      "id": "MOB-375",
+      "name": "Mobile 375×812 (iPhone 12/13 mini) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 12/13 mini",
+          "width": 375,
+          "height": 812,
+          "dpr": 3,
+          "shot": "p6_12_mobile_375x812.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-375",
+      "name": "Mobile 375px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-390",
+      "name": "Mobile 390×844 (iPhone 13/14) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 13/14",
+          "width": 390,
+          "height": 844,
+          "dpr": 3,
+          "shot": "p6_13_mobile_390x844.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-390",
+      "name": "Mobile 390px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-430",
+      "name": "Mobile 430×932 (iPhone 14/15 Pro Max) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPhone 14/15 Pro Max",
+          "width": 430,
+          "height": 932,
+          "dpr": 3,
+          "shot": "p6_14_mobile_430x932.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-430",
+      "name": "Mobile 430px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "MOB-768",
+      "name": "Mobile 768×1024 (iPad Portrait) touch target & viewport compliance",
+      "status": "PASS",
+      "details": {
+        "mv": {
+          "name": "iPad Portrait",
+          "width": 768,
+          "height": 1024,
+          "dpr": 2,
+          "shot": "p6_15_tablet_768x1024.png"
+        },
+        "touchMetrics": {
+          "btnCount": 4,
+          "minHeight": 44,
+          "maxHeight": 44,
+          "barVisible": true,
+          "barWidth": 337.328125,
+          "barHeight": 54,
+          "withinViewport": true
+        }
+      }
+    },
+    {
+      "id": "MOB-DRAG-768",
+      "name": "Mobile 768px touch drag object wins & reposition 0 collision",
+      "status": "PASS",
+      "details": {
+        "hasOverlap": false,
+        "pointerEvents": "auto"
+      }
+    },
+    {
+      "id": "ZOOM-50",
+      "name": "Zoom 50%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 0.5,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 564.5,
+            "top": 435.5,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-75",
+      "name": "Zoom 75%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 0.75,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 567,
+            "top": 433.5,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-100",
+      "name": "Zoom 100%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 575.5,
+            "top": 509,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-125",
+      "name": "Zoom 125%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1.25,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 583.5,
+            "top": 612,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "ZOOM-150",
+      "name": "Zoom 150%: action bar visible with 0 collision",
+      "status": "PASS",
+      "details": {
+        "zoom": 1.5,
+        "zoomState": {
+          "barVisible": true,
+          "placement": "above",
+          "hasOverlap": false,
+          "barRect": {
+            "left": 638,
+            "top": 714,
+            "width": 325.328125,
+            "height": 42
+          }
+        }
+      }
+    },
+    {
+      "id": "EXT-TEXT-01",
+      "name": "Existing PDF text click activates dynamic action bar",
+      "status": "PASS",
+      "details": {
+        "barVisible": true,
+        "selectedTextId": "p1-t0",
+        "placement": "below"
+      }
+    },
+    {
+      "id": "EXT-TEXT-02",
+      "name": "Underline button creates underline object from existing text",
+      "status": "PASS",
+      "details": {
+        "underlineCreated": true
+      }
+    },
+    {
+      "id": "NET-PRIVACY",
+      "name": "Zero external network leaks observed",
+      "status": "PASS",
+      "details": {
+        "leakCount": 0,
+        "leaks": []
+      }
+    },
+    {
+      "id": "CONSOLE-ERRORS",
+      "name": "Zero unhandled console errors during session",
+      "status": "PASS",
+      "details": {
+        "errorCount": 0,
+        "errors": []
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "filename": "p6_01_center_placement.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_01_center_placement.png",
+      "description": "Adversarial position: Center placement (POS-A-CENTER)"
+    },
+    {
+      "filename": "p6_02_top_edge_placement.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_02_top_edge_placement.png",
+      "description": "Adversarial position: Top edge placement (POS-B-TOP)"
+    },
+    {
+      "filename": "p6_03_bottom_edge_placement.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_03_bottom_edge_placement.png",
+      "description": "Adversarial position: Bottom edge placement (POS-C-BOTTOM)"
+    },
+    {
+      "filename": "p6_04_left_edge_placement.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_04_left_edge_placement.png",
+      "description": "Adversarial position: Left edge placement (POS-D-LEFT)"
+    },
+    {
+      "filename": "p6_05_right_edge_placement.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_05_right_edge_placement.png",
+      "description": "Adversarial position: Right edge placement (POS-E-RIGHT)"
+    },
+    {
+      "filename": "p6_06_top_left_corner.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_06_top_left_corner.png",
+      "description": "Adversarial position: Top-left corner (POS-F-TOP-LEFT)"
+    },
+    {
+      "filename": "p6_07_top_right_corner.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_07_top_right_corner.png",
+      "description": "Adversarial position: Top-right corner (POS-G-TOP-RIGHT)"
+    },
+    {
+      "filename": "p6_08_bottom_left_corner.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_08_bottom_left_corner.png",
+      "description": "Adversarial position: Bottom-left corner (POS-H-BOTTOM-LEFT)"
+    },
+    {
+      "filename": "p6_09_bottom_right_corner.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_09_bottom_right_corner.png",
+      "description": "Adversarial position: Bottom-right corner (POS-I-BOTTOM-RIGHT)"
+    },
+    {
+      "filename": "p6_10_touch_drag_active.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_10_touch_drag_active.png",
+      "description": "Touch drag active: action bar non-interfering"
+    },
+    {
+      "filename": "p6_11_touch_drag_completed.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_11_touch_drag_completed.png",
+      "description": "Touch drag completed: action bar cleanly repositioned"
+    },
+    {
+      "filename": "p6_12_mobile_375x812.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_12_mobile_375x812.png",
+      "description": "Mobile viewport: iPhone 12/13 mini (375×812)"
+    },
+    {
+      "filename": "p6_13_mobile_390x844.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_13_mobile_390x844.png",
+      "description": "Mobile viewport: iPhone 13/14 (390×844)"
+    },
+    {
+      "filename": "p6_14_mobile_430x932.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_14_mobile_430x932.png",
+      "description": "Mobile viewport: iPhone 14/15 Pro Max (430×932)"
+    },
+    {
+      "filename": "p6_15_tablet_768x1024.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_15_tablet_768x1024.png",
+      "description": "Mobile viewport: iPad Portrait (768×1024)"
+    },
+    {
+      "filename": "p6_18_zoom_150_reposition.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_18_zoom_150_reposition.png",
+      "description": "Zoom 150% dynamic action bar reposition"
+    },
+    {
+      "filename": "p6_17_existing_text_action_bar.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_17_existing_text_action_bar.png",
+      "description": "Existing PDF text action bar active"
+    },
+    {
+      "filename": "p6_16_desktop_1440.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase6\\p6_16_desktop_1440.png",
+      "description": "Final desktop 1440px editor state"
+    }
+  ],
+  "physicalDevice": {
+    "tested": false,
+    "result": "NOT TESTED",
+    "notes": "Physical mobile device testing was NOT performed in this automated CI/CD environment; headless Edge touch emulation was used."
+  }
+}

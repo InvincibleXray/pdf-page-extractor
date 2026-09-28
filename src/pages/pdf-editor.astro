@@ -373,6 +373,7 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
     (window as any).__PDF_EDITOR_STORE__ = editorStore;
     (window as any).__PDF_FORM_STORE__ = formStore;
     (window as any).__PDF_FORM_OVERLAY__ = pdfFormOverlayManager;
+    (window as any).__PDF_INTERACTION_CONTROLLER__ = interactionController;
   }
 
   // --- EXPORT TOAST NOTIFICATIONS ---
@@ -1731,11 +1732,20 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
           selectionBox.style.top = `${screenRect.top}px`;
           selectionBox.style.width = `${screenRect.width}px`;
           selectionBox.style.height = `${screenRect.height}px`;
+          if (selectedObj.type === 'text') {
+            interactionController.positionActionBar(screenRect);
+          } else {
+            interactionController.hideExistingTextActionBar();
+          }
         } else {
           selectionBox.classList.add('hidden');
+          interactionController.hideExistingTextActionBar();
         }
       } else {
         selectionBox.classList.add('hidden');
+        if (!editorStore.getSelectedExistingTextId()) {
+          interactionController.hideExistingTextActionBar();
+        }
       }
     }
   };
@@ -1772,7 +1782,24 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         if (inspectorBadge) inspectorBadge.textContent = 'Document';
       }
     });
+
+    let scrollRafId: number | null = null;
+    viewport.addEventListener(
+      'scroll',
+      () => {
+        if (scrollRafId !== null) return;
+        scrollRafId = requestAnimationFrame(() => {
+          scrollRafId = null;
+          interactionController.repositionCurrentActionBar();
+        });
+      },
+      { passive: true }
+    );
   }
+
+  window.addEventListener('resize', () => {
+    interactionController.repositionCurrentActionBar();
+  });
 
   // --- INSPECTOR EVENTS & BINDINGS ---
   if (textFontFamily) {
