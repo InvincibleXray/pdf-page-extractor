@@ -1,0 +1,775 @@
+{
+  "phase": "8A",
+  "phaseName": "PHASE 8A — TOUCH INTERACTION FOUNDATION",
+  "timestamp": "2026-09-28T04:43:48.052Z",
+  "targetUrl": "http://127.0.0.1:4321/pdf-editor/",
+  "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0,
+    "verdict": "PASS"
+  },
+  "distanceMatrix": [
+    {
+      "id": "DIST-20PX",
+      "name": "Touch drag continuous past 20px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 20,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 8,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 82,
+          "y": 166
+        },
+        "expectedDelta": {
+          "x": 32.25806451612903,
+          "y": 16.129032258064516
+        },
+        "actualDelta": {
+          "x": 32,
+          "y": 16
+        },
+        "message": "Moved 20px: 0 pointercancel, 8 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-50PX",
+      "name": "Touch drag continuous past 50px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 50,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 8,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 131,
+          "y": 190
+        },
+        "expectedDelta": {
+          "x": 80.64516129032258,
+          "y": 40.32258064516129
+        },
+        "actualDelta": {
+          "x": 81,
+          "y": 40
+        },
+        "message": "Moved 50px: 0 pointercancel, 8 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-100PX",
+      "name": "Touch drag continuous past 100px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 100,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 10,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 211,
+          "y": 231
+        },
+        "expectedDelta": {
+          "x": 161.29032258064515,
+          "y": 80.64516129032258
+        },
+        "actualDelta": {
+          "x": 161,
+          "y": 81
+        },
+        "message": "Moved 100px: 0 pointercancel, 10 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-200PX",
+      "name": "Touch drag continuous past 200px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 200,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 20,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 373,
+          "y": 311
+        },
+        "expectedDelta": {
+          "x": 322.5806451612903,
+          "y": 161.29032258064515
+        },
+        "actualDelta": {
+          "x": 323,
+          "y": 161
+        },
+        "message": "Moved 200px: 0 pointercancel, 20 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-300PX",
+      "name": "Touch drag continuous past 300px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 300,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 30,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 455,
+          "y": 392
+        },
+        "expectedDelta": {
+          "x": 405,
+          "y": 241.93548387096774
+        },
+        "actualDelta": {
+          "x": 405,
+          "y": 242
+        },
+        "message": "Moved 300px: 0 pointercancel, 30 pointermoves, delta exact"
+      }
+    }
+  ],
+  "objectTypeMatrix": [
+    {
+      "id": "OBJ-SHAPE-DRAG",
+      "name": "Rectangle shape dragged continuously with touch (0 pointercancel)",
+      "status": "PASS",
+      "details": {
+        "finalPos": {
+          "x": 189,
+          "y": 265
+        },
+        "cancelCount": 0,
+        "message": "Shape moved successfully without cancel"
+      }
+    },
+    {
+      "id": "OBJ-RESIZE-TOUCH",
+      "name": "Resize handle dragged continuously with touch (0 pointercancel)",
+      "status": "PASS",
+      "details": {
+        "resizedBounds": {
+          "width": 201,
+          "height": 145
+        },
+        "cancelCount": 0,
+        "message": "Resized shape to 201x145"
+      }
+    }
+  ],
+  "viewportMatrix": [
+    {
+      "id": "VP-375",
+      "name": "Continuous touch drag at iPhone SE (375x812)",
+      "status": "PASS",
+      "details": {
+        "viewport": "375x812",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 219,
+          "y": 285
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-390",
+      "name": "Continuous touch drag at iPhone 14 (390x844)",
+      "status": "PASS",
+      "details": {
+        "viewport": "390x844",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 213,
+          "y": 281
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-430",
+      "name": "Continuous touch drag at iPhone Pro Max (430x932)",
+      "status": "PASS",
+      "details": {
+        "viewport": "430x932",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 203,
+          "y": 274
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-768",
+      "name": "Continuous touch drag at iPad / Tablet (768x1024)",
+      "status": "PASS",
+      "details": {
+        "viewport": "768x1024",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 170,
+          "y": 250
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-1440",
+      "name": "Continuous touch drag at Desktop (1440x900)",
+      "status": "PASS",
+      "details": {
+        "viewport": "1440x900",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 170,
+          "y": 250
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    }
+  ],
+  "zoomMatrix": [
+    {
+      "id": "ZOOM-50",
+      "name": "Zoom 50% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 0.5,
+        "expectedPdfDelta": {
+          "x": 120,
+          "y": 80
+        },
+        "actualPdfDelta": {
+          "x": 120,
+          "y": 80
+        },
+        "driftX": 0,
+        "driftY": 0,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.00pt)"
+      }
+    },
+    {
+      "id": "ZOOM-100",
+      "name": "Zoom 100% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 1,
+        "expectedPdfDelta": {
+          "x": 60,
+          "y": 40
+        },
+        "actualPdfDelta": {
+          "x": 60,
+          "y": 40
+        },
+        "driftX": 0,
+        "driftY": 0,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.00pt)"
+      }
+    },
+    {
+      "id": "ZOOM-150",
+      "name": "Zoom 150% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 1.5,
+        "expectedPdfDelta": {
+          "x": 40,
+          "y": 26.666666666666668
+        },
+        "actualPdfDelta": {
+          "x": 40,
+          "y": 27
+        },
+        "driftX": 0,
+        "driftY": 0.33333333333333215,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.33pt)"
+      }
+    }
+  ],
+  "scrollingAndLifecycleMatrix": [
+    {
+      "id": "LIFECYCLE-01-IDLE-SCROLL",
+      "name": "Editor viewport preserves native scrolling when idle (touchAction is not locked)",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "",
+        "message": "Viewport scrolling unlocked when idle"
+      }
+    },
+    {
+      "id": "LIFECYCLE-02-ACTIVE-LOCK",
+      "name": "Viewport touch-action dynamically locked to \"none\" during active object drag",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "none",
+        "message": "Viewport scrolling dynamically locked to prevent compositor pointercancel"
+      }
+    },
+    {
+      "id": "LIFECYCLE-03-RESTORE-SCROLL",
+      "name": "Viewport touch-action restored to allow scrolling upon touch release",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "",
+        "message": "Viewport scrolling unlocked after touch release"
+      }
+    },
+    {
+      "id": "LIFECYCLE-04-STATIC-TOUCH-ACTION",
+      "name": "Interactive objects and selection handles have static touch-action: none",
+      "status": "PASS",
+      "details": {
+        "objectTouchAction": "none",
+        "handleTouchAction": "none",
+        "boxTouchAction": "none",
+        "message": "All interactive targets configured with touch-action: none"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "DIST-20PX",
+      "name": "Touch drag continuous past 20px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 20,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 8,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 82,
+          "y": 166
+        },
+        "expectedDelta": {
+          "x": 32.25806451612903,
+          "y": 16.129032258064516
+        },
+        "actualDelta": {
+          "x": 32,
+          "y": 16
+        },
+        "message": "Moved 20px: 0 pointercancel, 8 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-50PX",
+      "name": "Touch drag continuous past 50px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 50,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 8,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 131,
+          "y": 190
+        },
+        "expectedDelta": {
+          "x": 80.64516129032258,
+          "y": 40.32258064516129
+        },
+        "actualDelta": {
+          "x": 81,
+          "y": 40
+        },
+        "message": "Moved 50px: 0 pointercancel, 8 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-100PX",
+      "name": "Touch drag continuous past 100px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 100,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 10,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 211,
+          "y": 231
+        },
+        "expectedDelta": {
+          "x": 161.29032258064515,
+          "y": 80.64516129032258
+        },
+        "actualDelta": {
+          "x": 161,
+          "y": 81
+        },
+        "message": "Moved 100px: 0 pointercancel, 10 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-200PX",
+      "name": "Touch drag continuous past 200px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 200,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 20,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 373,
+          "y": 311
+        },
+        "expectedDelta": {
+          "x": 322.5806451612903,
+          "y": 161.29032258064515
+        },
+        "actualDelta": {
+          "x": 323,
+          "y": 161
+        },
+        "message": "Moved 200px: 0 pointercancel, 20 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "DIST-300PX",
+      "name": "Touch drag continuous past 300px without pointercancel",
+      "status": "PASS",
+      "details": {
+        "delta": 300,
+        "pointerCancelCount": 0,
+        "pointerMoveCount": 30,
+        "pointerUpCount": 1,
+        "startPos": {
+          "x": 50,
+          "y": 150
+        },
+        "endPos": {
+          "x": 455,
+          "y": 392
+        },
+        "expectedDelta": {
+          "x": 405,
+          "y": 241.93548387096774
+        },
+        "actualDelta": {
+          "x": 405,
+          "y": 242
+        },
+        "message": "Moved 300px: 0 pointercancel, 30 pointermoves, delta exact"
+      }
+    },
+    {
+      "id": "OBJ-SHAPE-DRAG",
+      "name": "Rectangle shape dragged continuously with touch (0 pointercancel)",
+      "status": "PASS",
+      "details": {
+        "finalPos": {
+          "x": 189,
+          "y": 265
+        },
+        "cancelCount": 0,
+        "message": "Shape moved successfully without cancel"
+      }
+    },
+    {
+      "id": "OBJ-RESIZE-TOUCH",
+      "name": "Resize handle dragged continuously with touch (0 pointercancel)",
+      "status": "PASS",
+      "details": {
+        "resizedBounds": {
+          "width": 201,
+          "height": 145
+        },
+        "cancelCount": 0,
+        "message": "Resized shape to 201x145"
+      }
+    },
+    {
+      "id": "VP-375",
+      "name": "Continuous touch drag at iPhone SE (375x812)",
+      "status": "PASS",
+      "details": {
+        "viewport": "375x812",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 219,
+          "y": 285
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-390",
+      "name": "Continuous touch drag at iPhone 14 (390x844)",
+      "status": "PASS",
+      "details": {
+        "viewport": "390x844",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 213,
+          "y": 281
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-430",
+      "name": "Continuous touch drag at iPhone Pro Max (430x932)",
+      "status": "PASS",
+      "details": {
+        "viewport": "430x932",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 203,
+          "y": 274
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-768",
+      "name": "Continuous touch drag at iPad / Tablet (768x1024)",
+      "status": "PASS",
+      "details": {
+        "viewport": "768x1024",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 170,
+          "y": 250
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "VP-1440",
+      "name": "Continuous touch drag at Desktop (1440x900)",
+      "status": "PASS",
+      "details": {
+        "viewport": "1440x900",
+        "cancelCount": 0,
+        "endPos": {
+          "x": 170,
+          "y": 250
+        },
+        "message": "Moved cleanly without pointercancel"
+      }
+    },
+    {
+      "id": "ZOOM-50",
+      "name": "Zoom 50% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 0.5,
+        "expectedPdfDelta": {
+          "x": 120,
+          "y": 80
+        },
+        "actualPdfDelta": {
+          "x": 120,
+          "y": 80
+        },
+        "driftX": 0,
+        "driftY": 0,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.00pt)"
+      }
+    },
+    {
+      "id": "ZOOM-100",
+      "name": "Zoom 100% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 1,
+        "expectedPdfDelta": {
+          "x": 60,
+          "y": 40
+        },
+        "actualPdfDelta": {
+          "x": 60,
+          "y": 40
+        },
+        "driftX": 0,
+        "driftY": 0,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.00pt)"
+      }
+    },
+    {
+      "id": "ZOOM-150",
+      "name": "Zoom 150% scale-compensated drag with zero drift",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "scale": 1.5,
+        "expectedPdfDelta": {
+          "x": 40,
+          "y": 26.666666666666668
+        },
+        "actualPdfDelta": {
+          "x": 40,
+          "y": 27
+        },
+        "driftX": 0,
+        "driftY": 0.33333333333333215,
+        "message": "Zero drift (driftX: 0.00pt, driftY: 0.33pt)"
+      }
+    },
+    {
+      "id": "LIFECYCLE-01-IDLE-SCROLL",
+      "name": "Editor viewport preserves native scrolling when idle (touchAction is not locked)",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "",
+        "message": "Viewport scrolling unlocked when idle"
+      }
+    },
+    {
+      "id": "LIFECYCLE-02-ACTIVE-LOCK",
+      "name": "Viewport touch-action dynamically locked to \"none\" during active object drag",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "none",
+        "message": "Viewport scrolling dynamically locked to prevent compositor pointercancel"
+      }
+    },
+    {
+      "id": "LIFECYCLE-03-RESTORE-SCROLL",
+      "name": "Viewport touch-action restored to allow scrolling upon touch release",
+      "status": "PASS",
+      "details": {
+        "viewportTouchAction": "",
+        "message": "Viewport scrolling unlocked after touch release"
+      }
+    },
+    {
+      "id": "LIFECYCLE-04-STATIC-TOUCH-ACTION",
+      "name": "Interactive objects and selection handles have static touch-action: none",
+      "status": "PASS",
+      "details": {
+        "objectTouchAction": "none",
+        "handleTouchAction": "none",
+        "boxTouchAction": "none",
+        "message": "All interactive targets configured with touch-action: none"
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "filename": "p8a_dist_20px.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_dist_20px.png",
+      "description": "Continuous touch drag at 20px"
+    },
+    {
+      "filename": "p8a_dist_50px.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_dist_50px.png",
+      "description": "Continuous touch drag at 50px"
+    },
+    {
+      "filename": "p8a_dist_100px.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_dist_100px.png",
+      "description": "Continuous touch drag at 100px"
+    },
+    {
+      "filename": "p8a_dist_200px.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_dist_200px.png",
+      "description": "Continuous touch drag at 200px"
+    },
+    {
+      "filename": "p8a_dist_300px.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_dist_300px.png",
+      "description": "Continuous touch drag at 300px"
+    },
+    {
+      "filename": "p8a_shape_drag.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_shape_drag.png",
+      "description": "Shape drag with touch"
+    },
+    {
+      "filename": "p8a_handle_resize.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_handle_resize.png",
+      "description": "Resize handle drag with touch"
+    },
+    {
+      "filename": "p8a_viewport_375.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_viewport_375.png",
+      "description": "Viewport iPhone SE (375x812) touch drag"
+    },
+    {
+      "filename": "p8a_viewport_390.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_viewport_390.png",
+      "description": "Viewport iPhone 14 (390x844) touch drag"
+    },
+    {
+      "filename": "p8a_viewport_430.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_viewport_430.png",
+      "description": "Viewport iPhone Pro Max (430x932) touch drag"
+    },
+    {
+      "filename": "p8a_viewport_768.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_viewport_768.png",
+      "description": "Viewport iPad / Tablet (768x1024) touch drag"
+    },
+    {
+      "filename": "p8a_viewport_1440.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_viewport_1440.png",
+      "description": "Viewport Desktop (1440x900) touch drag"
+    },
+    {
+      "filename": "p8a_zoom_50.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_zoom_50.png",
+      "description": "Zoom Zoom 50% drag"
+    },
+    {
+      "filename": "p8a_zoom_100.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_zoom_100.png",
+      "description": "Zoom Zoom 100% drag"
+    },
+    {
+      "filename": "p8a_zoom_150.png",
+      "path": "C:\\Users\\A\\Desktop\\pdf tool web dev\\qa_screenshots\\phase8a\\p8a_zoom_150.png",
+      "description": "Zoom Zoom 150% drag"
+    }
+  ],
+  "physicalDevice": {
+    "tested": false,
+    "result": "NOT TESTED",
+    "notes": "Physical mobile device testing was NOT performed in this automated CI/CD environment; headless Edge CDP touch emulation was used."
+  }
+}

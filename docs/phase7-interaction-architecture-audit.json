@@ -1,0 +1,329 @@
+{
+  "phase": 7,
+  "phaseName": "PHASE 7 — FORENSIC PDF EDITOR INTERACTION ARCHITECTURE AUDIT",
+  "timestamp": "2026-09-28T09:15:00.000Z",
+  "targetUrl": "http://127.0.0.1:4321/pdf-editor/",
+  "productionUrl": "https://pdfpage.tools/pdf-editor/",
+  "finalVerdict": "ROOT CAUSE IDENTIFIED",
+  "executiveSummary": {
+    "architectureStatus": "understood",
+    "coreVerdict": "ROOT CAUSE IDENTIFIED",
+    "summary": "Forensic audit successfully identified the exact physical and technical mechanisms causing touch drag to stop after 10-20px (Problem A) and the inline editor to feel detached and oversized (Problem B). Both defects stem from fundamental touch lifecycle and CSS layout mismatches, fully demonstrated via live CDP event tracing."
+  },
+  "rootCauseAnalysis": {
+    "problemA": {
+      "issue": "Touch drag / placement movement stops after 10-20px",
+      "mechanism": "Missing touch-action: none on draggable elements and scrollable viewport, coupled with absence of setPointerCapture. When touch movement exceeds the browser's native touch slop (10-15px), the browser interprets the gesture as a container scroll, fires pointercancel on the target element, and ceases dispatching subsequent pointer events to JavaScript. The object freezes mid-flight.",
+      "confidence": "HIGH",
+      "evidence": "CDP touch trace empirically captured pointercancel at +20px delta: Step +10px moved PDF coords (186, 271); Step +20px fired pointercancel@(0,0) on <DIV id='editor-overlay-layer'>; Steps +40px through +300px remained completely frozen at (203, 288) with 0 further pointermove events delivered."
+    },
+    "problemB": {
+      "issue": "Inline text editor feels like a large separate editor rather than in-place PDF editing",
+      "mechanism": "showAnchoredTextPopover constructs a detached 320px wide floating dialog card (85% of mobile screen width) with a rotated beak and separate internal textarea and action buttons, placed 10px below/above the text object. The user is forced to divert attention to an auxiliary card rather than editing directly in-situ. Furthermore, the 320x116px card lacks visualViewport awareness, causing it to be pushed 100% off-screen under mobile software keyboards.",
+      "confidence": "HIGH",
+      "evidence": "DOM audit recorded popover width=320px, height=116px inside 375px mobile viewport. Soft-keyboard simulation (viewport height=420px) positioned popover top=471px, bottom=587px, rendering it 100% off-screen."
+    }
+  },
+  "eventTimelineTrace": [
+    {
+      "step": 1,
+      "event": "pointerdown",
+      "coords": { "x": 153, "y": 387 },
+      "target": "DIV#obj-text-1790566925829",
+      "action": "Interaction mode set to move-object. startPointer recorded. setPointerCapture NOT called. touch-action is auto.",
+      "outcome": "Success"
+    },
+    {
+      "step": 2,
+      "event": "pointermove (+10px)",
+      "coords": { "x": 163, "y": 397 },
+      "target": "DIV#obj-text-1790566925829",
+      "action": "Delta calculated. PDF bounds updated to (186, 271). DOM left updated to 122.7px.",
+      "outcome": "Success (within touch slop)"
+    },
+    {
+      "step": 3,
+      "event": "pointercancel (+20px)",
+      "coords": { "x": 0, "y": 0 },
+      "target": "DIV#editor-overlay-layer",
+      "action": "Browser native gesture engine claims gesture for viewport scrolling. Fires pointercancel. Event stream aborted.",
+      "outcome": "FAILURE: Touch gesture aborted by browser"
+    },
+    {
+      "step": 4,
+      "event": "pointermove (+40px to +300px)",
+      "coords": { "x": 193, "y": 427 },
+      "target": "N/A",
+      "action": "No events delivered to window or DOM. Object position remains frozen at (203, 288).",
+      "outcome": "Frozen / Stalled"
+    }
+  ],
+  "domLayerMap": {
+    "editor-viewport": {
+      "zIndex": "auto",
+      "pointerEvents": "auto",
+      "touchAction": "auto",
+      "position": "relative",
+      "overflow": "auto",
+      "role": "Scrollable root viewport container"
+    },
+    "viewport-scale-container": {
+      "zIndex": "auto",
+      "pointerEvents": "auto",
+      "touchAction": "auto",
+      "position": "static",
+      "overflow": "visible",
+      "role": "Zoom & scale parent wrapper"
+    },
+    "pdf-page-card": {
+      "zIndex": "auto",
+      "pointerEvents": "auto",
+      "touchAction": "auto",
+      "position": "relative",
+      "overflow": "visible",
+      "role": "Single page card boundary (595x842 standard)"
+    },
+    "pdf-render-layer": {
+      "zIndex": "0",
+      "pointerEvents": "none",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "hidden",
+      "role": "Canvas container"
+    },
+    "pdf-canvas": {
+      "zIndex": "auto",
+      "pointerEvents": "auto",
+      "touchAction": "auto",
+      "position": "static",
+      "overflow": "visible",
+      "role": "Raster PDF render surface"
+    },
+    "pdf-text-layer": {
+      "zIndex": "5",
+      "pointerEvents": "none",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "hidden",
+      "role": "PDF.js text selection spans"
+    },
+    "editor-overlay-layer": {
+      "zIndex": "20",
+      "pointerEvents": "none",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "hidden",
+      "role": "Container for user created objects and popovers"
+    },
+    "pdf-form-layer": {
+      "zIndex": "30",
+      "pointerEvents": "none",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "hidden",
+      "role": "Interactive AcroForm inputs"
+    },
+    "selection-bounding-box": {
+      "zIndex": "40",
+      "pointerEvents": "none",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "visible",
+      "role": "Active object selection outline and resize handles"
+    },
+    "existing-text-action-bar": {
+      "zIndex": "40",
+      "pointerEvents": "auto",
+      "touchAction": "manipulation",
+      "position": "absolute",
+      "overflow": "auto",
+      "role": "Dynamic context action bar"
+    },
+    "active-inline-text-popover": {
+      "zIndex": "50",
+      "pointerEvents": "auto",
+      "touchAction": "auto",
+      "position": "absolute",
+      "overflow": "visible",
+      "role": "Detached auxiliary editing dialog"
+    }
+  },
+  "coordinatePipeline": {
+    "systems": [
+      { "id": "client", "name": "Browser Client Viewport", "origin": "Top-Left of window", "units": "CSS px", "source": "e.clientX, e.clientY" },
+      { "id": "viewport", "name": "Editor Viewport", "origin": "Top-Left of #editor-viewport", "units": "CSS px", "source": "client - viewport.getBoundingClientRect()" },
+      { "id": "canvas", "name": "Canvas Coordinate", "origin": "Top-Left of #pdf-canvas", "units": "CSS px", "source": "clientX - canvasRect.left, clientY - canvasRect.top" },
+      { "id": "overlay", "name": "Overlay Coordinate", "origin": "Top-Left of #editor-overlay-layer", "units": "CSS px", "source": "clientX - overlayRect.left, clientY - overlayRect.top" },
+      { "id": "pdf", "name": "PDF Points", "origin": "Bottom-Left of PDF Page (72 DPI)", "units": "Points", "source": "viewport.convertToPdfPoint(cssX, cssY)" },
+      { "id": "visualViewport", "name": "Mobile Visual Viewport", "origin": "Screen viewport under virtual keyboard", "units": "CSS px", "source": "window.visualViewport.offsetTop/Left" }
+    ],
+    "flawIdentified": "During touch drag, deltaX = (e.clientX - startPointer.x) / viewport.scale does not account for viewport scroll drift if pointer capture is missing, and placement preview on touch assumes hover coordinates that do not exist prior to touch contact."
+  },
+  "pointerCaptureAudit": {
+    "apisAvailable": {
+      "setPointerCapture": true,
+      "releasePointerCapture": true,
+      "hasPointerCapture": true
+    },
+    "controllerUsage": {
+      "moveObject": false,
+      "resizeObject": false,
+      "createShape": true,
+      "createForm": true
+    },
+    "finding": "Crucial omission: move-object and resize-object never invoke target.setPointerCapture(e.pointerId). When the finger moves, the browser dispatches pointercancel as soon as touch slop is breached."
+  },
+  "touchActionAudit": {
+    "computedValues": {
+      "#editor-viewport": "auto",
+      "#pdf-canvas": "auto",
+      "#editor-overlay-layer": "auto",
+      ".obj-[data-object-id]": "auto",
+      "[data-handle]": "auto",
+      "#existing-text-action-bar": "manipulation"
+    },
+    "finding": "Draggable objects and handles have touch-action: auto. The browser's default behavior is to take over the gesture for scrolling, triggering pointercancel."
+  },
+  "inlineEditorAudit": {
+    "mountNode": "#editor-overlay-layer",
+    "containingBlock": "#editor-overlay-layer (positioned absolute inside #pdf-page-card)",
+    "dimensions": { "width": 320, "height": 116 },
+    "ratioToMobileViewport": "85.3% of 375px screen width",
+    "keyboardOcclusion": "When software keyboard opens (visualViewport height <= 420px), popover top (471px) is 100% occluded under keyboard",
+    "uxEvaluation": "Fails the in-situ editing mental model. The user is presented with a large modal-like card rather than typing directly inside the text box on the PDF page."
+  },
+  "reproductionMatrix": [
+    {
+      "viewport": "375x812",
+      "inputType": "Touch (mobile emulation)",
+      "gesture": "Touch drag text object across 300px",
+      "result": "Stops at 20px",
+      "failureBoundary": "20px delta",
+      "event": "pointercancel"
+    },
+    {
+      "viewport": "390x844",
+      "inputType": "Touch (mobile emulation)",
+      "gesture": "Touch drag text object across 300px",
+      "result": "Stops at 20px",
+      "failureBoundary": "20px delta",
+      "event": "pointercancel"
+    },
+    {
+      "viewport": "430x932",
+      "inputType": "Touch (mobile emulation)",
+      "gesture": "Touch drag text object across 300px",
+      "result": "Stops at 20px",
+      "failureBoundary": "20px delta",
+      "event": "pointercancel"
+    },
+    {
+      "viewport": "768x1024",
+      "inputType": "Touch (tablet emulation)",
+      "gesture": "Touch drag text object across 300px",
+      "result": "Stops at 20px",
+      "failureBoundary": "20px delta",
+      "event": "pointercancel"
+    },
+    {
+      "viewport": "1440x900",
+      "inputType": "Mouse (desktop)",
+      "gesture": "Mouse drag text object across 300px",
+      "result": "Moves continuously",
+      "failureBoundary": "None (mouse lacks browser touch slop cancellation)",
+      "event": "pointermove"
+    }
+  ],
+  "rootCauseConfidence": [
+    {
+      "factor": "touch-action: auto causing browser gesture pan and pointercancel",
+      "confidence": "HIGH",
+      "evidence": "Recorded pointercancel event at step +20px with coordinates (0, 0) followed by complete cessation of pointermove events."
+    },
+    {
+      "factor": "Absence of setPointerCapture on move-object and resize-object",
+      "confidence": "HIGH",
+      "evidence": "Code inspection of editorInteractionController.ts confirms lines 490-501 and 572-580 lack setPointerCapture."
+    },
+    {
+      "factor": "showAnchoredTextPopover 320px fixed dialog card architecture",
+      "confidence": "HIGH",
+      "evidence": "Computed DOM geometry confirms 320px card width, 116px height, and complete off-screen keyboard occlusion at height=420px."
+    },
+    {
+      "factor": "Text placement preview coupling to mouse hover without touch consideration",
+      "confidence": "HIGH",
+      "evidence": "Code inspection confirms pointerdown immediately creates inline editor without supporting touch drag placement."
+    }
+  ],
+  "recommendedFixArchitecture": {
+    "phase": "Phase 8",
+    "recommendations": [
+      {
+        "id": "REC-01",
+        "title": "Set touch-action: none on all interactive drag surfaces and objects",
+        "detail": "Apply touch-action: none to [data-object-id], [data-handle], #selection-bounding-box, and conditionally to #editor-viewport while isInteracting is active to prevent browser gesture cancellation."
+      },
+      {
+        "id": "REC-02",
+        "title": "Enforce pointer capture in move-object and resize-object",
+        "detail": "Call target.setPointerCapture(e.pointerId) in handlePointerDown for move-object and resize-object, and release in handlePointerUp or pointercancel."
+      },
+      {
+        "id": "REC-03",
+        "title": "Handle pointercancel gracefully",
+        "detail": "Register pointercancel listener on window and target elements to commit or revert state if the operating system interrupts the gesture."
+      },
+      {
+        "id": "REC-04",
+        "title": "True In-Situ Direct Text Editing Architecture",
+        "detail": "Deprecate the detached 320px floating card. Replace with a lightweight in-place contentEditable box positioned directly over the text object at its exact canvas bounds, with a compact floating action pill (Save/Cancel check/cross) anchored cleanly to the top or bottom edge."
+      },
+      {
+        "id": "REC-05",
+        "title": "visualViewport & Software Keyboard Awareness",
+        "detail": "Subscribe to window.visualViewport resize and scroll events to scroll the active inline editor into view above the virtual keyboard."
+      }
+    ]
+  },
+  "skillsAudit": {
+    "used": [
+      {
+        "skill": "browser-visual-qa",
+        "path": ".agents/skills/browser-visual-qa/SKILL.md",
+        "instruction": "Browser-first verification workflow: Implement -> Run -> Open in Chrome -> Inspect -> Compare -> Fix -> Retest -> Final verify",
+        "evidence": "Automated Edge headless browser launched via CDP to execute controlled touch drag sequences and DOM geometry inspections."
+      },
+      {
+        "skill": "playwright-cli",
+        "path": ".agents/skills/playwright-cli/SKILL.md",
+        "instruction": "Browser automation and element inspection via CDP session commands",
+        "evidence": "Used CDP Input.dispatchTouchEvent and Input.dispatchPointerEvent to reproduce real touch gestures."
+      },
+      {
+        "skill": "web-accessibility",
+        "path": ".agents/skills/web-accessibility/SKILL.md",
+        "instruction": "Touch targets, pointer events, and WCAG 2.5.1 pointer gestures",
+        "evidence": "Inspected touch-action, pointer-events, target sizes, and gesture cancellations."
+      },
+      {
+        "skill": "ui-ux-pro-max",
+        "path": ".agents/skills/ui-ux-pro-max/SKILL.md",
+        "instruction": "Contextual inline editing mental model vs modal/detached popovers",
+        "evidence": "Analyzed cognitive load and spatial detachment of the 320px popover vs in-situ inline editing."
+      }
+    ],
+    "availableButNotUsed": [
+      {
+        "skill": "a11y-debugging",
+        "path": "C:\\Users\\A\\.gemini\\config\\plugins\\chrome-devtools-plugin\\skills\\a11y-debugging\\SKILL.md",
+        "reason": "Used web-accessibility project skill which had the direct pointer gesture and touch target specifications."
+      },
+      {
+        "skill": "memory-leak-debugging",
+        "path": "C:\\Users\\A\\.gemini\\config\\plugins\\chrome-devtools-plugin\\skills\\memory-leak-debugging\\SKILL.md",
+        "reason": "Task was an interaction architecture and touch event audit, not a memory leak investigation."
+      }
+    ]
+  }
+}

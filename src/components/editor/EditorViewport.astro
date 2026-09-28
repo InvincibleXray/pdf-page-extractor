@@ -42,17 +42,18 @@
       <!-- LAYER 5: Selection Bounding Box & Transform Handles (Single active selection box) -->
       <div
         id="selection-bounding-box"
-        class="hidden absolute border-2 border-brand-500 pointer-events-none z-40 transition-all duration-75"
+        class="hidden absolute border-2 border-brand-500 pointer-events-none z-40 transition-all duration-75 touch-none"
+        style="touch-action: none;"
       >
         <!-- Corner Handles -->
-        <div data-handle="nw" class="handle-nw absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize"></div>
-        <div data-handle="ne" class="handle-ne absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize"></div>
-        <div data-handle="se" class="handle-se absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize"></div>
-        <div data-handle="sw" class="handle-sw absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize"></div>
+        <div data-handle="nw" class="handle-nw absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize touch-none" style="touch-action: none;"></div>
+        <div data-handle="ne" class="handle-ne absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize touch-none" style="touch-action: none;"></div>
+        <div data-handle="se" class="handle-se absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nwse-resize touch-none" style="touch-action: none;"></div>
+        <div data-handle="sw" class="handle-sw absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-brand-500 rounded-xs shadow-xs pointer-events-auto cursor-nesw-resize touch-none" style="touch-action: none;"></div>
 
         <!-- Rotation Stem & Handle -->
-        <div class="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto cursor-grab">
-          <div class="w-3 h-3 rounded-full bg-white border-2 border-brand-500 shadow-xs"></div>
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto cursor-grab touch-none" style="touch-action: none;">
+          <div class="w-3 h-3 rounded-full bg-white border-2 border-brand-500 shadow-xs touch-none" style="touch-action: none;"></div>
           <div class="w-0.5 h-3 bg-brand-500"></div>
         </div>
       </div>

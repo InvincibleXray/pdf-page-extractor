@@ -268,7 +268,8 @@ export class PdfFormOverlayManager {
     const isSelected = isAuthorMode && formStore.getSelectedWidgetId() === widget.widgetId;
 
     if (isAuthorMode) {
-      wrapper.classList.add(isSelected ? 'cursor-move' : 'cursor-pointer');
+      wrapper.classList.add(isSelected ? 'cursor-move' : 'cursor-pointer', 'touch-none');
+      wrapper.style.touchAction = 'none';
       if (isSelected) {
         wrapper.classList.add('ring-2', 'ring-brand-500', 'bg-brand-500/10', 'z-30');
       } else {
@@ -550,7 +551,8 @@ export class PdfFormOverlayManager {
       };
       for (const h of handles) {
         const handleEl = document.createElement('div');
-        handleEl.className = `absolute w-2.5 h-2.5 bg-white dark:bg-slate-900 border-2 border-brand-500 rounded-xs shadow-xs z-40 ${cursorClasses[h]}`;
+        handleEl.className = `absolute w-2.5 h-2.5 bg-white dark:bg-slate-900 border-2 border-brand-500 rounded-xs shadow-xs z-40 touch-none ${cursorClasses[h]}`;
+        handleEl.style.touchAction = 'none';
         handleEl.setAttribute('data-form-handle', h);
         wrapper.appendChild(handleEl);
       }

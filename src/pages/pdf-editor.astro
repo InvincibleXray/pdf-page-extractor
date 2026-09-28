@@ -1577,9 +1577,10 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
       const el = document.createElement('div');
       el.id = `obj-${obj.id}`;
       el.setAttribute('data-object-id', obj.id);
-      el.className = `absolute cursor-pointer transition-shadow select-none pointer-events-auto ${
+      el.className = `absolute cursor-pointer transition-shadow select-none pointer-events-auto touch-none ${
         isSelected ? 'ring-2 ring-brand-500' : 'hover:ring-1 hover:ring-brand-300'
       }`;
+      el.style.touchAction = 'none';
 
       if (viewport) {
         const screenRect = pdfRectToScreenRect(obj, viewport);
@@ -2015,6 +2016,9 @@ import EditorMobileSheets from '../components/editor/EditorMobileSheets.astro';
         });
         if (viewport) {
           currentRenderViewport = viewport;
+          try {
+            (window as any).__PDF_VIEWPORT__ = viewport;
+          } catch (e) {}
           interactionController.setViewport(viewport);
 
           if (pdfCard) {

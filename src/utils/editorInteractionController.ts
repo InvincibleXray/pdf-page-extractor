@@ -47,10 +47,16 @@ export class EditorInteractionController {
   private lastClickObjectId: string | null = null;
   private lastClickTime = 0;
 
+  // Touch foundation & pointer capture state
+  private activePointerId: number | null = null;
+  private capturedPointerTarget: HTMLElement | null = null;
+  private startScroll = { left: 0, top: 0 };
+
   // Bound event listeners
   private boundPointerDown: (e: PointerEvent) => void;
   private boundPointerMove: (e: PointerEvent) => void;
   private boundPointerUp: (e: PointerEvent) => void;
+  private boundPointerCancel: (e: PointerEvent) => void;
   private boundKeyDown: (e: KeyboardEvent) => void;
   private boundDblClick: (e: MouseEvent) => void;
   private boundTextLayerPointerDown: (e: PointerEvent) => void;
@@ -59,6 +65,7 @@ export class EditorInteractionController {
     this.boundPointerDown = this.handlePointerDown.bind(this);
     this.boundPointerMove = this.handlePointerMove.bind(this);
     this.boundPointerUp = this.handlePointerUp.bind(this);
+    this.boundPointerCancel = this.handlePointerCancel.bind(this);
     this.boundKeyDown = this.handleKeyDown.bind(this);
     this.boundDblClick = this.handleDblClick.bind(this);
     this.boundTextLayerPointerDown = this.handleTextLayerPointerDown.bind(this);
@@ -168,6 +175,7 @@ export class EditorInteractionController {
 
     window.addEventListener('pointermove', this.boundPointerMove);
     window.addEventListener('pointerup', this.boundPointerUp);
+    window.addEventListener('pointercancel', this.boundPointerCancel);
     window.addEventListener('keydown', this.boundKeyDown);
   }
 
@@ -195,11 +203,64 @@ export class EditorInteractionController {
     }
     window.removeEventListener('pointermove', this.boundPointerMove);
     window.removeEventListener('pointerup', this.boundPointerUp);
+    window.removeEventListener('pointercancel', this.boundPointerCancel);
     window.removeEventListener('keydown', this.boundKeyDown);
+    this.releaseActivePointerCapture();
+    this.lockViewportScrolling(false);
     this.cleanupInlineEditor();
     this.cleanupGhost();
     this.hideTextPlacementPreview();
     this.hideExistingTextActionBar();
+  }
+
+  private lockViewportScrolling(lock: boolean): void {
+    const vp = document.getElementById('editor-viewport');
+    if (!vp) return;
+    if (lock) {
+      vp.style.touchAction = 'none';
+    } else {
+      vp.style.touchAction = '';
+    }
+  }
+
+  private acquirePointerCapture(target: HTMLElement | null, pointerId: number): void {
+    if (!target) return;
+    try {
+      target.setPointerCapture(pointerId);
+      this.activePointerId = pointerId;
+      this.capturedPointerTarget = target;
+    } catch (err) {}
+  }
+
+  private releaseActivePointerCapture(): void {
+    if (this.activePointerId !== null && this.capturedPointerTarget) {
+      try {
+        if (this.capturedPointerTarget.hasPointerCapture(this.activePointerId)) {
+          this.capturedPointerTarget.releasePointerCapture(this.activePointerId);
+        }
+      } catch (err) {}
+    }
+    this.activePointerId = null;
+    this.capturedPointerTarget = null;
+  }
+
+  private handlePointerCancel(e: PointerEvent): void {
+    if (this.isInteracting) {
+      if (
+        this.interactionMode === 'create-shape' ||
+        this.interactionMode === 'draw-pen' ||
+        this.interactionMode === 'create-form'
+      ) {
+        this.cleanupGhost();
+        this.penPoints = [];
+      }
+      this.releaseActivePointerCapture();
+      this.lockViewportScrolling(false);
+      this.setActionBarInteractivity(true);
+      this.isInteracting = false;
+      this.interactionMode = 'idle';
+      this.activeResizeHandle = null;
+    }
   }
 
   public setViewport(viewport: PageViewport): void {
@@ -473,6 +534,13 @@ export class EditorInteractionController {
       if (widget && handle) {
         e.preventDefault();
         e.stopPropagation();
+        const viewportEl = document.getElementById('editor-viewport');
+        this.startScroll = {
+          left: viewportEl ? viewportEl.scrollLeft : 0,
+          top: viewportEl ? viewportEl.scrollTop : 0,
+        };
+        this.lockViewportScrolling(true);
+        this.acquirePointerCapture(target, e.pointerId);
         this.isInteracting = true;
         this.interactionMode = 'resize-form';
         this.activeResizeHandle = handle;
@@ -490,6 +558,13 @@ export class EditorInteractionController {
       if (selected && handle) {
         e.preventDefault();
         e.stopPropagation();
+        const viewportEl = document.getElementById('editor-viewport');
+        this.startScroll = {
+          left: viewportEl ? viewportEl.scrollLeft : 0,
+          top: viewportEl ? viewportEl.scrollTop : 0,
+        };
+        this.lockViewportScrolling(true);
+        this.acquirePointerCapture(target, e.pointerId);
         this.isInteracting = true;
         this.interactionMode = 'resize-object';
         this.activeResizeHandle = handle;
@@ -513,6 +588,13 @@ export class EditorInteractionController {
         formStore.selectWidget(widgetId);
         const widget = formStore.getWidget(widgetId);
         if (widget) {
+          const viewportEl = document.getElementById('editor-viewport');
+          this.startScroll = {
+            left: viewportEl ? viewportEl.scrollLeft : 0,
+            top: viewportEl ? viewportEl.scrollTop : 0,
+          };
+          this.lockViewportScrolling(true);
+          this.acquirePointerCapture(target, e.pointerId);
           this.isInteracting = true;
           this.interactionMode = 'move-form';
           this.startPointer = { x: e.clientX, y: e.clientY };
@@ -570,6 +652,13 @@ export class EditorInteractionController {
             this.hideExistingTextActionBar();
           }
           e.preventDefault();
+          const viewportEl = document.getElementById('editor-viewport');
+          this.startScroll = {
+            left: viewportEl ? viewportEl.scrollLeft : 0,
+            top: viewportEl ? viewportEl.scrollTop : 0,
+          };
+          this.lockViewportScrolling(true);
+          this.acquirePointerCapture(target, e.pointerId);
           this.isInteracting = true;
           this.interactionMode = 'move-object';
           this.startPointer = { x: e.clientX, y: e.clientY };
@@ -583,6 +672,13 @@ export class EditorInteractionController {
     // Form authoring drag-to-create tools
     if (activeTool.startsWith('form-')) {
       e.preventDefault();
+      const viewportEl = document.getElementById('editor-viewport');
+      this.startScroll = {
+        left: viewportEl ? viewportEl.scrollLeft : 0,
+        top: viewportEl ? viewportEl.scrollTop : 0,
+      };
+      this.lockViewportScrolling(true);
+      this.acquirePointerCapture(target, e.pointerId);
       this.isInteracting = true;
       this.interactionMode = 'create-form';
       const canvasRect = this.canvasEl.getBoundingClientRect();
@@ -591,9 +687,6 @@ export class EditorInteractionController {
         y: e.clientY - canvasRect.top,
       };
       this.initGhost(activeTool);
-      try {
-        target.setPointerCapture?.(e.pointerId);
-      } catch (err) {}
       return;
     }
 
@@ -625,6 +718,13 @@ export class EditorInteractionController {
       activeTool === 'strikethrough'
     ) {
       e.preventDefault();
+      const viewportEl = document.getElementById('editor-viewport');
+      this.startScroll = {
+        left: viewportEl ? viewportEl.scrollLeft : 0,
+        top: viewportEl ? viewportEl.scrollTop : 0,
+      };
+      this.lockViewportScrolling(true);
+      this.acquirePointerCapture(target, e.pointerId);
       this.isInteracting = true;
       this.interactionMode = 'create-shape';
       const canvasRect = this.canvasEl.getBoundingClientRect();
@@ -633,15 +733,19 @@ export class EditorInteractionController {
         y: e.clientY - canvasRect.top,
       };
       this.initGhost(activeTool);
-      try {
-        target.setPointerCapture?.(e.pointerId);
-      } catch (err) {}
       return;
     }
 
     // Pen tool: freehand drawing
     if (activeTool === 'pen') {
       e.preventDefault();
+      const viewportEl = document.getElementById('editor-viewport');
+      this.startScroll = {
+        left: viewportEl ? viewportEl.scrollLeft : 0,
+        top: viewportEl ? viewportEl.scrollTop : 0,
+      };
+      this.lockViewportScrolling(true);
+      this.acquirePointerCapture(target, e.pointerId);
       this.isInteracting = true;
       this.interactionMode = 'draw-pen';
       const canvasRect = this.canvasEl.getBoundingClientRect();
@@ -712,9 +816,15 @@ export class EditorInteractionController {
       const selWidgetId = formStore.getSelectedWidgetId();
       if (!selWidgetId) return;
 
-      const deltaPdfX = (e.clientX - this.startPointer.x) / this.viewport.scale;
+      const viewportEl = document.getElementById('editor-viewport');
+      const currentScrollLeft = viewportEl ? viewportEl.scrollLeft : 0;
+      const currentScrollTop = viewportEl ? viewportEl.scrollTop : 0;
+      const scrollDeltaX = currentScrollLeft - this.startScroll.left;
+      const scrollDeltaY = currentScrollTop - this.startScroll.top;
+
+      const deltaPdfX = (e.clientX - this.startPointer.x + scrollDeltaX) / this.viewport.scale;
       // In PDF coordinates (bottom-left origin), screen Y moving down (positive) means PDF Y decreases
-      const deltaPdfY = -(e.clientY - this.startPointer.y) / this.viewport.scale;
+      const deltaPdfY = -(e.clientY - this.startPointer.y + scrollDeltaY) / this.viewport.scale;
 
       const pageDims = this.getPageDimensions();
       const origW = this.startFormBounds[2] - this.startFormBounds[0];
@@ -737,8 +847,14 @@ export class EditorInteractionController {
       const selWidgetId = formStore.getSelectedWidgetId();
       if (!selWidgetId) return;
 
-      const deltaPdfX = (e.clientX - this.startPointer.x) / this.viewport.scale;
-      const deltaPdfY = -(e.clientY - this.startPointer.y) / this.viewport.scale;
+      const viewportEl = document.getElementById('editor-viewport');
+      const currentScrollLeft = viewportEl ? viewportEl.scrollLeft : 0;
+      const currentScrollTop = viewportEl ? viewportEl.scrollTop : 0;
+      const scrollDeltaX = currentScrollLeft - this.startScroll.left;
+      const scrollDeltaY = currentScrollTop - this.startScroll.top;
+
+      const deltaPdfX = (e.clientX - this.startPointer.x + scrollDeltaX) / this.viewport.scale;
+      const deltaPdfY = -(e.clientY - this.startPointer.y + scrollDeltaY) / this.viewport.scale;
 
       let newX1 = this.startFormBounds[0];
       let newY1 = this.startFormBounds[1];
@@ -767,8 +883,14 @@ export class EditorInteractionController {
     }
 
     if (this.interactionMode === 'move-object') {
-      const deltaX = (e.clientX - this.startPointer.x) / this.viewport.scale;
-      const deltaY = (e.clientY - this.startPointer.y) / this.viewport.scale;
+      const viewportEl = document.getElementById('editor-viewport');
+      const currentScrollLeft = viewportEl ? viewportEl.scrollLeft : 0;
+      const currentScrollTop = viewportEl ? viewportEl.scrollTop : 0;
+      const scrollDeltaX = currentScrollLeft - this.startScroll.left;
+      const scrollDeltaY = currentScrollTop - this.startScroll.top;
+
+      const deltaX = (e.clientX - this.startPointer.x + scrollDeltaX) / this.viewport.scale;
+      const deltaY = (e.clientY - this.startPointer.y + scrollDeltaY) / this.viewport.scale;
 
       const pageDims = this.getPageDimensions();
       const newX = Math.max(0, Math.min(this.startObjectBounds.x + deltaX, pageDims.width - this.startObjectBounds.width));
@@ -780,8 +902,14 @@ export class EditorInteractionController {
     }
 
     if (this.interactionMode === 'resize-object' && this.activeResizeHandle) {
-      const deltaX = (e.clientX - this.startPointer.x) / this.viewport.scale;
-      const deltaY = (e.clientY - this.startPointer.y) / this.viewport.scale;
+      const viewportEl = document.getElementById('editor-viewport');
+      const currentScrollLeft = viewportEl ? viewportEl.scrollLeft : 0;
+      const currentScrollTop = viewportEl ? viewportEl.scrollTop : 0;
+      const scrollDeltaX = currentScrollLeft - this.startScroll.left;
+      const scrollDeltaY = currentScrollTop - this.startScroll.top;
+
+      const deltaX = (e.clientX - this.startPointer.x + scrollDeltaX) / this.viewport.scale;
+      const deltaY = (e.clientY - this.startPointer.y + scrollDeltaY) / this.viewport.scale;
 
       let newX = this.startObjectBounds.x;
       let newY = this.startObjectBounds.y;
@@ -824,6 +952,8 @@ export class EditorInteractionController {
 
   private handlePointerUp(e: PointerEvent): void {
     if (!this.isInteracting || !this.overlayEl || !this.canvasEl || !this.viewport) {
+      this.releaseActivePointerCapture();
+      this.lockViewportScrolling(false);
       this.isInteracting = false;
       this.interactionMode = 'idle';
       return;
@@ -1068,6 +1198,8 @@ export class EditorInteractionController {
       }
     }
 
+    this.releaseActivePointerCapture();
+    this.lockViewportScrolling(false);
     this.setActionBarInteractivity(true);
     this.isInteracting = false;
     this.interactionMode = 'idle';
