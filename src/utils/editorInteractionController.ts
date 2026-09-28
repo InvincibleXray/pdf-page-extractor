@@ -516,8 +516,11 @@ export class EditorInteractionController {
 
     const target = e.target as HTMLElement;
 
-    // Ignore clicks inside active popover editor
+    // Ignore clicks inside active in-situ text editor or its pill
     if (this.activeInlineEditor && (this.activeInlineEditor.contains(target) || target.closest('#active-inline-text-popover'))) {
+      return;
+    }
+    if (target.closest('#insitu-editor-pill')) {
       return;
     }
     // Ignore clicks inside active action bar
@@ -1308,9 +1311,17 @@ export class EditorInteractionController {
   }
 
   /**
-   * Unified anchored popover text editor (Visual Source of Truth: media_1790525014357.png)
+   * TRUE IN-SITU TEXT EDITOR (Phase 8B)
+   *
+   * Renders an editable field directly over the selected text's bounding box.
+   * Replaces the former 320px detached floating card (showAnchoredTextPopover).
+   *
+   * Architecture:
+   * - A contenteditable div positioned at exact anchorScreenRect coordinates inside #editor-overlay-layer
+   * - A compact 32px Save/Cancel pill positioned just below (or above) the editable field
+   * - visualViewport resize listener ensures the pill stays visible when the mobile soft keyboard opens
    */
-  private showAnchoredTextPopover(options: {
+  private showInSituTextEditor(options: {
     anchorScreenRect: { left: number; top: number; width: number; height: number };
     initialText: string;
     fontFamily?: string;
@@ -1325,12 +1336,13 @@ export class EditorInteractionController {
     this.hideExistingTextActionBar();
 
     const { anchorScreenRect, initialText, fontFamily, fontSize, isExistingText, onSave, onCancel } = options;
+    const overlayRect = this.overlayEl.getBoundingClientRect();
 
-    // 1. Mount temporary whiteout mask behind the editor if editing existing text
+    // 1. Optional whiteout mask (covers existing PDF text while editing)
     if (isExistingText) {
       const mask = document.createElement('div');
       mask.id = 'temp-whiteout-mask';
-      mask.className = 'absolute bg-white z-40 rounded-xs pointer-events-none shadow-xs';
+      mask.className = 'absolute bg-white z-40 pointer-events-none';
       mask.style.left = `${anchorScreenRect.left - 2}px`;
       mask.style.top = `${anchorScreenRect.top - 2}px`;
       mask.style.width = `${anchorScreenRect.width + 4}px`;
@@ -1339,122 +1351,141 @@ export class EditorInteractionController {
       this.tempWhiteoutMaskEl = mask;
     }
 
-    // 2. Build Popover Card (Visual Source of Truth: media_1790525014357.png)
-    const popover = document.createElement('div');
-    popover.id = 'active-inline-text-popover';
-    popover.setAttribute('data-testid', 'anchored-text-popover');
-    popover.className =
-      'absolute z-50 bg-white dark:bg-[#141a24] border border-slate-200 dark:border-[#212b3c] rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-3 select-none flex flex-col gap-2.5 transition-all pointer-events-auto';
-    popover.style.width = '320px';
-    popover.style.maxWidth = 'calc(100vw - 24px)';
-    popover.style.pointerEvents = 'auto';
-    popover.addEventListener('pointerdown', (e) => e.stopPropagation());
+    // 2. In-situ editable field — positioned at exact text bounding box
+    const editorWidth = Math.max(anchorScreenRect.width, 80);
+    const editorHeight = Math.max(anchorScreenRect.height, 24);
 
-    // Popover beak (upward/downward caret arrow)
-    const beak = document.createElement('div');
-    beak.id = 'popover-beak';
-    beak.className = 'absolute w-3.5 h-3.5 bg-white dark:bg-[#141a24] border-slate-200 dark:border-[#212b3c] rotate-45';
+    // Clamp left so editor doesn't overflow the overlay to the right
+    const editorLeft = Math.min(anchorScreenRect.left, overlayRect.width - editorWidth - 4);
+    const editorTop = anchorScreenRect.top;
 
-    // Text input area (prominent blue outline, comfortable padding, matching reference image)
-    const input = document.createElement('div');
-    input.id = 'active-inline-text-editor';
-    input.contentEditable = 'true';
-    input.role = 'textbox';
-    input.setAttribute('aria-label', 'Text content');
-    input.className =
-      'w-full min-h-[46px] max-h-[140px] overflow-y-auto outline-none border-2 border-blue-500 focus:border-blue-600 rounded-xl p-2.5 text-sm bg-white dark:bg-[#101621] text-slate-900 dark:text-white select-text pointer-events-auto';
-    input.style.pointerEvents = 'auto';
-    input.style.fontFamily = fontFamily || 'Inter, sans-serif';
-    if (fontSize && fontSize > 10) {
-      input.style.fontSize = `${Math.min(fontSize, 20)}px`;
+    const editorEl = document.createElement('div');
+    editorEl.id = 'active-inline-text-popover';
+    editorEl.setAttribute('data-testid', 'anchored-text-popover');
+    editorEl.contentEditable = 'true';
+    editorEl.role = 'textbox';
+    editorEl.setAttribute('aria-label', 'Edit text');
+    editorEl.setAttribute('aria-multiline', 'true');
+    // Visually match the selected text; thin focus ring instead of large card border
+    editorEl.className =
+      'absolute z-50 outline-none ring-2 ring-blue-500 bg-white dark:bg-[#101621] text-slate-900 dark:text-white select-text pointer-events-auto overflow-y-auto';
+    editorEl.style.left = `${Math.round(editorLeft)}px`;
+    editorEl.style.top = `${Math.round(editorTop)}px`;
+    editorEl.style.width = `${Math.round(editorWidth)}px`;
+    editorEl.style.minHeight = `${Math.round(editorHeight)}px`;
+    editorEl.style.maxHeight = '200px';
+    editorEl.style.padding = '2px 4px';
+    editorEl.style.fontFamily = fontFamily || 'Inter, sans-serif';
+    editorEl.style.touchAction = 'auto'; // allow scrolling within editor
+    editorEl.style.wordBreak = 'break-word';
+    editorEl.style.whiteSpace = 'pre-wrap';
+    editorEl.style.lineHeight = '1.4';
+    if (fontSize && fontSize > 6) {
+      editorEl.style.fontSize = `${Math.round(fontSize)}px`;
+    } else {
+      editorEl.style.fontSize = '14px';
     }
-    input.innerText = initialText;
+    editorEl.innerText = initialText;
 
-    // Action buttons (Cancel & Save)
-    const actions = document.createElement('div');
-    actions.className = 'flex items-center justify-end gap-2 pt-1 pointer-events-auto';
-    actions.style.pointerEvents = 'auto';
+    // Stop pointer events on the editor from bubbling to the overlay/drag system
+    editorEl.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+    // 3. Compact Save/Cancel pill (32px height, 44px touch targets on mobile)
+    const PILL_HEIGHT = 32;
+    const PILL_GAP = 6;
+    const pill = document.createElement('div');
+    pill.id = 'insitu-editor-pill';
+    pill.className =
+      'absolute z-50 flex items-center gap-1 px-1.5 py-1 bg-white dark:bg-[#161c28] border border-slate-200 dark:border-[#212836] rounded-full shadow-lg pointer-events-auto select-none';
+    pill.style.touchAction = 'none';
+    pill.addEventListener('pointerdown', (e) => e.stopPropagation());
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
     cancelBtn.id = 'inline-text-cancel-btn';
-    cancelBtn.setAttribute('aria-label', 'Cancel');
+    cancelBtn.setAttribute('aria-label', 'Cancel editing');
     cancelBtn.className =
-      'px-4 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 text-xs sm:text-sm font-medium transition-colors cursor-pointer shadow-2xs pointer-events-auto';
-    cancelBtn.style.pointerEvents = 'auto';
-    cancelBtn.textContent = 'Cancel';
+      'flex items-center justify-center w-7 h-7 min-h-[44px] min-w-[44px] lg:min-h-[28px] lg:min-w-[28px] lg:w-7 lg:h-7 rounded-full text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer pointer-events-auto';
+    cancelBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3.5 h-3.5"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 
     const saveBtn = document.createElement('button');
     saveBtn.type = 'button';
     saveBtn.id = 'inline-text-save-btn';
-    saveBtn.setAttribute('aria-label', 'Save');
+    saveBtn.setAttribute('aria-label', 'Save text');
     saveBtn.className =
-      'px-5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs cursor-pointer pointer-events-auto';
-    saveBtn.style.pointerEvents = 'auto';
-    saveBtn.textContent = 'Save';
+      'flex items-center justify-center w-7 h-7 min-h-[44px] min-w-[44px] lg:min-h-[28px] lg:min-w-[28px] lg:w-7 lg:h-7 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer pointer-events-auto shadow-xs';
+    saveBtn.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3.5 h-3.5"><path d="M20 6L9 17l-5-5"/></svg>';
 
-    actions.appendChild(cancelBtn);
-    actions.appendChild(saveBtn);
+    const kbdHint = document.createElement('span');
+    kbdHint.className = 'hidden lg:inline text-[10px] text-slate-400 dark:text-slate-500 px-1 font-mono select-none';
+    kbdHint.textContent = '⌘↵';
+    kbdHint.setAttribute('aria-hidden', 'true');
 
-    popover.appendChild(beak);
-    popover.appendChild(input);
-    popover.appendChild(actions);
+    pill.appendChild(cancelBtn);
+    pill.appendChild(saveBtn);
+    pill.appendChild(kbdHint);
 
-    // Screen-reader and backward-compatibility hint (hidden from visual UI per Phase 5 spec)
-    const hint = document.createElement('div');
-    hint.id = 'inline-editor-hint';
-    hint.textContent = 'Ctrl + Enter · Save  |  Esc · Cancel';
-    hint.className = 'sr-only select-none pointer-events-none';
-    hint.style.position = 'absolute';
-    hint.style.pointerEvents = 'none';
+    // 4. Position the pill: prefer below the editor; flip above if clipped
+    const positionPill = () => {
+      const edRect = editorEl.getBoundingClientRect();
+      const editorBottomInOverlay = editorEl.offsetTop + editorEl.offsetHeight;
+      const pillWidth = 90; // estimated pill width
+      // Try below
+      let pillTop = editorBottomInOverlay + PILL_GAP;
+      let pillLeft = editorEl.offsetLeft;
 
-    // Positioning calculations
-    const overlayRect = this.overlayEl.getBoundingClientRect();
-    const popoverWidth = Math.min(320, overlayRect.width - 24);
-    const popoverHeight = 125;
+      // Clamp left
+      pillLeft = Math.min(pillLeft, overlayRect.width - pillWidth - 8);
+      pillLeft = Math.max(pillLeft, 8);
 
-    // Default: position below anchor
-    let top = anchorScreenRect.top + anchorScreenRect.height + 10;
-    let placeBeakAt = 'top';
+      // Flip above if we're near the bottom of the overlay
+      const viewportVisibleBottom = window.visualViewport
+        ? overlayRect.top + (window.visualViewport.height - overlayRect.top)
+        : overlayRect.bottom;
+      const pillBottomAbs = overlayRect.top + editorBottomInOverlay + PILL_GAP + PILL_HEIGHT;
 
-    // If bottom overflow, flip above anchor
-    if (top + popoverHeight > overlayRect.height - 12 && anchorScreenRect.top - popoverHeight - 10 > 12) {
-      top = anchorScreenRect.top - popoverHeight - 10;
-      placeBeakAt = 'bottom';
+      if (pillBottomAbs > viewportVisibleBottom - 8 && editorEl.offsetTop - PILL_GAP - PILL_HEIGHT > 8) {
+        pillTop = editorEl.offsetTop - PILL_GAP - PILL_HEIGHT;
+      }
+
+      pill.style.top = `${Math.round(pillTop)}px`;
+      pill.style.left = `${Math.round(pillLeft)}px`;
+    };
+
+    // 5. visualViewport resize handler: keep pill visible above soft keyboard
+    const onVisualViewportResize = () => {
+      positionPill();
+      // Scroll editor-viewport so the editor remains visible
+      const vp = document.getElementById('editor-viewport');
+      if (vp && window.visualViewport) {
+        const editorBottomClient = editorEl.getBoundingClientRect().bottom + PILL_HEIGHT + PILL_GAP + 12;
+        const visibleBottom = window.visualViewport.height;
+        if (editorBottomClient > visibleBottom) {
+          vp.scrollTop += editorBottomClient - visibleBottom;
+        }
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onVisualViewportResize);
     }
 
-    // Horizontal positioning & clamping
-    let left = anchorScreenRect.left - 24;
-    const maxLeft = overlayRect.width - popoverWidth - 12;
-    if (left > maxLeft) left = maxLeft;
-    if (left < 12) left = 12;
+    // Store cleanup fn for visualViewport listener
+    (editorEl as any).__cleanupVisualViewport = () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', onVisualViewportResize);
+      }
+    };
 
-    popover.style.left = `${Math.round(left)}px`;
-    popover.style.top = `${Math.round(top)}px`;
+    this.overlayEl.appendChild(editorEl);
+    this.overlayEl.appendChild(pill);
+    this.activeInlineEditor = editorEl;
 
-    // Position beak horizontally to point to center of anchor
-    const anchorCenter = anchorScreenRect.left + anchorScreenRect.width / 2;
-    const beakLeft = Math.max(16, Math.min(anchorCenter - left - 7, popoverWidth - 24));
-    beak.style.left = `${Math.round(beakLeft)}px`;
+    positionPill();
 
-    if (placeBeakAt === 'top') {
-      beak.style.top = '-7px';
-      beak.style.borderTopWidth = '1px';
-      beak.style.borderLeftWidth = '1px';
-    } else {
-      beak.style.bottom = '-7px';
-      beak.style.borderBottomWidth = '1px';
-      beak.style.borderRightWidth = '1px';
-    }
-
-    hint.style.left = popover.style.left;
-    hint.style.top = `calc(${popover.style.top} + ${popoverHeight + 10}px)`;
-
-    this.overlayEl.appendChild(popover);
-    this.overlayEl.appendChild(hint);
-    this.activeInlineEditor = popover;
-
-    // Action handlers with race prevention
+    // 6. Action handlers
     let actionHandled = false;
 
     const commitAndClose = (e?: Event) => {
@@ -1464,7 +1495,7 @@ export class EditorInteractionController {
         e.preventDefault();
         e.stopPropagation();
       }
-      const text = input.innerText.trim();
+      const text = editorEl.innerText.trim();
       this.cleanupInlineEditor();
       onSave(text);
     };
@@ -1480,22 +1511,13 @@ export class EditorInteractionController {
       onCancel();
     };
 
-    saveBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      commitAndClose(e);
-    });
+    saveBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); commitAndClose(e); });
     saveBtn.addEventListener('click', (e) => commitAndClose(e));
-
-    cancelBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      cancelAndClose(e);
-    });
+    cancelBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); cancelAndClose(e); });
     cancelBtn.addEventListener('click', (e) => cancelAndClose(e));
 
-    // Secondary keyboard shortcuts for desktop
-    input.addEventListener('keydown', (e) => {
+    // Keyboard shortcuts
+    editorEl.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
@@ -1507,16 +1529,14 @@ export class EditorInteractionController {
       }
     });
 
-    // Auto-focus input
+    // 7. Auto-focus and select all existing text
     setTimeout(() => {
-      input.focus();
-      try {
-        input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      } catch (err) {}
+      editorEl.focus();
+      try { editorEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) {}
       if (initialText) {
         try {
           const range = document.createRange();
-          range.selectNodeContents(input);
+          range.selectNodeContents(editorEl);
           const sel = window.getSelection();
           sel?.removeAllRanges();
           sel?.addRange(range);
@@ -1536,7 +1556,7 @@ export class EditorInteractionController {
     const cssX = clientX - canvasRect.left;
     const cssY = clientY - canvasRect.top;
 
-    this.showAnchoredTextPopover({
+    this.showInSituTextEditor({
       anchorScreenRect: { left: cssX, top: cssY, width: 20, height: 20 },
       initialText: '',
       onSave: (text) => {
@@ -1584,7 +1604,7 @@ export class EditorInteractionController {
     const screenRect = pdfRectToScreenRect(obj, this.viewport);
     const initialText = obj.type === 'text' ? (obj as TextEditorObject).text : (obj as TextReplacementEditorObject).replacementText;
 
-    this.showAnchoredTextPopover({
+    this.showInSituTextEditor({
       anchorScreenRect: screenRect,
       initialText,
       fontFamily: obj.fontFamily,
@@ -1698,7 +1718,7 @@ export class EditorInteractionController {
 
     const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
 
-    this.showAnchoredTextPopover({
+    this.showInSituTextEditor({
       anchorScreenRect: screenRect,
       initialText: item.text,
       fontFamily: item.fontFamily,
@@ -1926,16 +1946,32 @@ export class EditorInteractionController {
   }
 
   private cleanupInlineEditor(): void {
+    // Run visualViewport listener cleanup if stored on the active editor
+    if (this.activeInlineEditor && typeof (this.activeInlineEditor as any).__cleanupVisualViewport === 'function') {
+      try { (this.activeInlineEditor as any).__cleanupVisualViewport(); } catch (err) {}
+    }
+
     if (this.activeInlineEditor && this.activeInlineEditor.parentElement) {
       this.activeInlineEditor.parentElement.removeChild(this.activeInlineEditor);
     }
     this.activeInlineEditor = null;
 
+    // Remove in-situ editor (Phase 8B)
     const popover = document.getElementById('active-inline-text-popover');
-    if (popover && popover.parentElement) {
-      popover.parentElement.removeChild(popover);
+    if (popover) {
+      if (typeof (popover as any).__cleanupVisualViewport === 'function') {
+        try { (popover as any).__cleanupVisualViewport(); } catch (err) {}
+      }
+      if (popover.parentElement) popover.parentElement.removeChild(popover);
     }
 
+    // Remove in-situ pill (Phase 8B)
+    const pill = document.getElementById('insitu-editor-pill');
+    if (pill && pill.parentElement) {
+      pill.parentElement.removeChild(pill);
+    }
+
+    // Remove legacy editor elements (backward compat / stray cleanup)
     const editor = document.getElementById('active-inline-text-editor');
     if (editor && editor.parentElement) {
       editor.parentElement.removeChild(editor);

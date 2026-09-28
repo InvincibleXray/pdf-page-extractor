@@ -219,7 +219,7 @@ async function runPhase2Verifier() {
     await new Promise((r) => setTimeout(r, 400));
 
     let inlineEditorActive = await page.evaluate(() => {
-      const ed = document.getElementById('active-inline-text-editor');
+      const ed = document.getElementById('active-inline-text-popover');
       return { exists: !!ed, text: ed?.innerText };
     });
 
@@ -230,7 +230,7 @@ async function runPhase2Verifier() {
       }, basicObjInfo.id);
       await new Promise((r) => setTimeout(r, 300));
       inlineEditorActive = await page.evaluate(() => {
-        const ed = document.getElementById('active-inline-text-editor');
+        const ed = document.getElementById('active-inline-text-popover');
         return { exists: !!ed, text: ed?.innerText };
       });
     }
@@ -487,7 +487,7 @@ async function runPhase2Verifier() {
         await new Promise((r) => setTimeout(r, 400));
 
         const replacementEditor = await page.evaluate(() => {
-          const ed = document.getElementById('active-inline-text-editor');
+          const ed = document.getElementById('active-inline-text-popover');
           return {
             exists: !!ed,
             fontFamily: ed ? window.getComputedStyle(ed).fontFamily : null,

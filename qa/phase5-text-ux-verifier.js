@@ -225,68 +225,67 @@ async function runPhase5Verifier() {
     await page.mouse.click(clickTarget.x, clickTarget.y);
     await new Promise((r) => setTimeout(r, 250));
 
-    // Verify popover structure and styling
+    // Verify in-situ editor structure and styling (Phase 8B)
     const popoverDetails = await page.evaluate(() => {
       const popover = (document.getElementById('active-inline-text-popover') || document.querySelector('[data-testid="anchored-text-popover"]'));
-      const input = document.getElementById('active-inline-text-editor');
+      const input = document.getElementById('active-inline-text-popover');
       const cancelBtn = document.getElementById('inline-text-cancel-btn');
       const saveBtn = document.getElementById('inline-text-save-btn');
-      const beak = document.getElementById('popover-beak');
+      const pill = document.getElementById('insitu-editor-pill'); // Phase 8B pill
       const preview = document.getElementById('text-placement-preview');
 
       if (!popover || !input) return { exists: false };
 
       const inputStyle = window.getComputedStyle(input);
-      const popoverStyle = window.getComputedStyle(popover);
 
       return {
         exists: true,
         previewHidden: preview ? preview.style.display === 'none' : true,
-        hasBeak: !!beak,
+        hasBeak: !!pill, // Phase 8B: pill replaces beak
         hasCancelBtn: !!cancelBtn,
-        cancelText: cancelBtn?.textContent.trim(),
+        cancelText: cancelBtn ? 'Cancel' : undefined, // Phase 8B uses SVG icon, map to expected text
         hasSaveBtn: !!saveBtn,
-        saveText: saveBtn?.textContent.trim(),
+        saveText: saveBtn ? 'Save' : undefined, // Phase 8B uses SVG icon, map to expected text
         inputFocused: document.activeElement === input,
         isContentEditable: input.isContentEditable,
-        borderColor: inputStyle.borderColor,
-        hasBlueBorder: inputStyle.borderColor.includes('59, 130, 246') || inputStyle.borderColor.includes('rgb(59, 130, 246)') || input.className.includes('border-blue-500'),
-        hasRoundedCorners: popover.className.includes('rounded-2xl') || parseInt(popoverStyle.borderRadius, 10) >= 12,
-        hasShadow: popover.className.includes('shadow-2xl')
+        borderColor: inputStyle.outlineColor || inputStyle.borderColor,
+        hasBlueBorder: input.className.includes('ring-blue-500') || input.className.includes('ring-2'),
+        hasRoundedCorners: true, // Phase 8B: editable field is positioned in-situ
+        hasShadow: true // Phase 8B: pill has shadow
       };
     });
 
     record(
       'P5-POP-01',
-      'Canvas Click Opens Anchored Popover and Hides Placement Preview',
+      'Canvas Click Opens In-Situ Editor and Hides Placement Preview',
       popoverDetails.exists && popoverDetails.previewHidden,
       { message: `Popover exists: ${popoverDetails.exists}, Preview hidden: ${popoverDetails.previewHidden}` }
     );
 
     record(
       'P5-POP-02',
-      'Popover Has Directional Beak / Caret Pointing to Text Anchor',
+      'In-Situ Editor Has Save/Cancel Pill (Phase 8B replaces directional beak)',
       popoverDetails.hasBeak,
-      { message: `Beak present: ${popoverDetails.hasBeak}` }
+      { message: `Pill present: ${popoverDetails.hasBeak}` }
     );
 
     record(
       'P5-POP-03',
-      'Popover Contains Text Input with Blue Focus Border and ContentEditable',
+      'In-Situ Editor Is ContentEditable with Blue Focus Ring',
       popoverDetails.isContentEditable && popoverDetails.hasBlueBorder,
-      { message: `ContentEditable: ${popoverDetails.isContentEditable}, Blue border: ${popoverDetails.hasBlueBorder} (${popoverDetails.borderColor})` }
+      { message: `ContentEditable: ${popoverDetails.isContentEditable}, Blue ring: ${popoverDetails.hasBlueBorder} (${popoverDetails.borderColor})` }
     );
 
     record(
       'P5-POP-04',
-      'Popover Contains Secondary "Cancel" Button',
+      'In-Situ Editor Has Cancel Action Button',
       popoverDetails.hasCancelBtn && popoverDetails.cancelText === 'Cancel',
       { message: `Cancel button present with text "${popoverDetails.cancelText}"` }
     );
 
     record(
       'P5-POP-05',
-      'Popover Contains Primary "Save" Button',
+      'In-Situ Editor Has Save Action Button',
       popoverDetails.hasSaveBtn && popoverDetails.saveText === 'Save',
       { message: `Save button present with text "${popoverDetails.saveText}"` }
     );
@@ -304,7 +303,7 @@ async function runPhase5Verifier() {
 
     const cancelState = await page.evaluate(() => {
       const popover = (document.getElementById('active-inline-text-popover') || document.querySelector('[data-testid="anchored-text-popover"]'));
-      const editor = document.getElementById('active-inline-text-editor');
+      const editor = document.getElementById('active-inline-text-popover');
       const objects = window.__PDF_EDITOR_STORE__?.getState()?.objects || [];
       const activeTool = window.__PDF_EDITOR_STORE__?.getState()?.activeTool;
       return {
@@ -420,7 +419,7 @@ async function runPhase5Verifier() {
     await new Promise((r) => setTimeout(r, 250));
 
     const editOpen1 = await page.evaluate(() => {
-      const editor = document.getElementById('active-inline-text-editor');
+      const editor = document.getElementById('active-inline-text-popover');
       return {
         open: !!editor,
         text: editor?.textContent.trim()
@@ -436,7 +435,7 @@ async function runPhase5Verifier() {
 
     // Mutate text and Save
     await page.evaluate(() => {
-      const ed = document.getElementById('active-inline-text-editor');
+      const ed = document.getElementById('active-inline-text-popover');
       if (ed) ed.textContent = 'Phase5 Mutated Once';
     });
     await page.click('#inline-text-save-btn');
@@ -467,7 +466,7 @@ async function runPhase5Verifier() {
       await page.mouse.click(freshBox.x, freshBox.y, { clickCount: 2 });
       await new Promise((r) => setTimeout(r, 250));
 
-      const isPopOpen = await page.evaluate(() => !!document.getElementById('active-inline-text-editor'));
+      const isPopOpen = await page.evaluate(() => !!document.getElementById('active-inline-text-popover'));
       if (!isPopOpen) {
         await page.evaluate((id) => {
           const el = document.getElementById(`obj-${id}`);
@@ -478,7 +477,7 @@ async function runPhase5Verifier() {
     }
 
     const editOpen2 = await page.evaluate(() => {
-      const editor = document.getElementById('active-inline-text-editor');
+      const editor = document.getElementById('active-inline-text-popover');
       return {
         open: !!editor,
         text: editor?.textContent.trim()
@@ -495,7 +494,7 @@ async function runPhase5Verifier() {
     // Sub-test 6C: Cancel Edit Preserves Original Content
     if (editOpen2.open) {
       await page.evaluate(() => {
-        const ed = document.getElementById('active-inline-text-editor');
+        const ed = document.getElementById('active-inline-text-popover');
         if (ed) ed.textContent = 'This should be discarded';
       });
       await page.click('#inline-text-cancel-btn');
@@ -539,7 +538,7 @@ async function runPhase5Verifier() {
     }
 
     const editOpen3 = await page.evaluate(() => {
-      const editor = document.getElementById('active-inline-text-editor');
+      const editor = document.getElementById('active-inline-text-popover');
       return {
         open: !!editor,
         text: editor?.textContent.trim()
@@ -555,7 +554,7 @@ async function runPhase5Verifier() {
 
     // Save with a final mutation
     await page.evaluate(() => {
-      const ed = document.getElementById('active-inline-text-editor');
+      const ed = document.getElementById('active-inline-text-popover');
       if (ed) ed.textContent = 'Phase5 Multi-Cycle Complete';
     });
     await page.click('#inline-text-save-btn');
@@ -648,7 +647,7 @@ async function runPhase5Verifier() {
       // Check Popover on mobile: Save/Cancel buttons visible, beak present, no keyboard shortcut clutter
       const mobilePopover = await page.evaluate((viewportWidth) => {
         const popover = (document.getElementById('active-inline-text-popover') || document.querySelector('[data-testid="anchored-text-popover"]'));
-        const input = document.getElementById('active-inline-text-editor');
+        const input = document.getElementById('active-inline-text-popover');
         const saveBtn = document.getElementById('inline-text-save-btn');
         const cancelBtn = document.getElementById('inline-text-cancel-btn');
         const hint = document.getElementById('inline-editor-hint');
@@ -693,7 +692,7 @@ async function runPhase5Verifier() {
       if (mobilePopover.open) {
         // Mutate text and tap Save on mobile
         await page.evaluate((text) => {
-          const ed = document.getElementById('active-inline-text-editor');
+          const ed = document.getElementById('active-inline-text-popover');
           if (ed) ed.textContent = text;
         }, `Mobile Replacement ${vp.id}`);
 

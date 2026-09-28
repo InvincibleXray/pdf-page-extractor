@@ -185,13 +185,13 @@ async function runMobileDepthVerification() {
       await page.touchscreen.tap(tapX, tapY);
       await new Promise((r) => setTimeout(r, 300));
 
-      // Step 8: Verify text editor popover opens with visual card & beak
+      // Step 8: Verify in-situ text editor opens with pill and Save/Cancel touch targets (Phase 8B)
       const popoverState = await page.evaluate((vw) => {
         const popover = document.getElementById('active-inline-text-popover') || document.querySelector('[data-testid="anchored-text-popover"]');
-        const input = document.getElementById('active-inline-text-editor');
+        const input = document.getElementById('active-inline-text-popover');
         const saveBtn = document.getElementById('inline-text-save-btn');
         const cancelBtn = document.getElementById('inline-text-cancel-btn');
-        const beak = document.getElementById('popover-beak');
+        const pill = document.getElementById('insitu-editor-pill'); // Phase 8B: pill replaces beak
         const hint = document.getElementById('inline-editor-hint');
 
         if (!popover || !input || !saveBtn || !cancelBtn) return { open: false };
@@ -200,7 +200,7 @@ async function runMobileDepthVerification() {
 
         return {
           open: true,
-          hasBeak: !!beak,
+          hasBeak: !!pill, // Phase 8B: pill serves as the action surface (replaces beak card)
           hasSaveBtn: !!saveBtn,
           hasCancelBtn: !!cancelBtn,
           inputFocused: document.activeElement === input,
@@ -211,9 +211,9 @@ async function runMobileDepthVerification() {
 
       recordTest(
         `M51-OPEN-${vp.w}`,
-        `Text Popover Card Opens on Canvas Tap with Beak and Save/Cancel Touch Targets [${vp.id}]`,
+        `In-Situ Text Editor Opens on Canvas Tap with Pill and Save/Cancel Touch Targets [${vp.id}]`,
         popoverState.open && popoverState.hasBeak && popoverState.hasSaveBtn && popoverState.hasCancelBtn,
-        { message: `Open: ${popoverState.open}, Fits: ${popoverState.fitsViewport}, Beak: ${popoverState.hasBeak}` }
+        { message: `Open: ${popoverState.open}, Fits: ${popoverState.fitsViewport}, Pill: ${popoverState.hasBeak}` }
       );
 
       recordTest(
@@ -228,7 +228,7 @@ async function runMobileDepthVerification() {
       // Step 9 & 10: Focus text input and type text
       const typedText = `Mobile Text ${vp.w}`;
       await page.evaluate((text) => {
-        const input = document.getElementById('active-inline-text-editor');
+        const input = document.getElementById('active-inline-text-popover');
         if (input) {
           input.focus();
           input.textContent = text;
@@ -308,7 +308,7 @@ async function runMobileDepthVerification() {
 
       const reTypedText = `Mobile Mutated ${vp.w}`;
       await page.evaluate((text) => {
-        const ed = document.getElementById('active-inline-text-editor');
+        const ed = document.getElementById('active-inline-text-popover');
         if (ed) ed.textContent = text;
       }, reTypedText);
 
@@ -377,7 +377,7 @@ async function runMobileDepthVerification() {
       // Step 18: Modify text
       const repText = `Replaced On Mobile ${vp.w}`;
       await page.evaluate((text) => {
-        const ed = document.getElementById('active-inline-text-editor');
+        const ed = document.getElementById('active-inline-text-popover');
         if (ed) ed.textContent = text;
       }, repText);
 
@@ -418,7 +418,7 @@ async function runMobileDepthVerification() {
 
         // Mutate with draft text
         await page.evaluate(() => {
-          const ed = document.getElementById('active-inline-text-editor');
+          const ed = document.getElementById('active-inline-text-popover');
           if (ed) ed.textContent = 'This draft will be cancelled';
         });
 
@@ -781,7 +781,7 @@ async function runMobileDepthVerification() {
 
     // Type text on Tablet
     await tabletPage.evaluate(() => {
-      const ed = document.getElementById('active-inline-text-editor');
+      const ed = document.getElementById('active-inline-text-popover');
       if (ed) ed.textContent = 'Tablet Verified Text 768';
     });
 

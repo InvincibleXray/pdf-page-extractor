@@ -1,0 +1,171 @@
+{
+  "phase": "8B",
+  "timestamp": "2026-09-28T07:27:16.666Z",
+  "target": "http://127.0.0.1:4321/pdf-editor/",
+  "verdict": "PASS",
+  "total": 20,
+  "passed": 20,
+  "failed": 0,
+  "tests": [
+    {
+      "id": "8B-AC1-NO-CARD",
+      "name": "No large detached 320px card: editor is contenteditable, no beak, has pill",
+      "status": "PASS",
+      "details": {
+        "message": "editorExists:true contenteditable:true noOldBeak:true hasPill:true width:80px"
+      }
+    },
+    {
+      "id": "8B-AC2-NO-FULLWIDTH-CARD",
+      "name": "In-situ editor is NOT a 320px full-width card (width should be reasonable)",
+      "status": "PASS",
+      "details": {
+        "message": "Editor width: 80px (expected <300px)"
+      }
+    },
+    {
+      "id": "8B-AC3-SPATIAL-ALIGNMENT-NEW",
+      "name": "New text editor appears at click coordinates (≤30px delta)",
+      "status": "PASS",
+      "details": {
+        "message": "Editor at (608,369), Click at (607,368), Delta: (1px, 1px)"
+      }
+    },
+    {
+      "id": "8B-AC4-SPATIAL-ALIGNMENT-EXISTING",
+      "name": "Existing object editor appears at exact object screen coordinates (≤10px delta)",
+      "status": "PASS",
+      "details": {
+        "message": "Editor at (608,369), Obj at (608,369), Delta: (1px, 0px)"
+      }
+    },
+    {
+      "id": "8B-AC5-CTRL-ENTER-SAVE",
+      "name": "Ctrl+Enter saves text from in-situ editor",
+      "status": "PASS",
+      "details": {
+        "message": "Object with text \"KbdSave\" created: true"
+      }
+    },
+    {
+      "id": "8B-AC6-ESC-CANCEL",
+      "name": "Escape cancels in-situ editor without creating object",
+      "status": "PASS",
+      "details": {
+        "message": "Objects before: 2, after: 2 (expected no change)"
+      }
+    },
+    {
+      "id": "8B-AC7-EXISTING-PDF-EDIT-OPENS",
+      "name": "Edit button on existing PDF text opens in-situ contenteditable editor",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, ContentEditable: true, WhiteoutMask: true"
+      }
+    },
+    {
+      "id": "8B-AC8-EXISTING-PDF-WHITEOUT-MASK",
+      "name": "Editing existing PDF text shows whiteout mask to cover original text",
+      "status": "PASS",
+      "details": {
+        "message": "Whiteout mask present: true"
+      }
+    },
+    {
+      "id": "8B-AC9-ZOOM-50",
+      "name": "At 50% zoom: editor appears at object screen coordinates (≤15px delta)",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Delta: (1px, 0px)"
+      }
+    },
+    {
+      "id": "8B-AC9-ZOOM-100",
+      "name": "At 100% zoom: editor appears at object screen coordinates (≤15px delta)",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Delta: (1px, 0px)"
+      }
+    },
+    {
+      "id": "8B-AC9-ZOOM-150",
+      "name": "At 150% zoom: editor appears at object screen coordinates (≤15px delta)",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Delta: (1px, 0px)"
+      }
+    },
+    {
+      "id": "8B-MOB-375-EDITOR",
+      "name": "Mobile 375px: In-situ editor opens, fits viewport, no clutter",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Pill: true, Save: true, Cancel: true, FitsVP: true, Width: 80px"
+      }
+    },
+    {
+      "id": "8B-MOB-375-SAVE",
+      "name": "Mobile 375px: Tapping pill Save button commits text object",
+      "status": "PASS",
+      "details": {
+        "message": "Text \"MobText375\" committed: true"
+      }
+    },
+    {
+      "id": "8B-MOB-390-EDITOR",
+      "name": "Mobile 390px: In-situ editor opens, fits viewport, no clutter",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Pill: true, Save: true, Cancel: true, FitsVP: true, Width: 80px"
+      }
+    },
+    {
+      "id": "8B-MOB-390-SAVE",
+      "name": "Mobile 390px: Tapping pill Save button commits text object",
+      "status": "PASS",
+      "details": {
+        "message": "Text \"MobText390\" committed: true"
+      }
+    },
+    {
+      "id": "8B-MOB-430-EDITOR",
+      "name": "Mobile 430px: In-situ editor opens, fits viewport, no clutter",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Pill: true, Save: true, Cancel: true, FitsVP: true, Width: 80px"
+      }
+    },
+    {
+      "id": "8B-MOB-430-SAVE",
+      "name": "Mobile 430px: Tapping pill Save button commits text object",
+      "status": "PASS",
+      "details": {
+        "message": "Text \"MobText430\" committed: true"
+      }
+    },
+    {
+      "id": "8B-MOB-768-EDITOR",
+      "name": "Mobile 768px: In-situ editor opens, fits viewport, no clutter",
+      "status": "PASS",
+      "details": {
+        "message": "Open: true, Pill: true, Save: true, Cancel: true, FitsVP: true, Width: 80px"
+      }
+    },
+    {
+      "id": "8B-MOB-768-SAVE",
+      "name": "Mobile 768px: Tapping pill Save button commits text object",
+      "status": "PASS",
+      "details": {
+        "message": "Text \"MobText768\" committed: true"
+      }
+    },
+    {
+      "id": "8B-AC10-PHASE8A-INVARIANT",
+      "name": "Phase 8A invariant: 0 pointercancel during 100px touch drag after Phase 8B changes",
+      "status": "PASS",
+      "details": {
+        "message": "pointercancel: 0 (expected 0), pointermove: 10 (expected >0)"
+      }
+    }
+  ]
+}

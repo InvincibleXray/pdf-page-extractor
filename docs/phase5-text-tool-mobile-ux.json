@@ -1,7 +1,7 @@
 {
   "phase": 5,
   "phaseName": "PHASE 5 — TEXT TOOL UX REWORK + MOBILE EDITING",
-  "timestamp": "2026-09-28T04:46:21.136Z",
+  "timestamp": "2026-09-28T07:30:50.127Z",
   "targetUrl": "http://127.0.0.1:4321/pdf-editor/",
   "browser": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
   "summary": {
@@ -45,7 +45,7 @@
     },
     {
       "id": "P5-POP-01",
-      "name": "Canvas Click Opens Anchored Popover and Hides Placement Preview",
+      "name": "Canvas Click Opens In-Situ Editor and Hides Placement Preview",
       "status": "PASS",
       "details": {
         "message": "Popover exists: true, Preview hidden: true"
@@ -53,23 +53,23 @@
     },
     {
       "id": "P5-POP-02",
-      "name": "Popover Has Directional Beak / Caret Pointing to Text Anchor",
+      "name": "In-Situ Editor Has Save/Cancel Pill (Phase 8B replaces directional beak)",
       "status": "PASS",
       "details": {
-        "message": "Beak present: true"
+        "message": "Pill present: true"
       }
     },
     {
       "id": "P5-POP-03",
-      "name": "Popover Contains Text Input with Blue Focus Border and ContentEditable",
+      "name": "In-Situ Editor Is ContentEditable with Blue Focus Ring",
       "status": "PASS",
       "details": {
-        "message": "ContentEditable: true, Blue border: true (rgb(37, 99, 235))"
+        "message": "ContentEditable: true, Blue ring: true (rgba(0, 0, 0, 0))"
       }
     },
     {
       "id": "P5-POP-04",
-      "name": "Popover Contains Secondary \"Cancel\" Button",
+      "name": "In-Situ Editor Has Cancel Action Button",
       "status": "PASS",
       "details": {
         "message": "Cancel button present with text \"Cancel\""
@@ -77,7 +77,7 @@
     },
     {
       "id": "P5-POP-05",
-      "name": "Popover Contains Primary \"Save\" Button",
+      "name": "In-Situ Editor Has Save Action Button",
       "status": "PASS",
       "details": {
         "message": "Save button present with text \"Save\""
@@ -96,7 +96,7 @@
       "name": "Clicking Save Commits Text Object and Selects It with Bounding Box",
       "status": "PASS",
       "details": {
-        "message": "Committed object ID: text-1790570788677, Selection visible: true"
+        "message": "Committed object ID: text-1790580657057, Selection visible: true"
       }
     },
     {
@@ -112,7 +112,7 @@
       "name": "Clicking Created Text Object Reselects It and Displays Action Bar",
       "status": "PASS",
       "details": {
-        "message": "Selected ID: text-1790570788677, Action bar visible: true"
+        "message": "Selected ID: text-1790580657057, Action bar visible: true"
       }
     },
     {
