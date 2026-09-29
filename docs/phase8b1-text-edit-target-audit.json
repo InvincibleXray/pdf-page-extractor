@@ -1,0 +1,67 @@
+{
+  "phase": "8B.1",
+  "title": "Forensic Audit: Text Edit Target and Anchor Mismatch",
+  "timestamp": "2026-09-29T21:59:00Z",
+  "auditObjective": "Root-cause forensic analysis of existing-text -> Edit -> in-situ-editor target and positioning mismatch on touch/mobile devices without modifying production code",
+  "executiveSummary": "The reported issue where tapping 'Edit' opens the in-situ editor at a different text location is caused by a conjunction of two architectural defects: (1) Severe Span Geometry Inflation and Collision in pdfTextLayer.ts, where line 158/183 artificially overrides DOM span width/height with raw PDF metrics causing adjacent text spans to physically overlap by 20-41px in mobile viewports, and (2) Touch Fall-Through (Ghost Clicks) on Action Bar dismissal, where synchronously hiding the action bar on 'click' without preventing default on pointerup/touchend causes the mobile browser to fire a delayed synthetic click on the underlying text span directly beneath the Edit button.",
+  "findings": [
+    {
+      "id": "FINDING-1",
+      "severity": "CRITICAL",
+      "title": "Span Width/Height Artificial Inflation and Physical Collision",
+      "file": "src/utils/pdfTextLayer.ts",
+      "lines": "156-186",
+      "description": "pdfTextLayerManager forces span.style.width and span.style.height using Math.max(pdfBounds.width, rawItem.width). In mobile viewports with scale factors < 1.0 (e.g. 0.62), raw PDF points (72 DPI) are larger than rendered span CSS dimensions, causing text spans to expand significantly beyond their visible glyph bounds. In test-fixtures/phase6c-real-form.pdf, span [p1-t7] 'Standard Plan' inflated by 21px and physically collided with [p1-t8] 'Pro Plan (Selected)', while [p1-t8] inflated by 41px and collided with [p1-t9] 'Enterprise Plan'. Tapping a visible span therefore frequently dispatches the pointerdown event to an overlapping sibling span with higher z-index or later DOM order.",
+      "evidence": {
+        "standardPlanSpanRect": { "left": 49, "top": 229, "width": 101, "height": 16 },
+        "proPlanSpanRect": { "left": 129, "top": 229, "width": 139, "height": 16 },
+        "enterprisePlanSpanRect": { "left": 227, "top": 229, "width": 109, "height": 16 },
+        "overlapStandardAndPro": "21px x 16px collision",
+        "overlapProAndEnterprise": "41px x 16px collision"
+      }
+    },
+    {
+      "id": "FINDING-2",
+      "severity": "CRITICAL",
+      "title": "Action Bar Synchronous Dismissal & Mobile Touch Event Bleed-Through",
+      "file": "src/utils/editorInteractionController.ts",
+      "lines": "104-125, 1713-1725",
+      "description": "The contextual action bar's #edit-existing-text-btn only listens to 'click'. When tapped on mobile devices, pointerdown bubbles to actionBarEl which executes stopPropagation() but NOT preventDefault(). When the user releases their finger, 'click' fires and immediately invokes startEditingExistingText(), which synchronously executes hideExistingTextActionBar() (classList.add('hidden')). The mobile browser (WebKit/Blink) completes its touch-to-mouse emulation sequence (300ms delayed synthetic click) against document.elementFromPoint(tapX, tapY). Because the action bar was positioned directly above/below the text, the newly exposed element at that point is another text span (e.g. p1-t2 'Full Name:'). This synthetic event re-triggers text selection on the wrong object immediately after the editor mounts.",
+      "evidence": {
+        "actionBarPlacement": "below p1-t0, covering y: 54px to 108px",
+        "underlyingSpan": "p1-t2 located at (32, 62), directly beneath #edit-existing-text-btn at (36, 60)",
+        "listenerGap": "editBtn lacks pointerdown/touchend preventDefault; hideExistingTextActionBar is synchronous"
+      }
+    },
+    {
+      "id": "FINDING-3",
+      "severity": "HIGH",
+      "title": "Anchor Coordinate Drift Between TextLayer DOM Spans and Overlay Space",
+      "file": "src/utils/editorInteractionController.ts",
+      "lines": "1719-1725, 1341-1374",
+      "description": "startEditingExistingText converts item.pdfBounds back to screenRect using pdfRectToScreenRect(item.pdfBounds, this.viewport). Because item.pdfBounds was generated from screenRectToPdfRect after the artificial metric inflation in pdfTextLayer.ts, the resulting anchorScreenRect drifts from the actual DOM span's getBoundingClientRect() relative to the page card by up to 18.27px horizontally and 10.17px vertically on mobile scaled viewports.",
+      "evidence": {
+        "spanDOMPositionRelativeToCard": { "left": 31.73, "top": 18.83 },
+        "editorMountedPosition": { "left": 32, "top": 19 },
+        "deltaUncorrectedSpan": { "dx": 18.27, "dy": 10.17 }
+      }
+    }
+  ],
+  "answersToCoreQuestions": {
+    "q1_selectedObjectBeforeEdit": "The text item selected prior to tapping Edit is correctly registered in editorStore.selectedExistingTextId (e.g. 'p1-t0'). The action bar is positioned correctly for this item.",
+    "q2_objectGeometryPassedToEditor": "startEditingExistingText receives the ExistingPdfTextItem corresponding to selectedExistingTextId. However, item.pdfBounds contains the inflated dimensions from rawTextItems, rather than pure unadulterated visual span geometry.",
+    "q3_whereIdentityChanges": "Identity changes during the touch tap sequence on #edit-existing-text-btn due to touch bleed-through (Finding 2), where the synchronous hiding of the action bar exposes the underlying text span (e.g. p1-t2) to a synthetic click, OR during initial span selection due to sibling span collision (Finding 1).",
+    "q4_whereGeometryDiverges": "Geometry diverges in pdfTextLayer.ts lines 158/183 where DOM span widths are forcibly set to effectiveScreenWidth, expanding spans across multiple adjacent columns/rows.",
+    "q5_rootCauseClassification": "Twofold: Event Race / Touch Bleed-through (DOM event lifecycle) + Span Bounding-Box Inflation / Overlap (TextLayer geometry model).",
+    "q6_whyReproducedOnMobile": "Mobile viewports use automatic zoom scaling ((window.innerWidth - 24) / 595 ~ 0.62) where unscaled PDF points exceed rendered CSS pixels, drastically increasing collision overlap. Mobile devices also utilize asynchronous touch-event emulation (delayed synthetic clicks) that triggers bleed-through when elements are removed synchronously.",
+    "q7_desktopVsMobileDivergence": "On desktop, mouse clicks do not synthesize delayed 300ms compatibility touches, and desktop screens at 100% zoom do not have the scaling inversion where 72 DPI PDF coordinates exceed CSS layout bounds."
+  },
+  "recommendedFixOutline": {
+    "doNotModifyCodeYet": true,
+    "fixSummary": [
+      "1. In pdfTextLayer.ts: Remove artificial span.style.width and span.style.height overrides. Let PDF.js handle native span layout and measure natural client rects for accurate non-colliding hit testing.",
+      "2. In editorInteractionController.ts: Add preventDefault and stopPropagation to pointerdown/touchend on action bar buttons to eliminate ghost click / touch fall-through.",
+      "3. In editorInteractionController.ts: Anchor the in-situ editor directly to the selected span's exact DOM getBoundingClientRect() relative to overlayEl when editing existing text, ensuring pixel-perfect 1:1 overlay without roundtrip floating-point drift."
+    ]
+  }
+}

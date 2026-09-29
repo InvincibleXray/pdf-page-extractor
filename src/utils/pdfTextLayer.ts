@@ -64,9 +64,10 @@ export class PdfTextLayerManager {
       // 1. Fetch text content from PDF.js
       const textContent = await page.getTextContent();
 
-      // 2. Set container dimensions to match viewport
+      // 2. Set container dimensions and scale factor to match viewport
       container.style.width = `${Math.floor(viewport.width)}px`;
       container.style.height = `${Math.floor(viewport.height)}px`;
+      container.style.setProperty('--scale-factor', `${viewport.scale}`);
 
       // 3. Instantiate and render TextLayer
       const textLayer = new TextLayer({
@@ -118,8 +119,6 @@ export class PdfTextLayerManager {
 
         // Cross-validate with authoritative PDF.js text item metrics
         const rawItem = rawTextItems[itemCounter] as any;
-        let authoritativeWidth = pdfBounds.width;
-        let authoritativeHeight = pdfBounds.height;
 
         // Extract font typography from PDF.js styles dictionary and page proxy
         let detectedFontFamily = 'Inter, Helvetica, Arial, sans-serif';
@@ -154,17 +153,10 @@ export class PdfTextLayerManager {
         if (isItalic) detectedFontStyle = 'italic';
 
         if (rawItem) {
-          if (rawItem.width && rawItem.width > 0) {
-            authoritativeWidth = Math.max(pdfBounds.width, rawItem.width);
-          }
-          if (rawItem.height && rawItem.height > 0) {
-            authoritativeHeight = Math.max(pdfBounds.height, rawItem.height);
-          }
           if (rawItem.transform && Array.isArray(rawItem.transform) && rawItem.transform.length >= 2) {
             const fontScale = Math.hypot(rawItem.transform[0], rawItem.transform[1]);
             if (fontScale > 0) {
               fontSizePt = Math.round(fontScale * 10) / 10;
-              authoritativeHeight = Math.max(authoritativeHeight, fontSizePt);
             }
           }
         }
@@ -172,16 +164,11 @@ export class PdfTextLayerManager {
         const effectivePdfBounds = {
           x: pdfBounds.x,
           y: pdfBounds.y,
-          width: Math.round(authoritativeWidth * 100) / 100,
-          height: Math.round(authoritativeHeight * 100) / 100,
+          width: pdfBounds.width,
+          height: pdfBounds.height,
         };
 
-        const effectiveScreenWidth = Math.round(effectivePdfBounds.width * viewport.scale * 100) / 100;
-        const effectiveScreenHeight = Math.round(effectivePdfBounds.height * viewport.scale * 100) / 100;
-
-        // Apply authoritative bounds and pointer-events to span
-        span.style.width = `${effectiveScreenWidth}px`;
-        span.style.height = `${effectiveScreenHeight}px`;
+        // Enable pointer events on span without overriding native PDF.js span geometry
         span.style.pointerEvents = 'auto';
 
         const textItem: ExistingPdfTextItem = {
@@ -190,7 +177,7 @@ export class PdfTextLayerManager {
           itemIndex: itemCounter,
           text: span.textContent || '',
           pdfBounds: effectivePdfBounds,
-          screenBounds: { left: screenLeft, top: screenTop, width: effectiveScreenWidth, height: effectiveScreenHeight },
+          screenBounds: { left: screenLeft, top: screenTop, width: screenWidth, height: screenHeight },
           fontSize: fontSizePt,
           fontFamily: detectedFontFamily,
           fontWeight: detectedFontWeight,

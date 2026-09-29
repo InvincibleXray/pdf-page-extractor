@@ -16,6 +16,7 @@ import {
   pdfPointToScreen,
   screenRectToPdfRect,
   pdfRectToScreenRect,
+  type ScreenRect,
 } from './coordinateMapper';
 import { pdfTextLayerManager, type ExistingPdfTextItem } from './pdfTextLayer';
 import { formStore, type FormFieldType } from './formState';
@@ -46,6 +47,7 @@ export class EditorInteractionController {
   private unsubscribeStore: (() => void) | null = null;
   private lastClickObjectId: string | null = null;
   private lastClickTime = 0;
+  private lastActionBarDismissTime = 0;
 
   // Touch foundation & pointer capture state
   private activePointerId: number | null = null;
@@ -104,16 +106,24 @@ export class EditorInteractionController {
       this.actionBarEl.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
       });
+      this.actionBarEl.addEventListener('pointerup', (e) => {
+        e.stopPropagation();
+      });
 
       const editBtn = this.actionBarEl.querySelector('#edit-existing-text-btn');
       if (editBtn) {
+        editBtn.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+        });
         editBtn.addEventListener('click', (e) => {
+          e.preventDefault();
           e.stopPropagation();
           const selectedTextId = editorStore.getSelectedExistingTextId();
           if (selectedTextId) {
             const item = pdfTextLayerManager.getTextItem(selectedTextId);
             if (item) {
-              this.startEditingExistingText(item);
+              const span = this.textLayerEl ? this.textLayerEl.querySelector<HTMLElement>(`span[data-text-id="${selectedTextId}"]`) : null;
+              this.startEditingExistingText(item, span);
               return;
             }
           }
@@ -127,7 +137,9 @@ export class EditorInteractionController {
 
       const underlineBtn = this.actionBarEl.querySelector('#underline-existing-text-btn');
       if (underlineBtn) {
+        underlineBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
         underlineBtn.addEventListener('click', (e) => {
+          e.preventDefault();
           e.stopPropagation();
           const selectedTextId = editorStore.getSelectedExistingTextId();
           if (selectedTextId) {
@@ -139,7 +151,9 @@ export class EditorInteractionController {
 
       const strikeBtn = this.actionBarEl.querySelector('#strikethrough-existing-text-btn');
       if (strikeBtn) {
+        strikeBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
         strikeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
           e.stopPropagation();
           const selectedTextId = editorStore.getSelectedExistingTextId();
           if (selectedTextId) {
@@ -151,7 +165,9 @@ export class EditorInteractionController {
 
       const redactBtn = this.actionBarEl.querySelector('#redact-existing-text-btn');
       if (redactBtn) {
+        redactBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
         redactBtn.addEventListener('click', (e) => {
+          e.preventDefault();
           e.stopPropagation();
           const selectedTextId = editorStore.getSelectedExistingTextId();
           if (selectedTextId) {
@@ -516,6 +532,17 @@ export class EditorInteractionController {
 
     const target = e.target as HTMLElement;
 
+    // Suppress fall-through compatibility clicks immediately following action bar dismissal on empty canvas/overlay
+    const isInteractiveTarget = !!(
+      target.closest('[data-object-id]') ||
+      target.closest('[data-widget-id]') ||
+      target.closest('[data-handle]') ||
+      target.closest('[data-form-handle]')
+    );
+    if (!isInteractiveTarget && Date.now() - this.lastActionBarDismissTime < 350) {
+      return;
+    }
+
     // Ignore clicks inside active in-situ text editor or its pill
     if (this.activeInlineEditor && (this.activeInlineEditor.contains(target) || target.closest('#active-inline-text-popover'))) {
       return;
@@ -648,7 +675,19 @@ export class EditorInteractionController {
         if (selected) {
           if (selected.type === 'text' || selected.type === 'text-replacement') {
             if (this.viewport) {
-              const screenRect = pdfRectToScreenRect(selected, this.viewport);
+              let screenRect: ScreenRect;
+              if (objectEl && this.overlayEl) {
+                const objRect = objectEl.getBoundingClientRect();
+                const overlayRect = this.overlayEl.getBoundingClientRect();
+                screenRect = {
+                  left: Math.round((objRect.left - overlayRect.left) * 100) / 100,
+                  top: Math.round((objRect.top - overlayRect.top) * 100) / 100,
+                  width: Math.round(objRect.width * 100) / 100,
+                  height: Math.round(objRect.height * 100) / 100,
+                };
+              } else {
+                screenRect = pdfRectToScreenRect(selected, this.viewport);
+              }
               this.positionActionBar(screenRect);
             }
           } else {
@@ -1601,7 +1640,21 @@ export class EditorInteractionController {
     this.hideTextPlacementPreview();
     this.hideExistingTextActionBar();
 
-    const screenRect = pdfRectToScreenRect(obj, this.viewport);
+    let screenRect: ScreenRect;
+    const objEl = document.getElementById(`obj-${obj.id}`);
+    if (objEl && this.overlayEl) {
+      const objRect = objEl.getBoundingClientRect();
+      const overlayRect = this.overlayEl.getBoundingClientRect();
+      screenRect = {
+        left: Math.round((objRect.left - overlayRect.left) * 100) / 100,
+        top: Math.round((objRect.top - overlayRect.top) * 100) / 100,
+        width: Math.round(objRect.width * 100) / 100,
+        height: Math.round(objRect.height * 100) / 100,
+      };
+    } else {
+      screenRect = pdfRectToScreenRect(obj, this.viewport);
+    }
+
     const initialText = obj.type === 'text' ? (obj as TextEditorObject).text : (obj as TextReplacementEditorObject).replacementText;
 
     this.showInSituTextEditor({
@@ -1642,6 +1695,14 @@ export class EditorInteractionController {
 
   private handleTextLayerPointerDown(e: PointerEvent): void {
     if (e.button !== 0) return;
+
+    // Suppress fall-through compatibility clicks immediately following action bar dismissal
+    if (Date.now() - this.lastActionBarDismissTime < 350) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     const state = editorStore.getState();
     if (state.activeTool !== 'select') {
       this.handlePointerDown(e);
@@ -1662,7 +1723,7 @@ export class EditorInteractionController {
       if (e.detail === 2) {
         e.preventDefault();
         e.stopPropagation();
-        this.startEditingExistingText(item);
+        this.startEditingExistingText(item, span);
         return;
       }
 
@@ -1683,22 +1744,38 @@ export class EditorInteractionController {
       });
     }
 
-    if (span) {
-      span.classList.add('text-item-selected');
+    const targetSpan = span || (this.textLayerEl ? this.textLayerEl.querySelector<HTMLElement>(`span[data-text-id="${item.id}"]`) : null);
+    if (targetSpan) {
+      targetSpan.classList.add('text-item-selected');
     }
 
     editorStore.selectObject(null);
     editorStore.selectExistingText(item.id);
 
-    // Position action bar above or below the text bounds
+    // Position action bar above or below the text bounds using live DOM geometry if available
     if (this.actionBarEl && this.viewport) {
-      const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
+      let screenRect: ScreenRect;
+      if (targetSpan && this.overlayEl) {
+        const spanRect = targetSpan.getBoundingClientRect();
+        const overlayRect = this.overlayEl.getBoundingClientRect();
+        screenRect = {
+          left: Math.round((spanRect.left - overlayRect.left) * 100) / 100,
+          top: Math.round((spanRect.top - overlayRect.top) * 100) / 100,
+          width: Math.round(spanRect.width * 100) / 100,
+          height: Math.round(spanRect.height * 100) / 100,
+        };
+      } else {
+        screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
+      }
       this.positionActionBar(screenRect);
     }
   }
 
   public hideExistingTextActionBar(): void {
     if (this.actionBarEl) {
+      if (!this.actionBarEl.classList.contains('hidden')) {
+        this.lastActionBarDismissTime = Date.now();
+      }
       this.actionBarEl.classList.add('hidden');
       this.actionBarEl.removeAttribute('data-placement');
     }
@@ -1710,19 +1787,39 @@ export class EditorInteractionController {
     }
   }
 
-  public startEditingExistingText(item: ExistingPdfTextItem): void {
+  public startEditingExistingText(item: ExistingPdfTextItem, targetSpan?: HTMLElement | null): void {
     if (!this.overlayEl || !this.viewport) return;
     this.hideExistingTextActionBar();
     this.cleanupInlineEditor();
     this.hideTextPlacementPreview();
 
-    const screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
+    const span = targetSpan || (this.textLayerEl ? this.textLayerEl.querySelector<HTMLElement>(`span[data-text-id="${item.id}"]`) : null);
+    let screenRect: ScreenRect;
+    let computedFontSize = item.fontSize * this.viewport.scale;
+
+    if (span && this.overlayEl) {
+      const spanRect = span.getBoundingClientRect();
+      const overlayRect = this.overlayEl.getBoundingClientRect();
+      screenRect = {
+        left: Math.round((spanRect.left - overlayRect.left) * 100) / 100,
+        top: Math.round((spanRect.top - overlayRect.top) * 100) / 100,
+        width: Math.round(spanRect.width * 100) / 100,
+        height: Math.round(spanRect.height * 100) / 100,
+      };
+      try {
+        const comp = window.getComputedStyle(span);
+        const parsed = parseFloat(comp.fontSize);
+        if (parsed > 0) computedFontSize = parsed;
+      } catch (e) {}
+    } else {
+      screenRect = pdfRectToScreenRect(item.pdfBounds, this.viewport);
+    }
 
     this.showInSituTextEditor({
       anchorScreenRect: screenRect,
       initialText: item.text,
       fontFamily: item.fontFamily,
-      fontSize: item.fontSize * this.viewport.scale,
+      fontSize: computedFontSize,
       isExistingText: true,
       onSave: (text) => {
         if (text.length > 0 && text !== item.text) {

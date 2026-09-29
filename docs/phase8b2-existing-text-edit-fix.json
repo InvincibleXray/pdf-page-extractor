@@ -1,0 +1,161 @@
+{
+  "timestamp": "2026-09-29T18:20:41.778Z",
+  "total": 14,
+  "passed": 14,
+  "failed": 0,
+  "tests": [
+    {
+      "id": "8B2-SCALE-FACTOR-SET",
+      "name": "Text layer container has --scale-factor CSS property matching viewport scale",
+      "status": "PASS",
+      "details": {
+        "scaleFactor": "0.62",
+        "message": "Container scale factor: 0.62"
+      }
+    },
+    {
+      "id": "8B2-NO-SIBLING-OVERLAP",
+      "name": "Adjacent spans on real form have positive horizontal separation without overlap",
+      "status": "PASS",
+      "details": {
+        "details": {
+          "found": true,
+          "standardText": "Standard Plan",
+          "proText": "Pro Plan (Selected)",
+          "horizontalGap": 37.18,
+          "hasOverlap": false
+        },
+        "message": "Horizontal gap: 37.18px (overlap: false)"
+      }
+    },
+    {
+      "id": "8B2-ACTIONBAR-APPEARS-TARGET-A",
+      "name": "Action bar appears for target span A (\"Standard Plan\")",
+      "status": "PASS",
+      "details": {
+        "message": "Action bar visible: true"
+      }
+    },
+    {
+      "id": "8B2-TARGET-STABILITY-TARGET-A",
+      "name": "In-situ editor opens with exact text of Target A (\"Standard Plan\")",
+      "status": "PASS",
+      "details": {
+        "expectedText": "Standard Plan",
+        "actualText": "Standard Plan",
+        "message": "Expected \"Standard Plan\", got \"Standard Plan\""
+      }
+    },
+    {
+      "id": "8B2-ANCHOR-ACCURACY-TARGET-A",
+      "name": "In-situ editor coordinates match live text span A (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "deltaX": 0.23,
+        "deltaY": 0.27,
+        "message": "deltaX=0.23px, deltaY=0.27px (limit: 2px)"
+      }
+    },
+    {
+      "id": "8B2-TARGET-STABILITY-TARGET-B",
+      "name": "In-situ editor opens with exact text of Target B (\"Pro Plan\")",
+      "status": "PASS",
+      "details": {
+        "expectedText": "Pro Plan (Selected)",
+        "actualText": "Pro Plan (Selected)",
+        "message": "Expected \"Pro Plan (Selected)\", got \"Pro Plan (Selected)\""
+      }
+    },
+    {
+      "id": "8B2-ANCHOR-ACCURACY-TARGET-B",
+      "name": "In-situ editor coordinates match live text span B (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "deltaX": 0.36,
+        "deltaY": 0.27,
+        "message": "deltaX=0.36px, deltaY=0.27px (limit: 2px)"
+      }
+    },
+    {
+      "id": "8B2-VIEWPORT-375",
+      "name": "Viewport iPhone SE (375x812) anchor accuracy (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "viewport": "iPhone SE (375x812)",
+        "deltaX": 0.47,
+        "deltaY": 0.03,
+        "message": "dx=0.47px, dy=0.03px, open=true"
+      }
+    },
+    {
+      "id": "8B2-VIEWPORT-430",
+      "name": "Viewport iPhone 15 Pro Max (430x932) anchor accuracy (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "viewport": "iPhone 15 Pro Max (430x932)",
+        "deltaX": 0.08,
+        "deltaY": 0.33,
+        "message": "dx=0.08px, dy=0.33px, open=true"
+      }
+    },
+    {
+      "id": "8B2-VIEWPORT-768",
+      "name": "Viewport iPad Mini (768x1024) anchor accuracy (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "viewport": "iPad Mini (768x1024)",
+        "deltaX": 0.03,
+        "deltaY": 0.3,
+        "message": "dx=0.03px, dy=0.3px, open=true"
+      }
+    },
+    {
+      "id": "8B2-VIEWPORT-1440",
+      "name": "Viewport Desktop (1440x900) anchor accuracy (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "viewport": "Desktop (1440x900)",
+        "deltaX": 0.03,
+        "deltaY": 0.3,
+        "message": "dx=0.03px, dy=0.3px, open=true"
+      }
+    },
+    {
+      "id": "8B2-SCROLLED-VIEWPORT-ALIGNMENT",
+      "name": "In-situ editor remains aligned under scrollTop=150px (dx <= 2px, dy <= 2px)",
+      "status": "PASS",
+      "details": {
+        "deltaX": 0.09,
+        "deltaY": 0.11,
+        "message": "dx=0.09px, dy=0.11px"
+      }
+    },
+    {
+      "id": "8B2-SAVE-REPLACEMENT-OBJECT",
+      "name": "Saving edited text creates a valid text-replacement object in store",
+      "status": "PASS",
+      "details": {
+        "details": {
+          "objectCount": 1,
+          "hasReplacement": true,
+          "replacement": {
+            "type": "text-replacement",
+            "replacementText": "Brand New Replacement Text",
+            "originalText": "Fixture A: Single-Line Text Fields",
+            "hasPdfBounds": false
+          }
+        },
+        "message": "Created object: {\"type\":\"text-replacement\",\"replacementText\":\"Brand New Replacement Text\",\"originalText\":\"Fixture A: Single-Line Text Fields\",\"hasPdfBounds\":false}"
+      }
+    },
+    {
+      "id": "8B2-PHASE8A-TOUCH-FOUNDATION-INTACT",
+      "name": "Touch drag on text object produces 0 pointercancel events",
+      "status": "PASS",
+      "details": {
+        "cancelCount": 0,
+        "message": "pointercancel count: 0"
+      }
+    }
+  ]
+}
